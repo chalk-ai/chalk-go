@@ -11,6 +11,7 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/chart/v1"
 	v13 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v12 "github.com/chalk-ai/chalk-go/gen/chalk/protosql/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -2665,8 +2666,10 @@ func (x *ArchiveDatasetRevisionsResponse) GetArchivedRevisions() []*DatasetRevis
 }
 
 type DeleteDatasetRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DatasetId     string                 `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/datasets.proto.
+	DatasetId     string   `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
+	DatasetIds    []string `protobuf:"bytes,2,rep,name=dataset_ids,json=datasetIds,proto3" json:"dataset_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2701,6 +2704,7 @@ func (*DeleteDatasetRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{30}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/datasets.proto.
 func (x *DeleteDatasetRequest) GetDatasetId() string {
 	if x != nil {
 		return x.DatasetId
@@ -2708,9 +2712,18 @@ func (x *DeleteDatasetRequest) GetDatasetId() string {
 	return ""
 }
 
+func (x *DeleteDatasetRequest) GetDatasetIds() []string {
+	if x != nil {
+		return x.DatasetIds
+	}
+	return nil
+}
+
 type DeleteDatasetResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DatasetId     string                 `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/datasets.proto.
+	DatasetId     string   `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
+	DatasetIds    []string `protobuf:"bytes,2,rep,name=dataset_ids,json=datasetIds,proto3" json:"dataset_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2745,11 +2758,19 @@ func (*DeleteDatasetResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{31}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/datasets.proto.
 func (x *DeleteDatasetResponse) GetDatasetId() string {
 	if x != nil {
 		return x.DatasetId
 	}
 	return ""
+}
+
+func (x *DeleteDatasetResponse) GetDatasetIds() []string {
+	if x != nil {
+		return x.DatasetIds
+	}
+	return nil
 }
 
 type MaterializedAggregateTileMeta struct {
@@ -4438,7 +4459,7 @@ var File_chalk_server_v1_datasets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a$chalk/common/v1/column_profile.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a2chalk/server/v1/materialized_aggregate_tiles.proto\x1a\x1cchalk/volume/v1/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\f\n" +
+	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a$chalk/common/v1/column_profile.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a2chalk/server/v1/materialized_aggregate_tiles.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v1/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\f\n" +
 	"\x13DatasetRevisionMeta\x12\x1d\n" +
 	"\n" +
 	"numeric_id\x18\x01 \x01(\x03R\tnumericId\x12(\n" +
@@ -4587,26 +4608,26 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\brevision\x18\x01 \x01(\v2$.chalk.server.v1.DatasetRevisionMetaR\brevision\"I\n" +
 	"&GetDatasetRevisionDownloadLinksRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
-	"revisionId\"\x9f\x01\n" +
+	"revisionId\"\xa5\x01\n" +
 	"\x1bShardPerformanceSummaryLink\x12\x19\n" +
-	"\bshard_id\x18\x01 \x01(\x05R\ashardId\x12\x15\n" +
-	"\x03url\x18\x02 \x01(\tH\x00R\x03url\x88\x01\x01\x12F\n" +
+	"\bshard_id\x18\x01 \x01(\x05R\ashardId\x12\x1b\n" +
+	"\x03url\x18\x02 \x01(\tB\x04ء'\x01H\x00R\x03url\x88\x01\x01\x12F\n" +
 	"\x06status\x18\x03 \x01(\x0e2..chalk.server.v1.ShardPerformanceSummaryStatusR\x06statusB\x06\n" +
-	"\x04_url\"h\n" +
+	"\x04_url\"n\n" +
 	"\x14ShardRequestBodyLink\x12\x19\n" +
-	"\bshard_id\x18\x01 \x01(\x05R\ashardId\x12\x15\n" +
-	"\x03url\x18\x02 \x01(\tH\x00R\x03url\x88\x01\x01\x12\x16\n" +
+	"\bshard_id\x18\x01 \x01(\x05R\ashardId\x12\x1b\n" +
+	"\x03url\x18\x02 \x01(\tB\x04ء'\x01H\x00R\x03url\x88\x01\x01\x12\x16\n" +
 	"\x06exists\x18\x03 \x01(\bR\x06existsB\x06\n" +
-	"\x04_url\"\xcf\x04\n" +
-	"'GetDatasetRevisionDownloadLinksResponse\x12\x1f\n" +
-	"\voutput_urls\x18\x01 \x03(\tR\n" +
-	"outputUrls\x12\x1f\n" +
-	"\vgivens_urls\x18\x02 \x03(\tR\n" +
-	"givensUrls\x12<\n" +
-	"\x18performance_summary_urls\x18\x03 \x03(\tB\x02\x18\x01R\x16performanceSummaryUrls\x12-\n" +
-	"\x10request_body_url\x18\x04 \x01(\tH\x00R\x0erequestBodyUrl\x88\x01\x01\x12\x1d\n" +
+	"\x04_url\"\xeb\x04\n" +
+	"'GetDatasetRevisionDownloadLinksResponse\x12%\n" +
+	"\voutput_urls\x18\x01 \x03(\tB\x04ء'\x01R\n" +
+	"outputUrls\x12%\n" +
+	"\vgivens_urls\x18\x02 \x03(\tB\x04ء'\x01R\n" +
+	"givensUrls\x12@\n" +
+	"\x18performance_summary_urls\x18\x03 \x03(\tB\x06ء'\x01\x18\x01R\x16performanceSummaryUrls\x123\n" +
+	"\x10request_body_url\x18\x04 \x01(\tB\x04ء'\x01H\x00R\x0erequestBodyUrl\x88\x01\x01\x12#\n" +
 	"\n" +
-	"trace_urls\x18\x05 \x03(\tR\ttraceUrls\x12\x19\n" +
+	"trace_urls\x18\x05 \x03(\tB\x04ء'\x01R\ttraceUrls\x12\x19\n" +
 	"\x05error\x18\x06 \x01(\tH\x01R\x05error\x88\x01\x01\x12?\n" +
 	"\n" +
 	"expiration\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
@@ -4629,16 +4650,16 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\v_expiration\"L\n" +
 	")StreamDatasetRevisionDownloadLinksRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
-	"revisionId\"\xea\x03\n" +
-	"*StreamDatasetRevisionDownloadLinksResponse\x12\x1f\n" +
-	"\voutput_urls\x18\x01 \x03(\tR\n" +
-	"outputUrls\x12\x1f\n" +
-	"\vgivens_urls\x18\x02 \x03(\tR\n" +
-	"givensUrls\x128\n" +
-	"\x18performance_summary_urls\x18\x03 \x03(\tR\x16performanceSummaryUrls\x12-\n" +
-	"\x10request_body_url\x18\x04 \x01(\tH\x00R\x0erequestBodyUrl\x88\x01\x01\x12\x1d\n" +
+	"revisionId\"\x88\x04\n" +
+	"*StreamDatasetRevisionDownloadLinksResponse\x12%\n" +
+	"\voutput_urls\x18\x01 \x03(\tB\x04ء'\x01R\n" +
+	"outputUrls\x12%\n" +
+	"\vgivens_urls\x18\x02 \x03(\tB\x04ء'\x01R\n" +
+	"givensUrls\x12>\n" +
+	"\x18performance_summary_urls\x18\x03 \x03(\tB\x04ء'\x01R\x16performanceSummaryUrls\x123\n" +
+	"\x10request_body_url\x18\x04 \x01(\tB\x04ء'\x01H\x00R\x0erequestBodyUrl\x88\x01\x01\x12#\n" +
 	"\n" +
-	"trace_urls\x18\x05 \x03(\tR\ttraceUrls\x12\x19\n" +
+	"trace_urls\x18\x05 \x03(\tB\x04ء'\x01R\ttraceUrls\x12\x19\n" +
 	"\x05error\x18\x06 \x01(\tH\x01R\x05error\x88\x01\x01\x12?\n" +
 	"\n" +
 	"expiration\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
@@ -4685,13 +4706,17 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\x1eArchiveDatasetRevisionsRequest\x12!\n" +
 	"\frevision_ids\x18\x01 \x03(\tR\vrevisionIds\"v\n" +
 	"\x1fArchiveDatasetRevisionsResponse\x12S\n" +
-	"\x12archived_revisions\x18\x01 \x03(\v2$.chalk.server.v1.DatasetRevisionMetaR\x11archivedRevisions\"5\n" +
-	"\x14DeleteDatasetRequest\x12\x1d\n" +
+	"\x12archived_revisions\x18\x01 \x03(\v2$.chalk.server.v1.DatasetRevisionMetaR\x11archivedRevisions\"Z\n" +
+	"\x14DeleteDatasetRequest\x12!\n" +
 	"\n" +
-	"dataset_id\x18\x01 \x01(\tR\tdatasetId\"6\n" +
-	"\x15DeleteDatasetResponse\x12\x1d\n" +
+	"dataset_id\x18\x01 \x01(\tB\x02\x18\x01R\tdatasetId\x12\x1f\n" +
+	"\vdataset_ids\x18\x02 \x03(\tR\n" +
+	"datasetIds\"[\n" +
+	"\x15DeleteDatasetResponse\x12!\n" +
 	"\n" +
-	"dataset_id\x18\x01 \x01(\tR\tdatasetId\"\xc6\a\n" +
+	"dataset_id\x18\x01 \x01(\tB\x02\x18\x01R\tdatasetId\x12\x1f\n" +
+	"\vdataset_ids\x18\x02 \x03(\tR\n" +
+	"datasetIds\"\xc6\a\n" +
 	"\x1dMaterializedAggregateTileMeta\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x12 \x01(\tR\renvironmentId\x12#\n" +
@@ -4773,14 +4798,14 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\x05files\x18\x01 \x03(\v22.chalk.server.v1.MaterializedAggregateTileFileMetaR\x05files\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xcb\x01\n" +
+	"\f_next_cursor\"\xd1\x01\n" +
 	")MaterializedAggregateTileFileDownloadLink\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\x03R\x06fileId\x12!\n" +
 	"\ffile_ordinal\x18\x02 \x01(\x03R\vfileOrdinal\x12\x10\n" +
 	"\x03uri\x18\x03 \x01(\tR\x03uri\x12\x1b\n" +
-	"\trow_count\x18\x04 \x01(\x03R\browCount\x12\x1d\n" +
+	"\trow_count\x18\x04 \x01(\x03R\browCount\x12#\n" +
 	"\n" +
-	"signed_url\x18\x05 \x01(\tR\tsignedUrl\x12\x14\n" +
+	"signed_url\x18\x05 \x01(\tB\x04ء'\x01R\tsignedUrl\x12\x14\n" +
 	"\x05error\x18\x06 \x01(\tR\x05error\"n\n" +
 	"0GetMaterializedAggregateTileDownloadLinksRequest\x12\x1f\n" +
 	"\vmanifest_id\x18\x01 \x01(\x03R\n" +

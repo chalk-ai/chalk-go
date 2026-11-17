@@ -23,6 +23,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// CuratedModelServiceName is the fully-qualified name of the CuratedModelService service.
 	CuratedModelServiceName = "chalk.modeldeployment.v1.CuratedModelService"
+	// ServingRuntimeServiceName is the fully-qualified name of the ServingRuntimeService service.
+	ServingRuntimeServiceName = "chalk.modeldeployment.v1.ServingRuntimeService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -39,6 +41,9 @@ const (
 	// CuratedModelServiceDeployCuratedModelProcedure is the fully-qualified name of the
 	// CuratedModelService's DeployCuratedModel RPC.
 	CuratedModelServiceDeployCuratedModelProcedure = "/chalk.modeldeployment.v1.CuratedModelService/DeployCuratedModel"
+	// ServingRuntimeServiceResolveServingRuntimeImageProcedure is the fully-qualified name of the
+	// ServingRuntimeService's ResolveServingRuntimeImage RPC.
+	ServingRuntimeServiceResolveServingRuntimeImageProcedure = "/chalk.modeldeployment.v1.ServingRuntimeService/ResolveServingRuntimeImage"
 )
 
 // CuratedModelServiceClient is a client for the chalk.modeldeployment.v1.CuratedModelService
@@ -138,4 +143,78 @@ func (UnimplementedCuratedModelServiceHandler) ListCuratedModels(context.Context
 
 func (UnimplementedCuratedModelServiceHandler) DeployCuratedModel(context.Context, *connect.Request[v1.DeployCuratedModelRequest]) (*connect.Response[v1.DeployCuratedModelResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel is not implemented"))
+}
+
+// ServingRuntimeServiceClient is a client for the chalk.modeldeployment.v1.ServingRuntimeService
+// service.
+type ServingRuntimeServiceClient interface {
+	ResolveServingRuntimeImage(context.Context, *connect.Request[v1.ResolveServingRuntimeImageRequest]) (*connect.Response[v1.ResolveServingRuntimeImageResponse], error)
+}
+
+// NewServingRuntimeServiceClient constructs a client for the
+// chalk.modeldeployment.v1.ServingRuntimeService service. By default, it uses the Connect protocol
+// with the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To
+// use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb()
+// options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewServingRuntimeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ServingRuntimeServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	servingRuntimeServiceMethods := v1.File_chalk_modeldeployment_v1_curated_models_proto.Services().ByName("ServingRuntimeService").Methods()
+	return &servingRuntimeServiceClient{
+		resolveServingRuntimeImage: connect.NewClient[v1.ResolveServingRuntimeImageRequest, v1.ResolveServingRuntimeImageResponse](
+			httpClient,
+			baseURL+ServingRuntimeServiceResolveServingRuntimeImageProcedure,
+			connect.WithSchema(servingRuntimeServiceMethods.ByName("ResolveServingRuntimeImage")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// servingRuntimeServiceClient implements ServingRuntimeServiceClient.
+type servingRuntimeServiceClient struct {
+	resolveServingRuntimeImage *connect.Client[v1.ResolveServingRuntimeImageRequest, v1.ResolveServingRuntimeImageResponse]
+}
+
+// ResolveServingRuntimeImage calls
+// chalk.modeldeployment.v1.ServingRuntimeService.ResolveServingRuntimeImage.
+func (c *servingRuntimeServiceClient) ResolveServingRuntimeImage(ctx context.Context, req *connect.Request[v1.ResolveServingRuntimeImageRequest]) (*connect.Response[v1.ResolveServingRuntimeImageResponse], error) {
+	return c.resolveServingRuntimeImage.CallUnary(ctx, req)
+}
+
+// ServingRuntimeServiceHandler is an implementation of the
+// chalk.modeldeployment.v1.ServingRuntimeService service.
+type ServingRuntimeServiceHandler interface {
+	ResolveServingRuntimeImage(context.Context, *connect.Request[v1.ResolveServingRuntimeImageRequest]) (*connect.Response[v1.ResolveServingRuntimeImageResponse], error)
+}
+
+// NewServingRuntimeServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewServingRuntimeServiceHandler(svc ServingRuntimeServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	servingRuntimeServiceMethods := v1.File_chalk_modeldeployment_v1_curated_models_proto.Services().ByName("ServingRuntimeService").Methods()
+	servingRuntimeServiceResolveServingRuntimeImageHandler := connect.NewUnaryHandler(
+		ServingRuntimeServiceResolveServingRuntimeImageProcedure,
+		svc.ResolveServingRuntimeImage,
+		connect.WithSchema(servingRuntimeServiceMethods.ByName("ResolveServingRuntimeImage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.modeldeployment.v1.ServingRuntimeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ServingRuntimeServiceResolveServingRuntimeImageProcedure:
+			servingRuntimeServiceResolveServingRuntimeImageHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedServingRuntimeServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedServingRuntimeServiceHandler struct{}
+
+func (UnimplementedServingRuntimeServiceHandler) ResolveServingRuntimeImage(context.Context, *connect.Request[v1.ResolveServingRuntimeImageRequest]) (*connect.Response[v1.ResolveServingRuntimeImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ServingRuntimeService.ResolveServingRuntimeImage is not implemented"))
 }

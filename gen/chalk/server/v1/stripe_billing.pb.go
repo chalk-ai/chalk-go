@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1507,7 +1508,7 @@ var File_chalk_server_v1_stripe_billing_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_stripe_billing_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/server/v1/stripe_billing.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
+	"$chalk/server/v1/stripe_billing.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
 	"\rPaymentMethod\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x14\n" +
@@ -1515,7 +1516,7 @@ const file_chalk_server_v1_stripe_billing_proto_rawDesc = "" +
 	"\texp_month\x18\x04 \x01(\x05R\bexpMonth\x12\x19\n" +
 	"\bexp_year\x18\x05 \x01(\x05R\aexpYear\x12\x1d\n" +
 	"\n" +
-	"is_default\x18\x06 \x01(\bR\tisDefault\"\xdc\x02\n" +
+	"is_default\x18\x06 \x01(\bR\tisDefault\"\xe8\x02\n" +
 	"\rStripeInvoice\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\tR\x06number\x12!\n" +
@@ -1523,9 +1524,9 @@ const file_chalk_server_v1_stripe_billing_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x128\n" +
-	"\apaid_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x06paidAt\x88\x01\x01\x12,\n" +
-	"\x12hosted_invoice_url\x18\a \x01(\tR\x10hostedInvoiceUrl\x12\x17\n" +
-	"\apdf_url\x18\b \x01(\tR\x06pdfUrl\x12 \n" +
+	"\apaid_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x06paidAt\x88\x01\x01\x122\n" +
+	"\x12hosted_invoice_url\x18\a \x01(\tB\x04ء'\x01R\x10hostedInvoiceUrl\x12\x1d\n" +
+	"\apdf_url\x18\b \x01(\tB\x04ء'\x01R\x06pdfUrl\x12 \n" +
 	"\vdescription\x18\t \x01(\tR\vdescriptionB\n" +
 	"\n" +
 	"\b_paid_at\"j\n" +
@@ -1569,9 +1570,9 @@ const file_chalk_server_v1_stripe_billing_proto_rawDesc = "" +
 	"\x18GetPaymentMethodsRequest\"d\n" +
 	"\x19GetPaymentMethodsResponse\x12G\n" +
 	"\x0fpayment_methods\x18\x01 \x03(\v2\x1e.chalk.server.v1.PaymentMethodR\x0epaymentMethods\"\x1a\n" +
-	"\x18CreateSetupIntentRequest\"@\n" +
-	"\x19CreateSetupIntentResponse\x12#\n" +
-	"\rclient_secret\x18\x01 \x01(\tR\fclientSecret\"L\n" +
+	"\x18CreateSetupIntentRequest\"F\n" +
+	"\x19CreateSetupIntentResponse\x12)\n" +
+	"\rclient_secret\x18\x01 \x01(\tB\x04ء'\x01R\fclientSecret\"L\n" +
 	"\x1eSetDefaultPaymentMethodRequest\x12*\n" +
 	"\x11payment_method_id\x18\x01 \x01(\tR\x0fpaymentMethodId\"!\n" +
 	"\x1fSetDefaultPaymentMethodResponse\"H\n" +

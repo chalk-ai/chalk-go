@@ -2007,16 +2007,19 @@ const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"\x0eClassification\x12\x1e\n" +
 	"\x1aCLASSIFICATION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13CLASSIFICATION_TASK\x10\x01\x12\x1d\n" +
-	"\x19CLASSIFICATION_DIFFICULTY\x10\x022\xfb\x06\n" +
-	"\x11ModelRouteService\x12c\n" +
-	"\rGetModelRoute\x12%.chalk.router.v1.GetModelRouteRequest\x1a&.chalk.router.v1.GetModelRouteResponse\"\x03\x80}\x02\x12~\n" +
-	"\x15GetRouteJudgeDefaults\x12-.chalk.router.v1.GetRouteJudgeDefaultsRequest\x1a..chalk.router.v1.GetRouteJudgeDefaultsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
-	"\x19ValidateRouteJudgeBackend\x121.chalk.router.v1.ValidateRouteJudgeBackendRequest\x1a2.chalk.router.v1.ValidateRouteJudgeBackendResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
-	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa9\x01\n" +
-	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"@\x80}\x02\x92\xd3\x0e9\n" +
-	"\x0erouter_enabled\x12'Enables LLM Gateway routing management.\x12l\n" +
-	"\x10UpdateModelRoute\x12(.chalk.router.v1.UpdateModelRouteRequest\x1a).chalk.router.v1.UpdateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
-	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\x03\x80}\x02B\xbf\x01\n" +
+	"\x19CLASSIFICATION_DIFFICULTY\x10\x022\x98\a\n" +
+	"\x11ModelRouteService\x12g\n" +
+	"\rGetModelRoute\x12%.chalk.router.v1.GetModelRouteRequest\x1a&.chalk.router.v1.GetModelRouteResponse\"\a\x80}K\x92}\x01\x02\x12\x82\x01\n" +
+	"\x15GetRouteJudgeDefaults\x12-.chalk.router.v1.GetRouteJudgeDefaultsRequest\x1a..chalk.router.v1.GetRouteJudgeDefaultsResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12\x8e\x01\n" +
+	"\x19ValidateRouteJudgeBackend\x121.chalk.router.v1.ValidateRouteJudgeBackendRequest\x1a2.chalk.router.v1.ValidateRouteJudgeBackendResponse\"\n" +
+	"\x80}L\x92}\x01\x02\x90\x02\x01\x12p\n" +
+	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12\xad\x01\n" +
+	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"D\x80}L\x92}\x01\x02\x92\xd3\x0e9\n" +
+	"\x0erouter_enabled\x12'Enables LLM Gateway routing management.\x12p\n" +
+	"\x10UpdateModelRoute\x12(.chalk.router.v1.UpdateModelRouteRequest\x1a).chalk.router.v1.UpdateModelRouteResponse\"\a\x80}L\x92}\x01\x02\x12p\n" +
+	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\a\x80}L\x92}\x01\x02B\xbf\x01\n" +
 	"\x13com.chalk.router.v1B\x0fModelRouteProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

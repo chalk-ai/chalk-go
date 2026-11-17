@@ -125,9 +125,6 @@ const (
 	// TeamServiceArchiveEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// ArchiveEnvironment RPC.
 	TeamServiceArchiveEnvironmentProcedure = "/chalk.server.v1.TeamService/ArchiveEnvironment"
-	// TeamServiceDeleteSelfSignupTeamProcedure is the fully-qualified name of the TeamService's
-	// DeleteSelfSignupTeam RPC.
-	TeamServiceDeleteSelfSignupTeamProcedure = "/chalk.server.v1.TeamService/DeleteSelfSignupTeam"
 	// TeamServiceDeactivateUserProcedure is the fully-qualified name of the TeamService's
 	// DeactivateUser RPC.
 	TeamServiceDeactivateUserProcedure = "/chalk.server.v1.TeamService/DeactivateUser"
@@ -208,13 +205,6 @@ type TeamServiceClient interface {
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 	GetPermissionsForEnvironment(context.Context, *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
-	// Chalk-employee-only: PERMISSION_CHALK_ADMIN is injected into a user agent
-	// only for an @chalk.ai address, and no role grants it, so a customer cannot
-	// reach this even as the owner of their own team. A service token can only
-	// carry it if a Chalk employee deliberately minted one with it --
-	// CreateServiceToken requires the permission to be a subset of the caller's
-	// own, and GetAvailablePermissions does not offer it in the UI.
-	DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 	// Assigns a team-scoped role to a user (i.e. role assignment with no environment).
@@ -226,10 +216,16 @@ type TeamServiceClient interface {
 	// Renames a group on a team that does not provision groups through SCIM.
 	// Same preconditions as CreateScimGroup, including team-scoped team.admin.
 	UpdateScimGroup(context.Context, *connect.Request[v1.UpdateScimGroupRequest]) (*connect.Response[v1.UpdateScimGroupResponse], error)
+	// Deletes a hand-managed group with its members and role assignments. Same
+	// preconditions as CreateScimGroup; an identity provider deletes the groups it
+	// provisions through the SCIM protocol endpoint instead.
 	DeleteScimGroup(context.Context, *connect.Request[v1.DeleteScimGroupRequest]) (*connect.Response[v1.DeleteScimGroupResponse], error)
+	// Removes every member of a hand-managed group. Same preconditions as CreateScimGroup.
 	DeleteScimGroupUsers(context.Context, *connect.Request[v1.DeleteScimGroupUsersRequest]) (*connect.Response[v1.DeleteScimGroupUsersResponse], error)
 	// Creates a group by hand on a team that does not provision groups through
-	// SCIM. Requires the manual_scim_groups_enabled team flag.
+	// SCIM. Requires the manual_scim_groups_enabled team flag. A group can hold roles
+	// in any of the team's environments, so these RPCs need team-scoped team.admin:
+	// an admin of one environment must not join a group that grants roles in another.
 	CreateScimGroup(context.Context, *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error)
 	// Adds team members to a group by hand. Same preconditions as CreateScimGroup.
 	AddScimGroupMembers(context.Context, *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error)
@@ -453,12 +449,6 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
-		deleteSelfSignupTeam: connect.NewClient[v1.DeleteSelfSignupTeamRequest, v1.DeleteSelfSignupTeamResponse](
-			httpClient,
-			baseURL+TeamServiceDeleteSelfSignupTeamProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("DeleteSelfSignupTeam")),
-			connect.WithClientOptions(opts...),
-		),
 		deactivateUser: connect.NewClient[v1.DeactivateUserRequest, v1.DeactivateUserResponse](
 			httpClient,
 			baseURL+TeamServiceDeactivateUserProcedure,
@@ -587,7 +577,6 @@ type teamServiceClient struct {
 	getTeamPermissions             *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
 	getPermissionsForEnvironment   *connect.Client[v1.GetPermissionsForEnvironmentRequest, v1.GetPermissionsForEnvironmentResponse]
 	archiveEnvironment             *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
-	deleteSelfSignupTeam           *connect.Client[v1.DeleteSelfSignupTeamRequest, v1.DeleteSelfSignupTeamResponse]
 	deactivateUser                 *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
 	reactivateUser                 *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
 	assignTeamRole                 *connect.Client[v1.AssignTeamRoleRequest, v1.AssignTeamRoleResponse]
@@ -765,11 +754,6 @@ func (c *teamServiceClient) ArchiveEnvironment(ctx context.Context, req *connect
 	return c.archiveEnvironment.CallUnary(ctx, req)
 }
 
-// DeleteSelfSignupTeam calls chalk.server.v1.TeamService.DeleteSelfSignupTeam.
-func (c *teamServiceClient) DeleteSelfSignupTeam(ctx context.Context, req *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error) {
-	return c.deleteSelfSignupTeam.CallUnary(ctx, req)
-}
-
 // DeactivateUser calls chalk.server.v1.TeamService.DeactivateUser.
 func (c *teamServiceClient) DeactivateUser(ctx context.Context, req *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error) {
 	return c.deactivateUser.CallUnary(ctx, req)
@@ -879,13 +863,6 @@ type TeamServiceHandler interface {
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 	GetPermissionsForEnvironment(context.Context, *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
-	// Chalk-employee-only: PERMISSION_CHALK_ADMIN is injected into a user agent
-	// only for an @chalk.ai address, and no role grants it, so a customer cannot
-	// reach this even as the owner of their own team. A service token can only
-	// carry it if a Chalk employee deliberately minted one with it --
-	// CreateServiceToken requires the permission to be a subset of the caller's
-	// own, and GetAvailablePermissions does not offer it in the UI.
-	DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 	// Assigns a team-scoped role to a user (i.e. role assignment with no environment).
@@ -897,10 +874,16 @@ type TeamServiceHandler interface {
 	// Renames a group on a team that does not provision groups through SCIM.
 	// Same preconditions as CreateScimGroup, including team-scoped team.admin.
 	UpdateScimGroup(context.Context, *connect.Request[v1.UpdateScimGroupRequest]) (*connect.Response[v1.UpdateScimGroupResponse], error)
+	// Deletes a hand-managed group with its members and role assignments. Same
+	// preconditions as CreateScimGroup; an identity provider deletes the groups it
+	// provisions through the SCIM protocol endpoint instead.
 	DeleteScimGroup(context.Context, *connect.Request[v1.DeleteScimGroupRequest]) (*connect.Response[v1.DeleteScimGroupResponse], error)
+	// Removes every member of a hand-managed group. Same preconditions as CreateScimGroup.
 	DeleteScimGroupUsers(context.Context, *connect.Request[v1.DeleteScimGroupUsersRequest]) (*connect.Response[v1.DeleteScimGroupUsersResponse], error)
 	// Creates a group by hand on a team that does not provision groups through
-	// SCIM. Requires the manual_scim_groups_enabled team flag.
+	// SCIM. Requires the manual_scim_groups_enabled team flag. A group can hold roles
+	// in any of the team's environments, so these RPCs need team-scoped team.admin:
+	// an admin of one environment must not join a group that grants roles in another.
 	CreateScimGroup(context.Context, *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error)
 	// Adds team members to a group by hand. Same preconditions as CreateScimGroup.
 	AddScimGroupMembers(context.Context, *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error)
@@ -1120,12 +1103,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
-	teamServiceDeleteSelfSignupTeamHandler := connect.NewUnaryHandler(
-		TeamServiceDeleteSelfSignupTeamProcedure,
-		svc.DeleteSelfSignupTeam,
-		connect.WithSchema(teamServiceMethods.ByName("DeleteSelfSignupTeam")),
-		connect.WithHandlerOptions(opts...),
-	)
 	teamServiceDeactivateUserHandler := connect.NewUnaryHandler(
 		TeamServiceDeactivateUserProcedure,
 		svc.DeactivateUser,
@@ -1283,8 +1260,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceGetPermissionsForEnvironmentHandler.ServeHTTP(w, r)
 		case TeamServiceArchiveEnvironmentProcedure:
 			teamServiceArchiveEnvironmentHandler.ServeHTTP(w, r)
-		case TeamServiceDeleteSelfSignupTeamProcedure:
-			teamServiceDeleteSelfSignupTeamHandler.ServeHTTP(w, r)
 		case TeamServiceDeactivateUserProcedure:
 			teamServiceDeactivateUserHandler.ServeHTTP(w, r)
 		case TeamServiceReactivateUserProcedure:
@@ -1450,10 +1425,6 @@ func (UnimplementedTeamServiceHandler) GetPermissionsForEnvironment(context.Cont
 
 func (UnimplementedTeamServiceHandler) ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ArchiveEnvironment is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteSelfSignupTeam is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error) {

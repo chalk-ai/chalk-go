@@ -11,6 +11,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1"
 	v13 "github.com/chalk-ai/chalk-go/gen/chalk/python/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -726,15 +727,15 @@ var File_chalk_artifacts_v1_export_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_export_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/artifacts/v1/export.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a0chalk/artifacts/v1/cron_aggregate_backfill.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x16chalk/lsp/v1/lsp.proto\x1a\x1bchalk/python/v1/types.proto\"\xb4\x02\n" +
+	"\x1fchalk/artifacts/v1/export.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a0chalk/artifacts/v1/cron_aggregate_backfill.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x16chalk/lsp/v1/lsp.proto\x1a\x1bchalk/python/v1/types.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\xb8\x02\n" +
 	"\x13EnvironmentSettings\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\aruntime\x18\x02 \x01(\tH\x00R\aruntime\x88\x01\x01\x12'\n" +
 	"\frequirements\x18\x03 \x01(\tH\x01R\frequirements\x88\x01\x01\x12#\n" +
 	"\n" +
 	"dockerfile\x18\x04 \x01(\tH\x02R\n" +
-	"dockerfile\x88\x01\x01\x12/\n" +
-	"\x11requires_packages\x18\x05 \x03(\tB\x02\x18\x01R\x10requiresPackages\x12.\n" +
+	"dockerfile\x88\x01\x01\x123\n" +
+	"\x11requires_packages\x18\x05 \x03(\tB\x06ء'\x01\x18\x01R\x10requiresPackages\x12.\n" +
 	"\x10platform_version\x18\x06 \x01(\tH\x03R\x0fplatformVersion\x88\x01\x01B\n" +
 	"\n" +
 	"\b_runtimeB\x0f\n" +

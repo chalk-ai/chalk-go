@@ -8,6 +8,7 @@ package remotettyv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -369,9 +370,9 @@ var File_chalk_remotetty_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_remotetty_v1_service_proto_rawDesc = "" +
 	"\n" +
-	" chalk/remotetty/v1/service.proto\x12\x12chalk.remotetty.v1\x1a\x1fchalk/auth/v1/permissions.proto\"h\n" +
-	"\bTTYInput\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\x12=\n" +
+	" chalk/remotetty/v1/service.proto\x12\x12chalk.remotetty.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\"n\n" +
+	"\bTTYInput\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\x12=\n" +
 	"\x06resize\x18\x02 \x01(\v2 .chalk.remotetty.v1.TerminalSizeH\x00R\x06resize\x88\x01\x01B\t\n" +
 	"\a_resize\"6\n" +
 	"\fTerminalSize\x12\x12\n" +
@@ -380,16 +381,16 @@ const file_chalk_remotetty_v1_service_proto_rawDesc = "" +
 	"\x15CreateDebugTTYRequest\x12D\n" +
 	"\finit_request\x18\x01 \x01(\v2\x1f.chalk.remotetty.v1.InitRequestH\x00R\vinitRequest\x124\n" +
 	"\x05input\x18\x02 \x01(\v2\x1c.chalk.remotetty.v1.TTYInputH\x00R\x05inputB\t\n" +
-	"\amessage\"\xc2\x01\n" +
+	"\amessage\"\xc8\x01\n" +
 	"\vInitRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x19\n" +
 	"\bpod_name\x18\x03 \x01(\tR\apodName\x12*\n" +
-	"\x0econtainer_name\x18\x04 \x01(\tH\x00R\rcontainerName\x88\x01\x01\x12\x18\n" +
-	"\acommand\x18\x05 \x03(\tR\acommandB\x11\n" +
-	"\x0f_container_name\"i\n" +
-	"\x16CreateDebugTTYResponse\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\x12\x19\n" +
+	"\x0econtainer_name\x18\x04 \x01(\tH\x00R\rcontainerName\x88\x01\x01\x12\x1e\n" +
+	"\acommand\x18\x05 \x03(\tB\x04ء'\x01R\acommandB\x11\n" +
+	"\x0f_container_name\"o\n" +
+	"\x16CreateDebugTTYResponse\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x12\x16\n" +
 	"\x06closed\x18\x03 \x01(\bR\x06closedB\b\n" +
 	"\x06_error2\x84\x01\n" +

@@ -8,6 +8,7 @@ package graphv1
 
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -2487,7 +2488,7 @@ var File_chalk_graph_v1_sources_proto protoreflect.FileDescriptor
 
 const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/graph/v1/sources.proto\x12\x0echalk.graph.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1egoogle/protobuf/duration.proto\"a\n" +
+	"\x1cchalk/graph/v1/sources.proto\x12\x0echalk.graph.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\"a\n" +
 	"\x15StreamSourceReference\x124\n" +
 	"\x04type\x18\x01 \x01(\x0e2 .chalk.graph.v1.StreamSourceTypeR\x04type\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\xc0\x01\n" +
@@ -2495,7 +2496,7 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\x05kafka\x18\x01 \x01(\v2\x1b.chalk.graph.v1.KafkaSourceH\x00R\x05kafka\x129\n" +
 	"\akinesis\x18\x02 \x01(\v2\x1d.chalk.graph.v1.KinesisSourceH\x00R\akinesis\x126\n" +
 	"\x06pubsub\x18\x03 \x01(\v2\x1c.chalk.graph.v1.PubSubSourceH\x00R\x06pubsubB\b\n" +
-	"\x06source\"\xd0\x04\n" +
+	"\x06source\"\xdc\x04\n" +
 	"\rKinesisSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
 	"\vstream_name\x18\x02 \x01(\tR\n" +
@@ -2506,15 +2507,15 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"regionName\x12M\n" +
 	"\x15late_arrival_deadline\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x13lateArrivalDeadline\x12@\n" +
 	"\x1ddead_letter_queue_stream_name\x18\x06 \x01(\tR\x19deadLetterQueueStreamName\x12)\n" +
-	"\x11aws_access_key_id\x18\a \x01(\tR\x0eawsAccessKeyId\x121\n" +
-	"\x15aws_secret_access_key\x18\b \x01(\tR\x12awsSecretAccessKey\x12*\n" +
-	"\x11aws_session_token\x18\t \x01(\tR\x0fawsSessionToken\x12!\n" +
+	"\x11aws_access_key_id\x18\a \x01(\tR\x0eawsAccessKeyId\x127\n" +
+	"\x15aws_secret_access_key\x18\b \x01(\tB\x04ء'\x01R\x12awsSecretAccessKey\x120\n" +
+	"\x11aws_session_token\x18\t \x01(\tB\x04ء'\x01R\x0fawsSessionToken\x12!\n" +
 	"\fendpoint_url\x18\n" +
 	" \x01(\tR\vendpointUrl\x12*\n" +
 	"\x11consumer_role_arn\x18\v \x01(\tR\x0fconsumerRoleArn\x12A\n" +
 	"\x1denhanced_fanout_consumer_name\x18\f \x01(\tR\x1aenhancedFanoutConsumerName\x12\x1d\n" +
 	"\n" +
-	"dlq_format\x18\r \x01(\tR\tdlqFormat\"\x91\x05\n" +
+	"dlq_format\x18\r \x01(\tR\tdlqFormat\"\x97\x05\n" +
 	"\vKafkaSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12+\n" +
 	"\x11bootstrap_servers\x18\x02 \x03(\tR\x10bootstrapServers\x12\x14\n" +
@@ -2526,8 +2527,8 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\x11security_protocol\x18\b \x01(\tR\x10securityProtocol\x12%\n" +
 	"\x0esasl_mechanism\x18\t \x01(\tR\rsaslMechanism\x12#\n" +
 	"\rsasl_username\x18\n" +
-	" \x01(\tR\fsaslUsername\x12#\n" +
-	"\rsasl_password\x18\v \x01(\tR\fsaslPassword\x12M\n" +
+	" \x01(\tR\fsaslUsername\x12)\n" +
+	"\rsasl_password\x18\v \x01(\tB\x04ء'\x01R\fsaslPassword\x12M\n" +
 	"\x15late_arrival_deadline\x18\f \x01(\v2\x19.google.protobuf.DurationR\x13lateArrivalDeadline\x125\n" +
 	"\x17dead_letter_queue_topic\x18\r \x01(\tR\x14deadLetterQueueTopic\x12 \n" +
 	"\fmsk_iam_auth\x18\x0e \x01(\bR\n" +
@@ -2535,15 +2536,15 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\n" +
 	"aws_region\x18\x0f \x01(\tR\tawsRegion\x12 \n" +
 	"\faws_role_arn\x18\x10 \x01(\tR\n" +
-	"awsRoleArn\"\xbd\x02\n" +
+	"awsRoleArn\"\xc3\x02\n" +
 	"\fPubSubSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x12'\n" +
 	"\x0fsubscription_id\x18\x03 \x01(\tR\x0esubscriptionId\x12M\n" +
 	"\x15late_arrival_deadline\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\x13lateArrivalDeadline\x125\n" +
-	"\x17dead_letter_queue_topic\x18\x05 \x01(\tR\x14deadLetterQueueTopic\x12K\n" +
-	"\"service_account_credentials_base64\x18\x06 \x01(\tR\x1fserviceAccountCredentialsBase64\"e\n" +
+	"\x17dead_letter_queue_topic\x18\x05 \x01(\tR\x14deadLetterQueueTopic\x12Q\n" +
+	"\"service_account_credentials_base64\x18\x06 \x01(\tB\x04ء'\x01R\x1fserviceAccountCredentialsBase64\"e\n" +
 	"\x17DatabaseSourceReference\x126\n" +
 	"\x04type\x18\x01 \x01(\x0e2\".chalk.graph.v1.DatabaseSourceTypeR\x04type\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\xe3\x06\n" +
@@ -2567,63 +2568,63 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"clickhouse\x18\r \x01(\v2 .chalk.graph.v1.ClickhouseSourceH\x00R\n" +
 	"clickhouse\x123\n" +
 	"\x05mssql\x18\x0e \x01(\v2\x1b.chalk.graph.v1.MSSQLSourceH\x00R\x05mssqlB\b\n" +
-	"\x06source\"\xbd\x04\n" +
+	"\x06source\"\xcf\x04\n" +
 	"\x0eBigQuerySource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aproject\x18\x02 \x01(\tR\aproject\x12\x18\n" +
 	"\adataset\x18\x03 \x01(\tR\adataset\x12\x1a\n" +
-	"\blocation\x18\x04 \x01(\tR\blocation\x12-\n" +
-	"\x12credentials_base64\x18\x05 \x01(\tR\x11credentialsBase64\x12)\n" +
-	"\x10credentials_path\x18\x06 \x01(\tR\x0fcredentialsPath\x12O\n" +
-	"\vengine_args\x18\a \x03(\v2..chalk.graph.v1.BigQuerySource.EngineArgsEntryR\n" +
-	"engineArgs\x12_\n" +
-	"\x11async_engine_args\x18\b \x03(\v23.chalk.graph.v1.BigQuerySource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\blocation\x18\x04 \x01(\tR\blocation\x123\n" +
+	"\x12credentials_base64\x18\x05 \x01(\tB\x04ء'\x01R\x11credentialsBase64\x12)\n" +
+	"\x10credentials_path\x18\x06 \x01(\tR\x0fcredentialsPath\x12U\n" +
+	"\vengine_args\x18\a \x03(\v2..chalk.graph.v1.BigQuerySource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12e\n" +
+	"\x11async_engine_args\x18\b \x03(\v23.chalk.graph.v1.BigQuerySource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xf8\x03\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x8a\x04\n" +
 	"\x0eCloudSQLSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02db\x18\x02 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x03 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x04 \x01(\tR\bpassword\x12#\n" +
-	"\rinstance_name\x18\x05 \x01(\tR\finstanceName\x12O\n" +
-	"\vengine_args\x18\x06 \x03(\v2..chalk.graph.v1.CloudSQLSource.EngineArgsEntryR\n" +
-	"engineArgs\x12_\n" +
-	"\x11async_engine_args\x18\a \x03(\v23.chalk.graph.v1.CloudSQLSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x03 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04ء'\x01R\bpassword\x12#\n" +
+	"\rinstance_name\x18\x05 \x01(\tR\finstanceName\x12U\n" +
+	"\vengine_args\x18\x06 \x03(\v2..chalk.graph.v1.CloudSQLSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12e\n" +
+	"\x11async_engine_args\x18\a \x03(\v23.chalk.graph.v1.CloudSQLSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x91\x04\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xa3\x04\n" +
 	"\x10DatabricksSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x1b\n" +
-	"\thttp_path\x18\x05 \x01(\tR\bhttpPath\x12!\n" +
-	"\faccess_token\x18\x06 \x01(\tR\vaccessToken\x12Q\n" +
-	"\vengine_args\x18\a \x03(\v20.chalk.graph.v1.DatabricksSource.EngineArgsEntryR\n" +
-	"engineArgs\x12a\n" +
-	"\x11async_engine_args\x18\b \x03(\v25.chalk.graph.v1.DatabricksSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\thttp_path\x18\x05 \x01(\tR\bhttpPath\x12'\n" +
+	"\faccess_token\x18\x06 \x01(\tB\x04ء'\x01R\vaccessToken\x12W\n" +
+	"\vengine_args\x18\a \x03(\v20.chalk.graph.v1.DatabricksSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12g\n" +
+	"\x11async_engine_args\x18\b \x03(\v25.chalk.graph.v1.DatabricksSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xde\x05\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xf0\x05\n" +
 	"\x0eDynamoDBSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x128\n" +
-	"\x16aws_client_id_override\x18\x02 \x01(\tH\x00R\x13awsClientIdOverride\x88\x01\x01\x12@\n" +
-	"\x1aaws_client_secret_override\x18\x03 \x01(\tH\x01R\x17awsClientSecretOverride\x88\x01\x01\x123\n" +
+	"\x16aws_client_id_override\x18\x02 \x01(\tH\x00R\x13awsClientIdOverride\x88\x01\x01\x12F\n" +
+	"\x1aaws_client_secret_override\x18\x03 \x01(\tB\x04ء'\x01H\x01R\x17awsClientSecretOverride\x88\x01\x01\x123\n" +
 	"\x13aws_region_override\x18\x04 \x01(\tH\x02R\x11awsRegionOverride\x88\x01\x01\x120\n" +
-	"\x11endpoint_override\x18\x05 \x01(\tH\x03R\x10endpointOverride\x88\x01\x01\x12O\n" +
-	"\vengine_args\x18\x06 \x03(\v2..chalk.graph.v1.DynamoDBSource.EngineArgsEntryR\n" +
-	"engineArgs\x12_\n" +
-	"\x11async_engine_args\x18\a \x03(\v23.chalk.graph.v1.DynamoDBSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x11endpoint_override\x18\x05 \x01(\tH\x03R\x10endpointOverride\x88\x01\x01\x12U\n" +
+	"\vengine_args\x18\x06 \x03(\v2..chalk.graph.v1.DynamoDBSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12e\n" +
+	"\x11async_engine_args\x18\a \x03(\v23.chalk.graph.v1.DynamoDBSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
@@ -2633,89 +2634,89 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\x17_aws_client_id_overrideB\x1d\n" +
 	"\x1b_aws_client_secret_overrideB\x16\n" +
 	"\x14_aws_region_overrideB\x14\n" +
-	"\x12_endpoint_override\"\xf2\x03\n" +
+	"\x12_endpoint_override\"\x84\x04\n" +
 	"\vMySQLSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12L\n" +
-	"\vengine_args\x18\a \x03(\v2+.chalk.graph.v1.MySQLSource.EngineArgsEntryR\n" +
-	"engineArgs\x12\\\n" +
-	"\x11async_engine_args\x18\b \x03(\v20.chalk.graph.v1.MySQLSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12R\n" +
+	"\vengine_args\x18\a \x03(\v2+.chalk.graph.v1.MySQLSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12b\n" +
+	"\x11async_engine_args\x18\b \x03(\v20.chalk.graph.v1.MySQLSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xfb\x03\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x8d\x04\n" +
 	"\x0ePostgresSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12O\n" +
-	"\vengine_args\x18\a \x03(\v2..chalk.graph.v1.PostgresSource.EngineArgsEntryR\n" +
-	"engineArgs\x12_\n" +
-	"\x11async_engine_args\x18\b \x03(\v23.chalk.graph.v1.PostgresSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12U\n" +
+	"\vengine_args\x18\a \x03(\v2..chalk.graph.v1.PostgresSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12e\n" +
+	"\x11async_engine_args\x18\b \x03(\v23.chalk.graph.v1.PostgresSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xf2\x03\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x84\x04\n" +
 	"\vMSSQLSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12L\n" +
-	"\vengine_args\x18\a \x03(\v2+.chalk.graph.v1.MSSQLSource.EngineArgsEntryR\n" +
-	"engineArgs\x12\\\n" +
-	"\x11async_engine_args\x18\b \x03(\v20.chalk.graph.v1.MSSQLSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12R\n" +
+	"\vengine_args\x18\a \x03(\v2+.chalk.graph.v1.MSSQLSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12b\n" +
+	"\x11async_engine_args\x18\b \x03(\v20.chalk.graph.v1.MSSQLSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xdd\x04\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xef\x04\n" +
 	"\x0eRedshiftSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12\x1b\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12\x1b\n" +
 	"\ts3_client\x18\a \x01(\tR\bs3Client\x12\x1b\n" +
-	"\ts3_bucket\x18\b \x01(\tR\bs3Bucket\x12O\n" +
-	"\vengine_args\x18\t \x03(\v2..chalk.graph.v1.RedshiftSource.EngineArgsEntryR\n" +
-	"engineArgs\x12_\n" +
+	"\ts3_bucket\x18\b \x01(\tR\bs3Bucket\x12U\n" +
+	"\vengine_args\x18\t \x03(\v2..chalk.graph.v1.RedshiftSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12e\n" +
 	"\x11async_engine_args\x18\n" +
-	" \x03(\v23.chalk.graph.v1.RedshiftSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x12&\n" +
+	" \x03(\v23.chalk.graph.v1.RedshiftSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x12&\n" +
 	"\x0funload_iam_role\x18\v \x01(\tR\runloadIamRole\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x92\x06\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xaa\x06\n" +
 	"\x0fSnowflakeSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02db\x18\x02 \x01(\tR\x02db\x12\x16\n" +
 	"\x06schema\x18\x03 \x01(\tR\x06schema\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\tR\x04role\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12-\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12-\n" +
 	"\x12account_identifier\x18\a \x01(\tR\x11accountIdentifier\x12\x1c\n" +
-	"\twarehouse\x18\b \x01(\tR\twarehouse\x12P\n" +
-	"\vengine_args\x18\t \x03(\v2/.chalk.graph.v1.SnowflakeSource.EngineArgsEntryR\n" +
-	"engineArgs\x12`\n" +
+	"\twarehouse\x18\b \x01(\tR\twarehouse\x12V\n" +
+	"\vengine_args\x18\t \x03(\v2/.chalk.graph.v1.SnowflakeSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12f\n" +
 	"\x11async_engine_args\x18\n" +
-	" \x03(\v24.chalk.graph.v1.SnowflakeSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x12&\n" +
-	"\x0fprivate_key_b64\x18\v \x01(\tR\rprivateKeyB64\x12!\n" +
+	" \x03(\v24.chalk.graph.v1.SnowflakeSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x12,\n" +
+	"\x0fprivate_key_b64\x18\v \x01(\tB\x04ء'\x01R\rprivateKeyB64\x12!\n" +
 	"\funload_stage\x18\f \x01(\tR\vunloadStage\x12<\n" +
 	"\x1aunload_storage_integration\x18\r \x01(\tR\x18unloadStorageIntegration\x128\n" +
 	"\x18unload_external_location\x18\x0e \x01(\tR\x16unloadExternalLocation\x1aZ\n" +
@@ -2724,66 +2725,66 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xaa\x03\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xb6\x03\n" +
 	"\fSQLiteSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
-	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12M\n" +
-	"\vengine_args\x18\x03 \x03(\v2,.chalk.graph.v1.SQLiteSource.EngineArgsEntryR\n" +
-	"engineArgs\x12]\n" +
-	"\x11async_engine_args\x18\x04 \x03(\v21.chalk.graph.v1.SQLiteSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12S\n" +
+	"\vengine_args\x18\x03 \x03(\v2,.chalk.graph.v1.SQLiteSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12c\n" +
+	"\x11async_engine_args\x18\x04 \x03(\v21.chalk.graph.v1.SQLiteSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x85\x04\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x97\x04\n" +
 	"\rSpannerSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aproject\x18\x02 \x01(\tR\aproject\x12\x1a\n" +
 	"\binstance\x18\x03 \x01(\tR\binstance\x12\x0e\n" +
-	"\x02db\x18\x04 \x01(\tR\x02db\x12-\n" +
-	"\x12credentials_base64\x18\x05 \x01(\tR\x11credentialsBase64\x12N\n" +
-	"\vengine_args\x18\x06 \x03(\v2-.chalk.graph.v1.SpannerSource.EngineArgsEntryR\n" +
-	"engineArgs\x12^\n" +
-	"\x11async_engine_args\x18\a \x03(\v22.chalk.graph.v1.SpannerSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x02db\x18\x04 \x01(\tR\x02db\x123\n" +
+	"\x12credentials_base64\x18\x05 \x01(\tB\x04ء'\x01R\x11credentialsBase64\x12T\n" +
+	"\vengine_args\x18\x06 \x03(\v2-.chalk.graph.v1.SpannerSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12d\n" +
+	"\x11async_engine_args\x18\a \x03(\v22.chalk.graph.v1.SpannerSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x94\x04\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xa6\x04\n" +
 	"\vTrinoSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x18\n" +
 	"\acatalog\x18\x04 \x01(\tR\acatalog\x12\x16\n" +
 	"\x06schema\x18\x05 \x01(\tR\x06schema\x12\x12\n" +
-	"\x04user\x18\x06 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\a \x01(\tR\bpassword\x12L\n" +
-	"\vengine_args\x18\b \x03(\v2+.chalk.graph.v1.TrinoSource.EngineArgsEntryR\n" +
-	"engineArgs\x12\\\n" +
-	"\x11async_engine_args\x18\t \x03(\v20.chalk.graph.v1.TrinoSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x06 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\a \x01(\tB\x04ء'\x01R\bpassword\x12R\n" +
+	"\vengine_args\x18\b \x03(\v2+.chalk.graph.v1.TrinoSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12b\n" +
+	"\x11async_engine_args\x18\t \x03(\v20.chalk.graph.v1.TrinoSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xb9\x06\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xcb\x06\n" +
 	"\fAthenaSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"aws_region\x18\x02 \x01(\tR\tawsRegion\x12.\n" +
-	"\x11aws_access_key_id\x18\x03 \x01(\tH\x00R\x0eawsAccessKeyId\x88\x01\x01\x126\n" +
-	"\x15aws_access_key_secret\x18\x04 \x01(\tH\x01R\x12awsAccessKeySecret\x88\x01\x01\x12$\n" +
+	"\x11aws_access_key_id\x18\x03 \x01(\tH\x00R\x0eawsAccessKeyId\x88\x01\x01\x12<\n" +
+	"\x15aws_access_key_secret\x18\x04 \x01(\tB\x04ء'\x01H\x01R\x12awsAccessKeySecret\x88\x01\x01\x12$\n" +
 	"\x0es3_staging_dir\x18\x05 \x01(\tR\fs3StagingDir\x12&\n" +
 	"\fcatalog_name\x18\x06 \x01(\tH\x02R\vcatalogName\x88\x01\x01\x12$\n" +
 	"\vschema_name\x18\a \x01(\tH\x03R\n" +
 	"schemaName\x88\x01\x01\x12\x1e\n" +
-	"\brole_arn\x18\b \x01(\tH\x04R\aroleArn\x88\x01\x01\x12M\n" +
-	"\vengine_args\x18\t \x03(\v2,.chalk.graph.v1.AthenaSource.EngineArgsEntryR\n" +
-	"engineArgs\x12]\n" +
+	"\brole_arn\x18\b \x01(\tH\x04R\aroleArn\x88\x01\x01\x12S\n" +
+	"\vengine_args\x18\t \x03(\v2,.chalk.graph.v1.AthenaSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12c\n" +
 	"\x11async_engine_args\x18\n" +
-	" \x03(\v21.chalk.graph.v1.AthenaSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x12\"\n" +
+	" \x03(\v21.chalk.graph.v1.AthenaSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x12\"\n" +
 	"\n" +
 	"work_group\x18\v \x01(\tH\x05R\tworkGroup\x88\x01\x01\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
@@ -2797,18 +2798,18 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\r_catalog_nameB\x0e\n" +
 	"\f_schema_nameB\v\n" +
 	"\t_role_arnB\r\n" +
-	"\v_work_group\"\x9a\x04\n" +
+	"\v_work_group\"\xac\x04\n" +
 	"\x10ClickhouseSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\tR\x04port\x12\x0e\n" +
 	"\x02db\x18\x04 \x01(\tR\x02db\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12\x17\n" +
-	"\ause_tls\x18\a \x01(\bR\x06useTls\x12Q\n" +
-	"\vengine_args\x18\b \x03(\v20.chalk.graph.v1.ClickhouseSource.EngineArgsEntryR\n" +
-	"engineArgs\x12a\n" +
-	"\x11async_engine_args\x18\t \x03(\v25.chalk.graph.v1.ClickhouseSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x1aZ\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\x12 \n" +
+	"\bpassword\x18\x06 \x01(\tB\x04ء'\x01R\bpassword\x12\x17\n" +
+	"\ause_tls\x18\a \x01(\bR\x06useTls\x12W\n" +
+	"\vengine_args\x18\b \x03(\v20.chalk.graph.v1.ClickhouseSource.EngineArgsEntryB\x04ء'\x01R\n" +
+	"engineArgs\x12g\n" +
+	"\x11async_engine_args\x18\t \x03(\v25.chalk.graph.v1.ClickhouseSource.AsyncEngineArgsEntryB\x04ء'\x01R\x0fasyncEngineArgs\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +

@@ -295,9 +295,10 @@ const file_chalk_router_v1_debug_proto_rawDesc = "" +
 	"\x18RecentCompletionsRequest\"r\n" +
 	"\x19RecentCompletionsResponse\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\rR\x05count\x12?\n" +
-	"\aentries\x18\x02 \x03(\v2%.chalk.router.v1.DebugCompletionEntryR\aentries2\x82\x01\n" +
-	"\fDebugService\x12r\n" +
-	"\x11RecentCompletions\x12).chalk.router.v1.RecentCompletionsRequest\x1a*.chalk.router.v1.RecentCompletionsResponse\"\x06\x80}\x02\x90\x02\x01B\xba\x01\n" +
+	"\aentries\x18\x02 \x03(\v2%.chalk.router.v1.DebugCompletionEntryR\aentries2\x86\x01\n" +
+	"\fDebugService\x12v\n" +
+	"\x11RecentCompletions\x12).chalk.router.v1.RecentCompletionsRequest\x1a*.chalk.router.v1.RecentCompletionsResponse\"\n" +
+	"\x80}L\x92}\x01\x02\x90\x02\x01B\xba\x01\n" +
 	"\x13com.chalk.router.v1B\n" +
 	"DebugProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 

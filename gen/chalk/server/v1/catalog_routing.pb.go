@@ -23,9 +23,12 @@ const (
 )
 
 type GetCatalogRoutingTableRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// When present, return only these immutable function versions, keyed by version ID.
+	// Missing inline source remains optional and may become available on a subsequent call.
+	FunctionVersionIds []string `protobuf:"bytes,1,rep,name=function_version_ids,json=functionVersionIds,proto3" json:"function_version_ids,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *GetCatalogRoutingTableRequest) Reset() {
@@ -56,6 +59,13 @@ func (x *GetCatalogRoutingTableRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetCatalogRoutingTableRequest.ProtoReflect.Descriptor instead.
 func (*GetCatalogRoutingTableRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_catalog_routing_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetCatalogRoutingTableRequest) GetFunctionVersionIds() []string {
+	if x != nil {
+		return x.FunctionVersionIds
+	}
+	return nil
 }
 
 type GetCatalogRoutingTableResponse struct {
@@ -110,8 +120,9 @@ var File_chalk_server_v1_catalog_routing_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_catalog_routing_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/catalog_routing.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"\x1f\n" +
-	"\x1dGetCatalogRoutingTableRequest\"]\n" +
+	"%chalk/server/v1/catalog_routing.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"Q\n" +
+	"\x1dGetCatalogRoutingTableRequest\x120\n" +
+	"\x14function_version_ids\x18\x01 \x03(\tR\x12functionVersionIds\"]\n" +
 	"\x1eGetCatalogRoutingTableResponse\x12;\n" +
 	"\x1amodel_endpoint_config_json\x18\x01 \x01(\tR\x17modelEndpointConfigJson2\x97\x01\n" +
 	"\x15CatalogRoutingService\x12~\n" +

@@ -1291,7 +1291,9 @@ type DashboardPieViz struct {
 	// Drop the legend beside the ring, which gives the ring the width instead; default shows it.
 	HideLegend bool `protobuf:"varint,1,opt,name=hide_legend,json=hideLegend,proto3" json:"hide_legend,omitempty"`
 	// Drop the leader labels too, giving the ring the room they reserve; default shows them.
-	HideLabels    bool `protobuf:"varint,2,opt,name=hide_labels,json=hideLabels,proto3" json:"hide_labels,omitempty"`
+	HideLabels bool `protobuf:"varint,2,opt,name=hide_labels,json=hideLabels,proto3" json:"hide_labels,omitempty"`
+	// One concentric ring per group-by facet when there are several; rings draw no leader labels.
+	MultipleRings bool `protobuf:"varint,3,opt,name=multiple_rings,json=multipleRings,proto3" json:"multiple_rings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1336,6 +1338,13 @@ func (x *DashboardPieViz) GetHideLegend() bool {
 func (x *DashboardPieViz) GetHideLabels() bool {
 	if x != nil {
 		return x.HideLabels
+	}
+	return false
+}
+
+func (x *DashboardPieViz) GetMultipleRings() bool {
+	if x != nil {
+		return x.MultipleRings
 	}
 	return false
 }
@@ -1900,12 +1909,13 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\x11DashboardTableViz\x12B\n" +
 	"\acolumns\x18\x01 \x03(\v2(.chalk.artifacts.v1.DashboardTableColumnR\acolumns\x12!\n" +
 	"\fcolumn_order\x18\x02 \x03(\tR\vcolumnOrder\"\x15\n" +
-	"\x13DashboardTreeMapViz\"S\n" +
+	"\x13DashboardTreeMapViz\"z\n" +
 	"\x0fDashboardPieViz\x12\x1f\n" +
 	"\vhide_legend\x18\x01 \x01(\bR\n" +
 	"hideLegend\x12\x1f\n" +
 	"\vhide_labels\x18\x02 \x01(\bR\n" +
-	"hideLabels\"\xe8\x02\n" +
+	"hideLabels\x12%\n" +
+	"\x0emultiple_rings\x18\x03 \x01(\bR\rmultipleRings\"\xe8\x02\n" +
 	"\x15DashboardStatisticViz\x12.\n" +
 	"\x13compare_to_previous\x18\x01 \x01(\bR\x11compareToPrevious\x12(\n" +
 	"\rnumber_format\x18\x02 \x01(\tH\x00R\fnumberFormat\x88\x01\x01\x12\"\n" +

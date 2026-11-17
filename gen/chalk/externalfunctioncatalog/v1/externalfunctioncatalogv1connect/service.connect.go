@@ -107,7 +107,7 @@ type ExternalFunctionCatalogServiceClient interface {
 	CreateExternalFunctionVersion(context.Context, *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error)
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
 	// Resolves the source files for one immutable function version. The browser
-	// calls this lazily and reads the selected file directly from the pinned
+	// calls this lazily and reads the selected file directly from the returned
 	// volume version; source is intentionally absent from list responses.
 	GetExternalFunctionVersionSource(context.Context, *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)
@@ -365,7 +365,7 @@ type ExternalFunctionCatalogServiceHandler interface {
 	CreateExternalFunctionVersion(context.Context, *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error)
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
 	// Resolves the source files for one immutable function version. The browser
-	// calls this lazily and reads the selected file directly from the pinned
+	// calls this lazily and reads the selected file directly from the returned
 	// volume version; source is intentionally absent from list responses.
 	GetExternalFunctionVersionSource(context.Context, *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)

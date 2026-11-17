@@ -96,11 +96,19 @@ type CronAggregateBackfill struct {
 	// into; the server's per-shard window-width policy may choose fewer. Unset/1
 	// preserves the single-job behavior.
 	NumShards *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	// Also write the open bucket on each run, recomputed from its start. Online
-	// targets only.
+	// Also write the open bucket on each run, recomputed from its start. With
+	// offline or online summary targets, those stop at the open bucket's start and
+	// the open bucket is written to the online store only.
 	IncludePartialBucket *bool `protobuf:"varint,16,opt,name=include_partial_bucket,json=includePartialBucket,proto3,oneof" json:"include_partial_bucket,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// With the ONLINE_SUMMARIES target, also schedule a companion backfill on this
+	// schedule that writes only ordinary online tiles: each companion run re-ingests
+	// from its previous resume point minus the late-arrival tolerance through the open
+	// bucket, never earlier than the summary read horizon, and does not re-summarize.
+	// It keeps the buckets that summary-backed reads take from the online store fresh
+	// between summary runs.
+	CompanionSchedule *string `protobuf:"bytes,17,opt,name=companion_schedule,json=companionSchedule,proto3,oneof" json:"companion_schedule,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CronAggregateBackfill) Reset() {
@@ -245,11 +253,18 @@ func (x *CronAggregateBackfill) GetIncludePartialBucket() bool {
 	return false
 }
 
+func (x *CronAggregateBackfill) GetCompanionSchedule() string {
+	if x != nil && x.CompanionSchedule != nil {
+		return *x.CompanionSchedule
+	}
+	return ""
+}
+
 var File_chalk_artifacts_v1_cron_aggregate_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
-	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\a\n" +
+	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\b\n" +
 	"\x15CronAggregateBackfill\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1b\n" +
@@ -271,7 +286,8 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\x0fplanner_options\x18\x0e \x03(\v2=.chalk.artifacts.v1.CronAggregateBackfill.PlannerOptionsEntryR\x0eplannerOptions\x12\"\n" +
 	"\n" +
 	"num_shards\x18\x0f \x01(\x05H\x03R\tnumShards\x88\x01\x01\x129\n" +
-	"\x16include_partial_bucket\x18\x10 \x01(\bH\x04R\x14includePartialBucket\x88\x01\x01\x1aA\n" +
+	"\x16include_partial_bucket\x18\x10 \x01(\bH\x04R\x14includePartialBucket\x88\x01\x01\x122\n" +
+	"\x12companion_schedule\x18\x11 \x01(\tH\x05R\x11companionSchedule\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
@@ -279,7 +295,8 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\x12_allow_empty_tilesB\x0e\n" +
 	"\f_environmentB\r\n" +
 	"\v_num_shardsB\x19\n" +
-	"\x17_include_partial_bucket*\xd9\x01\n" +
+	"\x17_include_partial_bucketB\x15\n" +
+	"\x13_companion_schedule*\xd9\x01\n" +
 	"\x1bCronAggregateBackfillTarget\x12.\n" +
 	"*CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12)\n" +
 	"%CRON_AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12*\n" +

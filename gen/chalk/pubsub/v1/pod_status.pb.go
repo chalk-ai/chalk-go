@@ -30,6 +30,7 @@
 package pubsubv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/gen_bq_schema"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -2007,7 +2008,7 @@ var File_chalk_pubsub_v1_pod_status_proto protoreflect.FileDescriptor
 
 const file_chalk_pubsub_v1_pod_status_proto_rawDesc = "" +
 	"\n" +
-	" chalk/pubsub/v1/pod_status.proto\x12\x0fchalk.pubsub.v1\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\x845\n" +
+	" chalk/pubsub/v1/pod_status.proto\x12\x0fchalk.pubsub.v1\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\x965\n" +
 	"\x0fPodStatusPubSub\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x10\n" +
 	"\x03app\x18\x02 \x01(\tR\x03app\x12\x1c\n" +
@@ -2120,15 +2121,15 @@ const file_chalk_pubsub_v1_pod_status_proto_rawDesc = "" +
 	"\b_messageB\r\n" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\x0f\n" +
-	"\r_container_id\x1a2\n" +
+	"\r_container_id\x1a8\n" +
 	"\x06EnvVar\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\x1a\xd6\x05\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\x1a\xe2\x05\n" +
 	"\tContainer\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
-	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01\x12\x18\n" +
-	"\acommand\x18\x03 \x03(\tR\acommand\x12\x12\n" +
-	"\x04args\x18\x04 \x03(\tR\x04args\x12$\n" +
+	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01\x12\x1e\n" +
+	"\acommand\x18\x03 \x03(\tB\x04ء'\x01R\acommand\x12\x18\n" +
+	"\x04args\x18\x04 \x03(\tB\x04ء'\x01R\x04args\x12$\n" +
 	"\vworking_dir\x18\x05 \x01(\tH\x01R\n" +
 	"workingDir\x88\x01\x01\x129\n" +
 	"\x03env\x18\a \x03(\v2'.chalk.pubsub.v1.PodStatusPubSub.EnvVarR\x03env\x12X\n" +

@@ -549,10 +549,11 @@ const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\x17USAGE_DIMENSION_API_KEY\x10\x03\x12\x1e\n" +
 	"\x1aUSAGE_DIMENSION_USAGE_POOL\x10\x04\x12\x1f\n" +
 	"\x1bUSAGE_DIMENSION_MODEL_ROUTE\x10\x05\x12\x1c\n" +
-	"\x18USAGE_DIMENSION_END_USER\x10\x062m\n" +
-	"\fUsageService\x12]\n" +
+	"\x18USAGE_DIMENSION_END_USER\x10\x062q\n" +
+	"\fUsageService\x12a\n" +
 	"\n" +
-	"QueryUsage\x12\".chalk.router.v1.QueryUsageRequest\x1a#.chalk.router.v1.QueryUsageResponse\"\x06\x80}\x02\x90\x02\x01B\xba\x01\n" +
+	"QueryUsage\x12\".chalk.router.v1.QueryUsageRequest\x1a#.chalk.router.v1.QueryUsageResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01B\xba\x01\n" +
 	"\x13com.chalk.router.v1B\n" +
 	"UsageProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 

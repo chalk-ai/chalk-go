@@ -11,6 +11,7 @@ package commonv1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -1773,7 +1774,7 @@ var File_chalk_common_v1_offline_query_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/common/v1/offline_query.proto\x12\x0fchalk.common.v1\x1a!chalk/common/v1/chalk_error.proto\x1a\"chalk/common/v1/online_query.proto\x1a\x1fchalk/common/v1/resources.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xdc\x01\n" +
+	"#chalk/common/v1/offline_query.proto\x12\x0fchalk.common.v1\x1a!chalk/common/v1/chalk_error.proto\x1a\"chalk/common/v1/online_query.proto\x1a\x1fchalk/common/v1/resources.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xdc\x01\n" +
 	"\x1dOfflineQueryRecomputeFeatures\x12 \n" +
 	"\vall_or_none\x18\x01 \x01(\bH\x00R\tallOrNone\x12_\n" +
 	"\ffeature_list\x18\x02 \x01(\v2:.chalk.common.v1.OfflineQueryRecomputeFeatures.FeatureListH\x00R\vfeatureList\x1a0\n" +
@@ -1811,9 +1812,9 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\rfeature_names\x18\x02 \x01(\v2'.chalk.common.v1.OfflineQueryStringListH\x00R\ffeatureNamesB\a\n" +
 	"\x05value\"0\n" +
 	"\x16OfflineQueryStringList\x12\x16\n" +
-	"\x06values\x18\x01 \x03(\tR\x06values\"\xcc\x06\n" +
-	"\x14OfflineQueryUriInput\x12\x1f\n" +
-	"\vparquet_uri\x18\x01 \x01(\tR\n" +
+	"\x06values\x18\x01 \x03(\tR\x06values\"\xd2\x06\n" +
+	"\x14OfflineQueryUriInput\x12%\n" +
+	"\vparquet_uri\x18\x01 \x01(\tB\x04ء'\x01R\n" +
 	"parquetUri\x12 \n" +
 	"\tstart_row\x18\x02 \x01(\x05H\x00R\bstartRow\x88\x01\x01\x12\x1c\n" +
 	"\aend_row\x18\x03 \x01(\x05H\x01R\x06endRow\x88\x01\x01\x12\x1d\n" +
@@ -1935,12 +1936,12 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"featureFqn\x12\x1f\n" +
 	"\vcolumn_name\x18\x02 \x01(\tR\n" +
 	"columnName\x12\x14\n" +
-	"\x05dtype\x18\x03 \x01(\tR\x05dtype\"\xf0\x01\n" +
+	"\x05dtype\x18\x03 \x01(\tR\x05dtype\"\xf6\x01\n" +
 	"\x1aGetOfflineQueryJobResponse\x12\x1f\n" +
 	"\vis_finished\x18\x01 \x01(\bR\n" +
 	"isFinished\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\x05R\aversion\x12\x12\n" +
-	"\x04urls\x18\x03 \x03(\tR\x04urls\x123\n" +
+	"\aversion\x18\x02 \x01(\x05R\aversion\x12\x18\n" +
+	"\x04urls\x18\x03 \x03(\tB\x04ء'\x01R\x04urls\x123\n" +
 	"\x06errors\x18\x04 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\x12B\n" +
 	"\acolumns\x18\x05 \x01(\v2#.chalk.common.v1.ColumnMetadataListH\x00R\acolumns\x88\x01\x01B\n" +
 	"\n" +

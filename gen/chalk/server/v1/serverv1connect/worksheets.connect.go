@@ -45,6 +45,9 @@ const (
 	// WorksheetsServiceListWorksheetNodesProcedure is the fully-qualified name of the
 	// WorksheetsService's ListWorksheetNodes RPC.
 	WorksheetsServiceListWorksheetNodesProcedure = "/chalk.server.v1.WorksheetsService/ListWorksheetNodes"
+	// WorksheetsServiceListWorksheetExecutionTimesProcedure is the fully-qualified name of the
+	// WorksheetsService's ListWorksheetExecutionTimes RPC.
+	WorksheetsServiceListWorksheetExecutionTimesProcedure = "/chalk.server.v1.WorksheetsService/ListWorksheetExecutionTimes"
 	// WorksheetsServiceCreateWorksheetNodeProcedure is the fully-qualified name of the
 	// WorksheetsService's CreateWorksheetNode RPC.
 	WorksheetsServiceCreateWorksheetNodeProcedure = "/chalk.server.v1.WorksheetsService/CreateWorksheetNode"
@@ -98,6 +101,7 @@ type WorksheetsServiceClient interface {
 	ListWorksheetSpaces(context.Context, *connect.Request[v1.ListWorksheetSpacesRequest]) (*connect.Response[v1.ListWorksheetSpacesResponse], error)
 	GetWorksheetNode(context.Context, *connect.Request[v1.GetWorksheetNodeRequest]) (*connect.Response[v1.GetWorksheetNodeResponse], error)
 	ListWorksheetNodes(context.Context, *connect.Request[v1.ListWorksheetNodesRequest]) (*connect.Response[v1.ListWorksheetNodesResponse], error)
+	ListWorksheetExecutionTimes(context.Context, *connect.Request[v1.ListWorksheetExecutionTimesRequest]) (*connect.Response[v1.ListWorksheetExecutionTimesResponse], error)
 	CreateWorksheetNode(context.Context, *connect.Request[v1.CreateWorksheetNodeRequest]) (*connect.Response[v1.CreateWorksheetNodeResponse], error)
 	RenameWorksheetNode(context.Context, *connect.Request[v1.RenameWorksheetNodeRequest]) (*connect.Response[v1.RenameWorksheetNodeResponse], error)
 	MoveWorksheetNode(context.Context, *connect.Request[v1.MoveWorksheetNodeRequest]) (*connect.Response[v1.MoveWorksheetNodeResponse], error)
@@ -150,6 +154,13 @@ func NewWorksheetsServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+WorksheetsServiceListWorksheetNodesProcedure,
 			connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetNodes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listWorksheetExecutionTimes: connect.NewClient[v1.ListWorksheetExecutionTimesRequest, v1.ListWorksheetExecutionTimesResponse](
+			httpClient,
+			baseURL+WorksheetsServiceListWorksheetExecutionTimesProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetExecutionTimes")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -252,25 +263,26 @@ func NewWorksheetsServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // worksheetsServiceClient implements WorksheetsServiceClient.
 type worksheetsServiceClient struct {
-	createWorksheetSpace      *connect.Client[v1.CreateWorksheetSpaceRequest, v1.CreateWorksheetSpaceResponse]
-	listWorksheetSpaces       *connect.Client[v1.ListWorksheetSpacesRequest, v1.ListWorksheetSpacesResponse]
-	getWorksheetNode          *connect.Client[v1.GetWorksheetNodeRequest, v1.GetWorksheetNodeResponse]
-	listWorksheetNodes        *connect.Client[v1.ListWorksheetNodesRequest, v1.ListWorksheetNodesResponse]
-	createWorksheetNode       *connect.Client[v1.CreateWorksheetNodeRequest, v1.CreateWorksheetNodeResponse]
-	renameWorksheetNode       *connect.Client[v1.RenameWorksheetNodeRequest, v1.RenameWorksheetNodeResponse]
-	moveWorksheetNode         *connect.Client[v1.MoveWorksheetNodeRequest, v1.MoveWorksheetNodeResponse]
-	archiveWorksheetNode      *connect.Client[v1.ArchiveWorksheetNodeRequest, v1.ArchiveWorksheetNodeResponse]
-	restoreWorksheetNode      *connect.Client[v1.RestoreWorksheetNodeRequest, v1.RestoreWorksheetNodeResponse]
-	autosaveWorksheet         *connect.Client[v1.AutosaveWorksheetRequest, v1.AutosaveWorksheetResponse]
-	saveWorksheet             *connect.Client[v1.SaveWorksheetRequest, v1.SaveWorksheetResponse]
-	getWorksheetCommit        *connect.Client[v1.GetWorksheetCommitRequest, v1.GetWorksheetCommitResponse]
-	listWorksheetCommits      *connect.Client[v1.ListWorksheetCommitsRequest, v1.ListWorksheetCommitsResponse]
-	runOnlineWorksheetCommit  *connect.Client[v1.RunOnlineWorksheetCommitRequest, v1.RunOnlineWorksheetCommitResponse]
-	runOfflineWorksheetCommit *connect.Client[v1.RunOfflineWorksheetCommitRequest, v1.RunOfflineWorksheetCommitResponse]
-	runSqlWorksheetCommit     *connect.Client[v1.RunSqlWorksheetCommitRequest, v1.RunSqlWorksheetCommitResponse]
-	cancelWorksheetRun        *connect.Client[v1.CancelWorksheetRunRequest, v1.CancelWorksheetRunResponse]
-	getWorksheetRun           *connect.Client[v1.GetWorksheetRunRequest, v1.GetWorksheetRunResponse]
-	listWorksheetRuns         *connect.Client[v1.ListWorksheetRunsRequest, v1.ListWorksheetRunsResponse]
+	createWorksheetSpace        *connect.Client[v1.CreateWorksheetSpaceRequest, v1.CreateWorksheetSpaceResponse]
+	listWorksheetSpaces         *connect.Client[v1.ListWorksheetSpacesRequest, v1.ListWorksheetSpacesResponse]
+	getWorksheetNode            *connect.Client[v1.GetWorksheetNodeRequest, v1.GetWorksheetNodeResponse]
+	listWorksheetNodes          *connect.Client[v1.ListWorksheetNodesRequest, v1.ListWorksheetNodesResponse]
+	listWorksheetExecutionTimes *connect.Client[v1.ListWorksheetExecutionTimesRequest, v1.ListWorksheetExecutionTimesResponse]
+	createWorksheetNode         *connect.Client[v1.CreateWorksheetNodeRequest, v1.CreateWorksheetNodeResponse]
+	renameWorksheetNode         *connect.Client[v1.RenameWorksheetNodeRequest, v1.RenameWorksheetNodeResponse]
+	moveWorksheetNode           *connect.Client[v1.MoveWorksheetNodeRequest, v1.MoveWorksheetNodeResponse]
+	archiveWorksheetNode        *connect.Client[v1.ArchiveWorksheetNodeRequest, v1.ArchiveWorksheetNodeResponse]
+	restoreWorksheetNode        *connect.Client[v1.RestoreWorksheetNodeRequest, v1.RestoreWorksheetNodeResponse]
+	autosaveWorksheet           *connect.Client[v1.AutosaveWorksheetRequest, v1.AutosaveWorksheetResponse]
+	saveWorksheet               *connect.Client[v1.SaveWorksheetRequest, v1.SaveWorksheetResponse]
+	getWorksheetCommit          *connect.Client[v1.GetWorksheetCommitRequest, v1.GetWorksheetCommitResponse]
+	listWorksheetCommits        *connect.Client[v1.ListWorksheetCommitsRequest, v1.ListWorksheetCommitsResponse]
+	runOnlineWorksheetCommit    *connect.Client[v1.RunOnlineWorksheetCommitRequest, v1.RunOnlineWorksheetCommitResponse]
+	runOfflineWorksheetCommit   *connect.Client[v1.RunOfflineWorksheetCommitRequest, v1.RunOfflineWorksheetCommitResponse]
+	runSqlWorksheetCommit       *connect.Client[v1.RunSqlWorksheetCommitRequest, v1.RunSqlWorksheetCommitResponse]
+	cancelWorksheetRun          *connect.Client[v1.CancelWorksheetRunRequest, v1.CancelWorksheetRunResponse]
+	getWorksheetRun             *connect.Client[v1.GetWorksheetRunRequest, v1.GetWorksheetRunResponse]
+	listWorksheetRuns           *connect.Client[v1.ListWorksheetRunsRequest, v1.ListWorksheetRunsResponse]
 }
 
 // CreateWorksheetSpace calls chalk.server.v1.WorksheetsService.CreateWorksheetSpace.
@@ -291,6 +303,11 @@ func (c *worksheetsServiceClient) GetWorksheetNode(ctx context.Context, req *con
 // ListWorksheetNodes calls chalk.server.v1.WorksheetsService.ListWorksheetNodes.
 func (c *worksheetsServiceClient) ListWorksheetNodes(ctx context.Context, req *connect.Request[v1.ListWorksheetNodesRequest]) (*connect.Response[v1.ListWorksheetNodesResponse], error) {
 	return c.listWorksheetNodes.CallUnary(ctx, req)
+}
+
+// ListWorksheetExecutionTimes calls chalk.server.v1.WorksheetsService.ListWorksheetExecutionTimes.
+func (c *worksheetsServiceClient) ListWorksheetExecutionTimes(ctx context.Context, req *connect.Request[v1.ListWorksheetExecutionTimesRequest]) (*connect.Response[v1.ListWorksheetExecutionTimesResponse], error) {
+	return c.listWorksheetExecutionTimes.CallUnary(ctx, req)
 }
 
 // CreateWorksheetNode calls chalk.server.v1.WorksheetsService.CreateWorksheetNode.
@@ -374,6 +391,7 @@ type WorksheetsServiceHandler interface {
 	ListWorksheetSpaces(context.Context, *connect.Request[v1.ListWorksheetSpacesRequest]) (*connect.Response[v1.ListWorksheetSpacesResponse], error)
 	GetWorksheetNode(context.Context, *connect.Request[v1.GetWorksheetNodeRequest]) (*connect.Response[v1.GetWorksheetNodeResponse], error)
 	ListWorksheetNodes(context.Context, *connect.Request[v1.ListWorksheetNodesRequest]) (*connect.Response[v1.ListWorksheetNodesResponse], error)
+	ListWorksheetExecutionTimes(context.Context, *connect.Request[v1.ListWorksheetExecutionTimesRequest]) (*connect.Response[v1.ListWorksheetExecutionTimesResponse], error)
 	CreateWorksheetNode(context.Context, *connect.Request[v1.CreateWorksheetNodeRequest]) (*connect.Response[v1.CreateWorksheetNodeResponse], error)
 	RenameWorksheetNode(context.Context, *connect.Request[v1.RenameWorksheetNodeRequest]) (*connect.Response[v1.RenameWorksheetNodeResponse], error)
 	MoveWorksheetNode(context.Context, *connect.Request[v1.MoveWorksheetNodeRequest]) (*connect.Response[v1.MoveWorksheetNodeResponse], error)
@@ -422,6 +440,13 @@ func NewWorksheetsServiceHandler(svc WorksheetsServiceHandler, opts ...connect.H
 		WorksheetsServiceListWorksheetNodesProcedure,
 		svc.ListWorksheetNodes,
 		connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetNodes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceListWorksheetExecutionTimesHandler := connect.NewUnaryHandler(
+		WorksheetsServiceListWorksheetExecutionTimesProcedure,
+		svc.ListWorksheetExecutionTimes,
+		connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetExecutionTimes")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -529,6 +554,8 @@ func NewWorksheetsServiceHandler(svc WorksheetsServiceHandler, opts ...connect.H
 			worksheetsServiceGetWorksheetNodeHandler.ServeHTTP(w, r)
 		case WorksheetsServiceListWorksheetNodesProcedure:
 			worksheetsServiceListWorksheetNodesHandler.ServeHTTP(w, r)
+		case WorksheetsServiceListWorksheetExecutionTimesProcedure:
+			worksheetsServiceListWorksheetExecutionTimesHandler.ServeHTTP(w, r)
 		case WorksheetsServiceCreateWorksheetNodeProcedure:
 			worksheetsServiceCreateWorksheetNodeHandler.ServeHTTP(w, r)
 		case WorksheetsServiceRenameWorksheetNodeProcedure:
@@ -582,6 +609,10 @@ func (UnimplementedWorksheetsServiceHandler) GetWorksheetNode(context.Context, *
 
 func (UnimplementedWorksheetsServiceHandler) ListWorksheetNodes(context.Context, *connect.Request[v1.ListWorksheetNodesRequest]) (*connect.Response[v1.ListWorksheetNodesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.ListWorksheetNodes is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) ListWorksheetExecutionTimes(context.Context, *connect.Request[v1.ListWorksheetExecutionTimesRequest]) (*connect.Response[v1.ListWorksheetExecutionTimesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.ListWorksheetExecutionTimes is not implemented"))
 }
 
 func (UnimplementedWorksheetsServiceHandler) CreateWorksheetNode(context.Context, *connect.Request[v1.CreateWorksheetNodeRequest]) (*connect.Response[v1.CreateWorksheetNodeResponse], error) {

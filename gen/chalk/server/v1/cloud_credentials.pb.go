@@ -112,10 +112,12 @@ func (*ListCloudCredentialsRequest) Descriptor() ([]byte, []int) {
 }
 
 type ListCloudCredentialsResponse struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Credentials   []*CloudCredentialsResponse `protobuf:"bytes,1,rep,name=credentials,proto3" json:"credentials,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState      `protogen:"open.v1"`
+	Credentials []*CloudCredentialsResponse `protobuf:"bytes,1,rep,name=credentials,proto3" json:"credentials,omitempty"`
+	// Chalk-owned identity to grant access before creating GCP cloud credentials.
+	GcpManagementServiceAccount string `protobuf:"bytes,2,opt,name=gcp_management_service_account,json=gcpManagementServiceAccount,proto3" json:"gcp_management_service_account,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *ListCloudCredentialsResponse) Reset() {
@@ -153,6 +155,13 @@ func (x *ListCloudCredentialsResponse) GetCredentials() []*CloudCredentialsRespo
 		return x.Credentials
 	}
 	return nil
+}
+
+func (x *ListCloudCredentialsResponse) GetGcpManagementServiceAccount() string {
+	if x != nil {
+		return x.GcpManagementServiceAccount
+	}
+	return ""
 }
 
 type CloudCredentialsResponse struct {
@@ -1104,9 +1113,10 @@ var File_chalk_server_v1_cloud_credentials_proto protoreflect.FileDescriptor
 const file_chalk_server_v1_cloud_credentials_proto_rawDesc = "" +
 	"\n" +
 	"'chalk/server/v1/cloud_credentials.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/server/v1/cloud_config.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1d\n" +
-	"\x1bListCloudCredentialsRequest\"k\n" +
+	"\x1bListCloudCredentialsRequest\"\xb0\x01\n" +
 	"\x1cListCloudCredentialsResponse\x12K\n" +
-	"\vcredentials\x18\x01 \x03(\v2).chalk.server.v1.CloudCredentialsResponseR\vcredentials\"\x93\x02\n" +
+	"\vcredentials\x18\x01 \x03(\v2).chalk.server.v1.CloudCredentialsResponseR\vcredentials\x12C\n" +
+	"\x1egcp_management_service_account\x18\x02 \x01(\tR\x1bgcpManagementServiceAccount\"\x93\x02\n" +
 	"\x18CloudCredentialsResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12\x12\n" +

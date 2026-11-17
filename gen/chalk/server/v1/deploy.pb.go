@@ -11,6 +11,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -1422,12 +1423,12 @@ var File_chalk_server_v1_deploy_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/server/v1/deploy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a chalk/server/v1/deployment.proto\x1a)chalk/server/v1/deployment_revision.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x01\n" +
+	"\x1cchalk/server/v1/deploy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a chalk/server/v1/deployment.proto\x1a)chalk/server/v1/deployment_revision.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9d\x01\n" +
 	"\x13DeployBranchRequest\x12\x1f\n" +
 	"\vbranch_name\x18\x01 \x01(\tR\n" +
 	"branchName\x12!\n" +
-	"\freset_branch\x18\x02 \x01(\bR\vresetBranch\x12\x18\n" +
-	"\aarchive\x18\x03 \x01(\fR\aarchive\x12\"\n" +
+	"\freset_branch\x18\x02 \x01(\bR\vresetBranch\x12\x1e\n" +
+	"\aarchive\x18\x03 \x01(\fB\x04\xe8\xa1'\x01R\aarchive\x12\"\n" +
 	"\ris_hot_deploy\x18\x04 \x01(\bR\visHotDeploy\"\xba\x02\n" +
 	"\x14DeployBranchResponse\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x124\n" +
@@ -1450,14 +1451,14 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"deployment\x12%\n" +
 	"\x0evolume_version\x18\x02 \x01(\x04R\rvolumeVersion\x12\x14\n" +
 	"\x05files\x18\x03 \x01(\x03R\x05files\x12\x14\n" +
-	"\x05bytes\x18\x04 \x01(\x04R\x05bytes\"\xe8\x02\n" +
+	"\x05bytes\x18\x04 \x01(\x04R\x05bytes\"\xee\x02\n" +
 	"'CreateBranchFromSourceDeploymentRequest\x12\x1f\n" +
 	"\vbranch_name\x18\x01 \x01(\tR\n" +
 	"branchName\x12.\n" +
 	"\x12source_branch_name\x18\x02 \x01(\tH\x00R\x10sourceBranchName\x122\n" +
 	"\x14source_deployment_id\x18\x03 \x01(\tH\x00R\x12sourceDeploymentId\x12X\n" +
-	"\x1bcurrent_mainline_deployment\x18\x04 \x01(\v2\x16.google.protobuf.EmptyH\x00R\x19currentMainlineDeployment\x12A\n" +
-	"\x0eoverride_graph\x18\x05 \x01(\v2\x15.chalk.graph.v1.GraphH\x01R\roverrideGraph\x88\x01\x01B\b\n" +
+	"\x1bcurrent_mainline_deployment\x18\x04 \x01(\v2\x16.google.protobuf.EmptyH\x00R\x19currentMainlineDeployment\x12G\n" +
+	"\x0eoverride_graph\x18\x05 \x01(\v2\x15.chalk.graph.v1.GraphB\x04\xe8\xa1'\x01H\x01R\roverrideGraph\x88\x01\x01B\b\n" +
 	"\x06sourceB\x11\n" +
 	"\x0f_override_graph\"\x91\x02\n" +
 	"(CreateBranchFromSourceDeploymentResponse\x12#\n" +
@@ -1519,13 +1520,13 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\x1cGetActiveDeploymentsResponse\x12=\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x1b.chalk.server.v1.DeploymentR\vdeployments\"A\n" +
 	"\x1aGetDeploymentSourceRequest\x12#\n" +
-	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\x95\x03\n" +
-	"\x1bGetDeploymentSourceResponse\x12\x1d\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\xad\x03\n" +
+	"\x1bGetDeploymentSourceResponse\x12#\n" +
 	"\n" +
-	"signed_url\x18\x01 \x01(\tR\tsignedUrl\x12Q\n" +
-	"#supplementary_graph_info_signed_url\x18\x02 \x01(\tH\x00R\x1fsupplementaryGraphInfoSignedUrl\x88\x01\x01\x12G\n" +
-	"\x1emounted_model_specs_signed_url\x18\x03 \x01(\tH\x01R\x1amountedModelSpecsSignedUrl\x88\x01\x01\x12K\n" +
-	" model_endpoint_config_signed_url\x18\x04 \x01(\tH\x02R\x1cmodelEndpointConfigSignedUrl\x88\x01\x01B&\n" +
+	"signed_url\x18\x01 \x01(\tB\x04ء'\x01R\tsignedUrl\x12W\n" +
+	"#supplementary_graph_info_signed_url\x18\x02 \x01(\tB\x04ء'\x01H\x00R\x1fsupplementaryGraphInfoSignedUrl\x88\x01\x01\x12M\n" +
+	"\x1emounted_model_specs_signed_url\x18\x03 \x01(\tB\x04ء'\x01H\x01R\x1amountedModelSpecsSignedUrl\x88\x01\x01\x12Q\n" +
+	" model_endpoint_config_signed_url\x18\x04 \x01(\tB\x04ء'\x01H\x02R\x1cmodelEndpointConfigSignedUrl\x88\x01\x01B&\n" +
 	"$_supplementary_graph_info_signed_urlB!\n" +
 	"\x1f_mounted_model_specs_signed_urlB#\n" +
 	"!_model_endpoint_config_signed_url\"\xf1\x01\n" +

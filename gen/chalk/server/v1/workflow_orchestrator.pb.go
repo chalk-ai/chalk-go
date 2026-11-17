@@ -2266,17 +2266,18 @@ const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
 	"/WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_CANCELED\x10\x04\x125\n" +
 	"1WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TERMINATED\x10\x05\x12;\n" +
 	"7WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_CONTINUED_AS_NEW\x10\x06\x124\n" +
-	"0WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TIMED_OUT\x10\a2\xca\v\n" +
-	"\x1bWorkflowOrchestratorService\x12\xb4\x01\n" +
-	"(GetWorkflowOrchestratorConnectionDetails\x12@.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest\x1aA.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse\"\x03\x80}\x0e\x12\xa2\x01\n" +
-	"\"ListWorkflowOrchestratorNamespaces\x12:.chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest\x1a;.chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse\"\x03\x80}\v\x12\x9f\x01\n" +
-	"!ListWorkflowOrchestratorWorkflows\x129.chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest\x1a:.chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse\"\x03\x80}\v\x12\xa8\x01\n" +
-	"$DescribeWorkflowOrchestratorWorkflow\x12<.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest\x1a=.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse\"\x03\x80}\v\x12\xae\x01\n" +
-	"&GetWorkflowOrchestratorWorkflowHistory\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse\"\x03\x80}\v\x12\xae\x01\n" +
-	"&GetWorkflowOrchestratorWorkflowLineage\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse\"\x03\x80}\v\x12\x99\x01\n" +
-	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"'\x80}\x0e\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflow\x12\x86\x01\n" +
-	"\x10StartWorkflowRun\x12(.chalk.server.v1.StartWorkflowRunRequest\x1a).chalk.server.v1.StartWorkflowRunResponse\"\x1d\x80}\x0e\x8a\xd3\x0e\x16\b\x02\x12\x12Started a workflow\x12{\n" +
-	"\x14ListWorkflowMessages\x12,.chalk.server.v1.ListWorkflowMessagesRequest\x1a-.chalk.server.v1.ListWorkflowMessagesResponse\"\x06\x80}\v\x90\x02\x01B\xc9\x01\n" +
+	"0WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TIMED_OUT\x10\a2\xee\v\n" +
+	"\x1bWorkflowOrchestratorService\x12\xb8\x01\n" +
+	"(GetWorkflowOrchestratorConnectionDetails\x12@.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest\x1aA.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse\"\a\x80}G\x92}\x01\x0e\x12\xa6\x01\n" +
+	"\"ListWorkflowOrchestratorNamespaces\x12:.chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest\x1a;.chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse\"\a\x80}F\x92}\x01\v\x12\xa3\x01\n" +
+	"!ListWorkflowOrchestratorWorkflows\x129.chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest\x1a:.chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse\"\a\x80}F\x92}\x01\v\x12\xac\x01\n" +
+	"$DescribeWorkflowOrchestratorWorkflow\x12<.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest\x1a=.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse\"\a\x80}F\x92}\x01\v\x12\xb2\x01\n" +
+	"&GetWorkflowOrchestratorWorkflowHistory\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse\"\a\x80}F\x92}\x01\v\x12\xb2\x01\n" +
+	"&GetWorkflowOrchestratorWorkflowLineage\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse\"\a\x80}F\x92}\x01\v\x12\x9d\x01\n" +
+	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"+\x80}G\x92}\x01\x0e\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflow\x12\x8a\x01\n" +
+	"\x10StartWorkflowRun\x12(.chalk.server.v1.StartWorkflowRunRequest\x1a).chalk.server.v1.StartWorkflowRunResponse\"!\x80}G\x92}\x01\x0e\x8a\xd3\x0e\x16\b\x02\x12\x12Started a workflow\x12\x7f\n" +
+	"\x14ListWorkflowMessages\x12,.chalk.server.v1.ListWorkflowMessagesRequest\x1a-.chalk.server.v1.ListWorkflowMessagesResponse\"\n" +
+	"\x80}F\x92}\x01\v\x90\x02\x01B\xc9\x01\n" +
 	"\x13com.chalk.server.v1B\x19WorkflowOrchestratorProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

@@ -746,14 +746,16 @@ const file_chalk_router_v1_usage_pool_proto_rawDesc = "" +
 	"\x16DeleteUsagePoolRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x17DeleteUsagePoolResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2\xe0\x04\n" +
-	"\x10UsagePoolService\x12\xa5\x01\n" +
-	"\x0fCreateUsagePool\x12'.chalk.router.v1.CreateUsagePoolRequest\x1a(.chalk.router.v1.CreateUsagePoolResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
-	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12i\n" +
-	"\x0fUpdateUsagePool\x12'.chalk.router.v1.UpdateUsagePoolRequest\x1a(.chalk.router.v1.UpdateUsagePoolResponse\"\x03\x80}\x02\x12i\n" +
-	"\x0eListUsagePools\x12&.chalk.router.v1.ListUsagePoolsRequest\x1a'.chalk.router.v1.ListUsagePoolsResponse\"\x06\x80}\x02\x90\x02\x01\x12c\n" +
-	"\fGetUsagePool\x12$.chalk.router.v1.GetUsagePoolRequest\x1a%.chalk.router.v1.GetUsagePoolResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
-	"\x0fDeleteUsagePool\x12'.chalk.router.v1.DeleteUsagePoolRequest\x1a(.chalk.router.v1.DeleteUsagePoolResponse\"\x03\x80}\x02B\xbe\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\xf4\x04\n" +
+	"\x10UsagePoolService\x12\xa9\x01\n" +
+	"\x0fCreateUsagePool\x12'.chalk.router.v1.CreateUsagePoolRequest\x1a(.chalk.router.v1.CreateUsagePoolResponse\"C\x80}L\x92}\x01\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12m\n" +
+	"\x0fUpdateUsagePool\x12'.chalk.router.v1.UpdateUsagePoolRequest\x1a(.chalk.router.v1.UpdateUsagePoolResponse\"\a\x80}L\x92}\x01\x02\x12m\n" +
+	"\x0eListUsagePools\x12&.chalk.router.v1.ListUsagePoolsRequest\x1a'.chalk.router.v1.ListUsagePoolsResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12g\n" +
+	"\fGetUsagePool\x12$.chalk.router.v1.GetUsagePoolRequest\x1a%.chalk.router.v1.GetUsagePoolResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12m\n" +
+	"\x0fDeleteUsagePool\x12'.chalk.router.v1.DeleteUsagePoolRequest\x1a(.chalk.router.v1.DeleteUsagePoolResponse\"\a\x80}L\x92}\x01\x02B\xbe\x01\n" +
 	"\x13com.chalk.router.v1B\x0eUsagePoolProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

@@ -7,8 +7,10 @@
 package authv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -248,7 +250,8 @@ func (x *TeamPermissions) GetPermissions() []Permission {
 }
 
 type UserAgent struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	TeamType *v1.TeamCreationType   `protobuf:"varint,7,opt,name=team_type,json=teamType,proto3,enum=chalk.common.v1.TeamCreationType,oneof" json:"team_type,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/auth/v1/agent.proto.
 	ClientId                 string                             `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	UserId                   string                             `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -288,6 +291,13 @@ func (x *UserAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserAgent.ProtoReflect.Descriptor instead.
 func (*UserAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UserAgent) GetTeamType() v1.TeamCreationType {
+	if x != nil && x.TeamType != nil {
+		return *x.TeamType
+	}
+	return v1.TeamCreationType(0)
 }
 
 // Deprecated: Marked as deprecated in chalk/auth/v1/agent.proto.
@@ -390,6 +400,7 @@ func (x *CustomClaim) GetValues() []string {
 
 type ServiceTokenAgent struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
+	TeamType    *v1.TeamCreationType   `protobuf:"varint,10,opt,name=team_type,json=teamType,proto3,enum=chalk.common.v1.TeamCreationType,oneof" json:"team_type,omitempty"`
 	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ClientId    string                 `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	TeamId      string                 `protobuf:"bytes,3,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
@@ -432,6 +443,13 @@ func (x *ServiceTokenAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ServiceTokenAgent.ProtoReflect.Descriptor instead.
 func (*ServiceTokenAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ServiceTokenAgent) GetTeamType() v1.TeamCreationType {
+	if x != nil && x.TeamType != nil {
+		return *x.TeamType
+	}
+	return v1.TeamCreationType(0)
 }
 
 func (x *ServiceTokenAgent) GetId() string {
@@ -500,6 +518,7 @@ func (x *ServiceTokenAgent) GetTeamPermissions() []Permission {
 
 type EngineAgent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TeamType      *v1.TeamCreationType   `protobuf:"varint,6,opt,name=team_type,json=teamType,proto3,enum=chalk.common.v1.TeamCreationType,oneof" json:"team_type,omitempty"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	TeamId        string                 `protobuf:"bytes,2,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
@@ -537,6 +556,13 @@ func (x *EngineAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use EngineAgent.ProtoReflect.Descriptor instead.
 func (*EngineAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EngineAgent) GetTeamType() v1.TeamCreationType {
+	if x != nil && x.TeamType != nil {
+		return *x.TeamType
+	}
+	return v1.TeamCreationType(0)
 }
 
 func (x *EngineAgent) GetId() string {
@@ -620,8 +646,12 @@ type ExchangeTokenDetails struct {
 	Subject                string                 `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
 	EnvironmentId          string                 `protobuf:"bytes,4,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Kind                   ExchangeTokenKind      `protobuf:"varint,5,opt,name=kind,proto3,enum=chalk.auth.v1.ExchangeTokenKind" json:"kind,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Set only on seeds for scaling groups with a termination grace period. Caps
+	// GetInternalWorkingTokenRequest.requested_lifetime; when absent, requests
+	// are ignored and the per-kind default lifetime applies.
+	MaxWorkingTokenLifetime *durationpb.Duration `protobuf:"bytes,6,opt,name=max_working_token_lifetime,json=maxWorkingTokenLifetime,proto3" json:"max_working_token_lifetime,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *ExchangeTokenDetails) Reset() {
@@ -689,8 +719,16 @@ func (x *ExchangeTokenDetails) GetKind() ExchangeTokenKind {
 	return ExchangeTokenKind_EXCHANGE_TOKEN_KIND_UNSPECIFIED
 }
 
+func (x *ExchangeTokenDetails) GetMaxWorkingTokenLifetime() *durationpb.Duration {
+	if x != nil {
+		return x.MaxWorkingTokenLifetime
+	}
+	return nil
+}
+
 type TenantAgent struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	TeamType *v1.TeamCreationType   `protobuf:"varint,6,opt,name=team_type,json=teamType,proto3,enum=chalk.common.v1.TeamCreationType,oneof" json:"team_type,omitempty"`
 	// Optional team scope.
 	TeamId string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	// Optional permission list. When non-empty, the token is restricted to only
@@ -735,6 +773,13 @@ func (x *TenantAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantAgent.ProtoReflect.Descriptor instead.
 func (*TenantAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *TenantAgent) GetTeamType() v1.TeamCreationType {
+	if x != nil && x.TeamType != nil {
+		return *x.TeamType
+	}
+	return v1.TeamCreationType(0)
 }
 
 func (x *TenantAgent) GetTeamId() string {
@@ -1101,6 +1146,7 @@ func (x *SandboxPrincipal) GetGroupId() string {
 // working token. Ordinary authorization does not load the workload's record.
 type WorkloadAgent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TeamType      *v1.TeamCreationType   `protobuf:"varint,10,opt,name=team_type,json=teamType,proto3,enum=chalk.common.v1.TeamCreationType,oneof" json:"team_type,omitempty"`
 	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	// The complete permission snapshot granted to this workload. Empty grants no
@@ -1148,6 +1194,13 @@ func (x *WorkloadAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use WorkloadAgent.ProtoReflect.Descriptor instead.
 func (*WorkloadAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *WorkloadAgent) GetTeamType() v1.TeamCreationType {
+	if x != nil && x.TeamType != nil {
+		return *x.TeamType
+	}
+	return v1.TeamCreationType(0)
 }
 
 func (x *WorkloadAgent) GetTeamId() string {
@@ -1410,14 +1463,15 @@ var File_chalk_auth_v1_agent_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19chalk/auth/v1/agent.proto\x12\rchalk.auth.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xee\x01\n" +
+	"\x19chalk/auth/v1/agent.proto\x12\rchalk.auth.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/common/v1/team.proto\x1a\x1egoogle/protobuf/duration.proto\"\xee\x01\n" +
 	"\x16EnvironmentPermissions\x12;\n" +
 	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12R\n" +
 	"\x13feature_permissions\x18\x03 \x01(\v2!.chalk.auth.v1.FeaturePermissionsR\x12featurePermissions\x12C\n" +
 	"\x0fcustomer_claims\x18\x04 \x03(\v2\x1a.chalk.auth.v1.CustomClaimR\x0ecustomerClaims\"N\n" +
 	"\x0fTeamPermissions\x12;\n" +
-	"\vpermissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\"\xb7\x03\n" +
-	"\tUserAgent\x12\x1f\n" +
+	"\vpermissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\"\x8a\x04\n" +
+	"\tUserAgent\x12C\n" +
+	"\tteam_type\x18\a \x01(\x0e2!.chalk.common.v1.TeamCreationTypeH\x00R\bteamType\x88\x01\x01\x12\x1f\n" +
 	"\tclient_id\x18\x01 \x01(\tB\x02\x18\x01R\bclientId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
 	"\ateam_id\x18\x03 \x01(\tR\x06teamId\x12t\n" +
@@ -1426,11 +1480,15 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x10team_permissions\x18\x06 \x01(\v2\x1e.chalk.auth.v1.TeamPermissionsR\x0fteamPermissions\x1ar\n" +
 	"\x1dPermissionsByEnvironmentEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
-	"\x05value\x18\x02 \x01(\v2%.chalk.auth.v1.EnvironmentPermissionsR\x05value:\x028\x01\"7\n" +
+	"\x05value\x18\x02 \x01(\v2%.chalk.auth.v1.EnvironmentPermissionsR\x05value:\x028\x01B\f\n" +
+	"\n" +
+	"_team_type\"7\n" +
 	"\vCustomClaim\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
-	"\x06values\x18\x02 \x03(\tR\x06values\"\xc0\x03\n" +
-	"\x11ServiceTokenAgent\x12\x0e\n" +
+	"\x06values\x18\x02 \x03(\tR\x06values\"\x93\x04\n" +
+	"\x11ServiceTokenAgent\x12C\n" +
+	"\tteam_type\x18\n" +
+	" \x01(\x0e2!.chalk.common.v1.TeamCreationTypeH\x00R\bteamType\x88\x01\x01\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
 	"\ateam_id\x18\x03 \x01(\tR\x06teamId\x12 \n" +
@@ -1439,28 +1497,37 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\rcustom_claims\x18\x06 \x03(\tB\x02\x18\x01R\fcustomClaims\x12C\n" +
 	"\x0fcustomer_claims\x18\a \x03(\v2\x1a.chalk.auth.v1.CustomClaimR\x0ecustomerClaims\x12R\n" +
 	"\x13feature_permissions\x18\b \x01(\v2!.chalk.auth.v1.FeaturePermissionsR\x12featurePermissions\x12D\n" +
-	"\x10team_permissions\x18\t \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x0fteamPermissions\"\xa0\x01\n" +
-	"\vEngineAgent\x12\x0e\n" +
+	"\x10team_permissions\x18\t \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x0fteamPermissionsB\f\n" +
+	"\n" +
+	"_team_type\"\xf3\x01\n" +
+	"\vEngineAgent\x12C\n" +
+	"\tteam_type\x18\x06 \x01(\x0e2!.chalk.common.v1.TeamCreationTypeH\x00R\bteamType\x88\x01\x01\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x12\"\n" +
-	"\fimpersonated\x18\x05 \x01(\bR\fimpersonated\"\x16\n" +
-	"\x14MetadataServiceAgent\"\x8e\x02\n" +
+	"\fimpersonated\x18\x05 \x01(\bR\fimpersonatedB\f\n" +
+	"\n" +
+	"_team_type\"\x16\n" +
+	"\x14MetadataServiceAgent\"\xe6\x02\n" +
 	"\x14ExchangeTokenDetails\x12R\n" +
 	"\x17requestable_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x16requestablePermissions\x12+\n" +
 	"\x11generation_number\x18\x02 \x01(\x05R\x10generationNumber\x12\x18\n" +
 	"\asubject\x18\x03 \x01(\tR\asubject\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x124\n" +
-	"\x04kind\x18\x05 \x01(\x0e2 .chalk.auth.v1.ExchangeTokenKindR\x04kind\"\xa4\x02\n" +
-	"\vTenantAgent\x12\x17\n" +
+	"\x04kind\x18\x05 \x01(\x0e2 .chalk.auth.v1.ExchangeTokenKindR\x04kind\x12V\n" +
+	"\x1amax_working_token_lifetime\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x17maxWorkingTokenLifetime\"\xf7\x02\n" +
+	"\vTenantAgent\x12C\n" +
+	"\tteam_type\x18\x06 \x01(\x0e2!.chalk.common.v1.TeamCreationTypeH\x00R\bteamType\x88\x01\x01\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12;\n" +
 	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12%\n" +
 	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12^\n" +
-	"\x16exchange_token_details\x18\x04 \x01(\v2#.chalk.auth.v1.ExchangeTokenDetailsH\x00R\x14exchangeTokenDetails\x88\x01\x01\x12\x1d\n" +
+	"\x16exchange_token_details\x18\x04 \x01(\v2#.chalk.auth.v1.ExchangeTokenDetailsH\x01R\x14exchangeTokenDetails\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x05 \x01(\tR\tclusterIdB\x19\n" +
+	"cluster_id\x18\x05 \x01(\tR\tclusterIdB\f\n" +
+	"\n" +
+	"_team_typeB\x19\n" +
 	"\x17_exchange_token_details\"U\n" +
 	"\x16SelfHostedLicenseAgent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
@@ -1480,8 +1547,10 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"=\n" +
 	"\x10SandboxPrincipal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x9e\x04\n" +
-	"\rWorkloadAgent\x12\x17\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\xf1\x04\n" +
+	"\rWorkloadAgent\x12C\n" +
+	"\tteam_type\x18\n" +
+	" \x01(\x0e2!.chalk.common.v1.TeamCreationTypeH\x01R\bteamType\x88\x01\x01\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12;\n" +
 	"\vpermissions\x18\x03 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12;\n" +
@@ -1492,7 +1561,9 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x17UserProvidedClaimsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
-	"\tprincipal\"\x9f\x05\n" +
+	"\tprincipalB\f\n" +
+	"\n" +
+	"_team_type\"\x9f\x05\n" +
 	"\x05Agent\x12\x1d\n" +
 	"\n" +
 	"sandbox_id\x18\b \x01(\tR\tsandboxId\x129\n" +
@@ -1562,43 +1633,51 @@ var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	nil,                            // 19: chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
 	(Permission)(0),                // 20: chalk.auth.v1.Permission
 	(*FeaturePermissions)(nil),     // 21: chalk.auth.v1.FeaturePermissions
+	(v1.TeamCreationType)(0),       // 22: chalk.common.v1.TeamCreationType
+	(*durationpb.Duration)(nil),    // 23: google.protobuf.Duration
 }
 var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
 	20, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
 	21, // 1: chalk.auth.v1.EnvironmentPermissions.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	5,  // 2: chalk.auth.v1.EnvironmentPermissions.customer_claims:type_name -> chalk.auth.v1.CustomClaim
 	20, // 3: chalk.auth.v1.TeamPermissions.permissions:type_name -> chalk.auth.v1.Permission
-	18, // 4: chalk.auth.v1.UserAgent.permissions_by_environment:type_name -> chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
-	3,  // 5: chalk.auth.v1.UserAgent.team_permissions:type_name -> chalk.auth.v1.TeamPermissions
-	20, // 6: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
-	5,  // 7: chalk.auth.v1.ServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	21, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	20, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
-	20, // 10: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
-	0,  // 11: chalk.auth.v1.ExchangeTokenDetails.kind:type_name -> chalk.auth.v1.ExchangeTokenKind
-	20, // 12: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
-	9,  // 13: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
-	12, // 14: chalk.auth.v1.ResourceShareScope.notebook:type_name -> chalk.auth.v1.NotebookShareScope
-	13, // 15: chalk.auth.v1.ResourceShareAgent.scope:type_name -> chalk.auth.v1.ResourceShareScope
-	20, // 16: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
-	15, // 17: chalk.auth.v1.WorkloadAgent.sandbox:type_name -> chalk.auth.v1.SandboxPrincipal
-	21, // 18: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	5,  // 19: chalk.auth.v1.WorkloadAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	19, // 20: chalk.auth.v1.WorkloadAgent.user_provided_claims:type_name -> chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
-	4,  // 21: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
-	6,  // 22: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	7,  // 23: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
-	10, // 24: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
-	8,  // 25: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
-	11, // 26: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
-	14, // 27: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
-	16, // 28: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
-	2,  // 29: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	22, // 4: chalk.auth.v1.UserAgent.team_type:type_name -> chalk.common.v1.TeamCreationType
+	18, // 5: chalk.auth.v1.UserAgent.permissions_by_environment:type_name -> chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
+	3,  // 6: chalk.auth.v1.UserAgent.team_permissions:type_name -> chalk.auth.v1.TeamPermissions
+	22, // 7: chalk.auth.v1.ServiceTokenAgent.team_type:type_name -> chalk.common.v1.TeamCreationType
+	20, // 8: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
+	5,  // 9: chalk.auth.v1.ServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	21, // 10: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	20, // 11: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
+	22, // 12: chalk.auth.v1.EngineAgent.team_type:type_name -> chalk.common.v1.TeamCreationType
+	20, // 13: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
+	0,  // 14: chalk.auth.v1.ExchangeTokenDetails.kind:type_name -> chalk.auth.v1.ExchangeTokenKind
+	23, // 15: chalk.auth.v1.ExchangeTokenDetails.max_working_token_lifetime:type_name -> google.protobuf.Duration
+	22, // 16: chalk.auth.v1.TenantAgent.team_type:type_name -> chalk.common.v1.TeamCreationType
+	20, // 17: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
+	9,  // 18: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
+	12, // 19: chalk.auth.v1.ResourceShareScope.notebook:type_name -> chalk.auth.v1.NotebookShareScope
+	13, // 20: chalk.auth.v1.ResourceShareAgent.scope:type_name -> chalk.auth.v1.ResourceShareScope
+	22, // 21: chalk.auth.v1.WorkloadAgent.team_type:type_name -> chalk.common.v1.TeamCreationType
+	20, // 22: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
+	15, // 23: chalk.auth.v1.WorkloadAgent.sandbox:type_name -> chalk.auth.v1.SandboxPrincipal
+	21, // 24: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	5,  // 25: chalk.auth.v1.WorkloadAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	19, // 26: chalk.auth.v1.WorkloadAgent.user_provided_claims:type_name -> chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
+	4,  // 27: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
+	6,  // 28: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	7,  // 29: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
+	10, // 30: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
+	8,  // 31: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
+	11, // 32: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
+	14, // 33: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
+	16, // 34: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
+	2,  // 35: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
+	36, // [36:36] is the sub-list for method output_type
+	36, // [36:36] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_agent_proto_init() }
@@ -1608,6 +1687,9 @@ func file_chalk_auth_v1_agent_proto_init() {
 	}
 	file_chalk_auth_v1_featurepermission_proto_init()
 	file_chalk_auth_v1_permissions_proto_init()
+	file_chalk_auth_v1_agent_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_auth_v1_agent_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_auth_v1_agent_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_auth_v1_agent_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_auth_v1_agent_proto_msgTypes[11].OneofWrappers = []any{
 		(*ResourceShareScope_Notebook)(nil),

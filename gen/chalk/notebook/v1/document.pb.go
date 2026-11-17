@@ -3141,7 +3141,7 @@ var File_chalk_notebook_v1_document_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
-	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
+	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
 	"\x18NotebookSQLDatasourceRef\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -3322,7 +3322,7 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x05table\x18\x1b \x01(\v2$.chalk.notebook.v1.NotebookTableCellH\x00R\x05tableB\x06\n" +
 	"\x04bodyB\v\n" +
 	"\t_group_idB\r\n" +
-	"\v_section_id\"\xfe\x06\n" +
+	"\v_section_id\"\x84\a\n" +
 	"\x10NotebookDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -3333,8 +3333,8 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1e\n" +
 	"\n" +
 	"categories\x18\a \x03(\tR\n" +
-	"categories\x125\n" +
-	"\x05cells\x18\b \x03(\v2\x1f.chalk.notebook.v1.NotebookCellR\x05cells\x12G\n" +
+	"categories\x12;\n" +
+	"\x05cells\x18\b \x03(\v2\x1f.chalk.notebook.v1.NotebookCellB\x04\xe8\xa1'\x01R\x05cells\x12G\n" +
 	"\bdefaults\x18\t \x01(\v2+.chalk.notebook.v1.NotebookDocumentDefaultsR\bdefaults\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
@@ -3398,10 +3398,10 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x06source\x18\x04 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\x129\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12?\n" +
-	"\x06origin\x18\x06 \x01(\x0e2'.chalk.notebook.v1.NotebookSecretOriginR\x06origin\"v\n" +
+	"\x06origin\x18\x06 \x01(\x0e2'.chalk.notebook.v1.NotebookSecretOriginR\x06origin\"|\n" +
 	"\x13NotebookSecretValue\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\x125\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\x125\n" +
 	"\x06source\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source*\xd2\x02\n" +
 	"\x1bNotebookCellExecutionStatus\x12.\n" +
 	"*NOTEBOOK_CELL_EXECUTION_STATUS_UNSPECIFIED\x10\x00\x12*\n" +

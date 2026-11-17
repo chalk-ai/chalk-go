@@ -82,6 +82,9 @@ const (
 	// AuthServiceUseVerificationTokenProcedure is the fully-qualified name of the AuthService's
 	// UseVerificationToken RPC.
 	AuthServiceUseVerificationTokenProcedure = "/chalk.server.v1.AuthService/UseVerificationToken"
+	// AuthServiceReportEmailCodeSignInRefusalProcedure is the fully-qualified name of the AuthService's
+	// ReportEmailCodeSignInRefusal RPC.
+	AuthServiceReportEmailCodeSignInRefusalProcedure = "/chalk.server.v1.AuthService/ReportEmailCodeSignInRefusal"
 	// AuthServiceUpsertUserByEmailProcedure is the fully-qualified name of the AuthService's
 	// UpsertUserByEmail RPC.
 	AuthServiceUpsertUserByEmailProcedure = "/chalk.server.v1.AuthService/UpsertUserByEmail"
@@ -137,6 +140,7 @@ type AuthServiceClient interface {
 	DeleteSession(context.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error)
 	CreateVerificationToken(context.Context, *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error)
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
+	ReportEmailCodeSignInRefusal(context.Context, *connect.Request[v1.ReportEmailCodeSignInRefusalRequest]) (*connect.Response[v1.ReportEmailCodeSignInRefusalResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
 	GetSelfServiceStatus(context.Context, *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error)
@@ -272,6 +276,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("UseVerificationToken")),
 			connect.WithClientOptions(opts...),
 		),
+		reportEmailCodeSignInRefusal: connect.NewClient[v1.ReportEmailCodeSignInRefusalRequest, v1.ReportEmailCodeSignInRefusalResponse](
+			httpClient,
+			baseURL+AuthServiceReportEmailCodeSignInRefusalProcedure,
+			connect.WithSchema(authServiceMethods.ByName("ReportEmailCodeSignInRefusal")),
+			connect.WithClientOptions(opts...),
+		),
 		upsertUserByEmail: connect.NewClient[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse](
 			httpClient,
 			baseURL+AuthServiceUpsertUserByEmailProcedure,
@@ -346,35 +356,36 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getToken                   *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
-	createLinkSession          *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
-	getLinkSession             *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
-	updateLinkSession          *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
-	checkTeamInvites           *connect.Client[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse]
-	createUser                 *connect.Client[v1.CreateUserRequest, v1.CreateUserResponse]
-	getUserById                *connect.Client[v1.GetUserByIdRequest, v1.GetUserByIdResponse]
-	getUserByEmail             *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
-	getUserByAccount           *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
-	updateUser                 *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
-	updateUserProfile          *connect.Client[v1.UpdateUserProfileRequest, v1.UpdateUserProfileResponse]
-	linkAccount                *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
-	createSession              *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
-	getSessionAndUser          *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
-	updateSession              *connect.Client[v1.UpdateSessionRequest, v1.UpdateSessionResponse]
-	deleteSession              *connect.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
-	createVerificationToken    *connect.Client[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse]
-	useVerificationToken       *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
-	upsertUserByEmail          *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
-	selfServiceCreateTeam      *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
-	getSelfServiceStatus       *connect.Client[v1.GetSelfServiceStatusRequest, v1.GetSelfServiceStatusResponse]
-	getTeamOnboardingStatus    *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
-	getProjectInfo             *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
-	getInternalWorkingToken    *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
-	renewInternalExchangeToken *connect.Client[v1.RenewInternalExchangeTokenRequest, v1.RenewInternalExchangeTokenResponse]
-	getWorkloadIdentityToken   *connect.Client[v1.GetWorkloadIdentityTokenRequest, v1.GetWorkloadIdentityTokenResponse]
-	createSelfHostedLicenseKey *connect.Client[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse]
-	revokeSelfHostedLicenseKey *connect.Client[v1.RevokeSelfHostedLicenseKeyRequest, v1.RevokeSelfHostedLicenseKeyResponse]
-	listSelfHostedLicenseKeys  *connect.Client[v1.ListSelfHostedLicenseKeysRequest, v1.ListSelfHostedLicenseKeysResponse]
+	getToken                     *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
+	createLinkSession            *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
+	getLinkSession               *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
+	updateLinkSession            *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
+	checkTeamInvites             *connect.Client[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse]
+	createUser                   *connect.Client[v1.CreateUserRequest, v1.CreateUserResponse]
+	getUserById                  *connect.Client[v1.GetUserByIdRequest, v1.GetUserByIdResponse]
+	getUserByEmail               *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
+	getUserByAccount             *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
+	updateUser                   *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	updateUserProfile            *connect.Client[v1.UpdateUserProfileRequest, v1.UpdateUserProfileResponse]
+	linkAccount                  *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
+	createSession                *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
+	getSessionAndUser            *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
+	updateSession                *connect.Client[v1.UpdateSessionRequest, v1.UpdateSessionResponse]
+	deleteSession                *connect.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
+	createVerificationToken      *connect.Client[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse]
+	useVerificationToken         *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
+	reportEmailCodeSignInRefusal *connect.Client[v1.ReportEmailCodeSignInRefusalRequest, v1.ReportEmailCodeSignInRefusalResponse]
+	upsertUserByEmail            *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
+	selfServiceCreateTeam        *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
+	getSelfServiceStatus         *connect.Client[v1.GetSelfServiceStatusRequest, v1.GetSelfServiceStatusResponse]
+	getTeamOnboardingStatus      *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
+	getProjectInfo               *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
+	getInternalWorkingToken      *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
+	renewInternalExchangeToken   *connect.Client[v1.RenewInternalExchangeTokenRequest, v1.RenewInternalExchangeTokenResponse]
+	getWorkloadIdentityToken     *connect.Client[v1.GetWorkloadIdentityTokenRequest, v1.GetWorkloadIdentityTokenResponse]
+	createSelfHostedLicenseKey   *connect.Client[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse]
+	revokeSelfHostedLicenseKey   *connect.Client[v1.RevokeSelfHostedLicenseKeyRequest, v1.RevokeSelfHostedLicenseKeyResponse]
+	listSelfHostedLicenseKeys    *connect.Client[v1.ListSelfHostedLicenseKeysRequest, v1.ListSelfHostedLicenseKeysResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -467,6 +478,11 @@ func (c *authServiceClient) UseVerificationToken(ctx context.Context, req *conne
 	return c.useVerificationToken.CallUnary(ctx, req)
 }
 
+// ReportEmailCodeSignInRefusal calls chalk.server.v1.AuthService.ReportEmailCodeSignInRefusal.
+func (c *authServiceClient) ReportEmailCodeSignInRefusal(ctx context.Context, req *connect.Request[v1.ReportEmailCodeSignInRefusalRequest]) (*connect.Response[v1.ReportEmailCodeSignInRefusalResponse], error) {
+	return c.reportEmailCodeSignInRefusal.CallUnary(ctx, req)
+}
+
 // UpsertUserByEmail calls chalk.server.v1.AuthService.UpsertUserByEmail.
 func (c *authServiceClient) UpsertUserByEmail(ctx context.Context, req *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error) {
 	return c.upsertUserByEmail.CallUnary(ctx, req)
@@ -542,6 +558,7 @@ type AuthServiceHandler interface {
 	DeleteSession(context.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error)
 	CreateVerificationToken(context.Context, *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error)
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
+	ReportEmailCodeSignInRefusal(context.Context, *connect.Request[v1.ReportEmailCodeSignInRefusalRequest]) (*connect.Response[v1.ReportEmailCodeSignInRefusalResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
 	GetSelfServiceStatus(context.Context, *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error)
@@ -673,6 +690,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("UseVerificationToken")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceReportEmailCodeSignInRefusalHandler := connect.NewUnaryHandler(
+		AuthServiceReportEmailCodeSignInRefusalProcedure,
+		svc.ReportEmailCodeSignInRefusal,
+		connect.WithSchema(authServiceMethods.ByName("ReportEmailCodeSignInRefusal")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceUpsertUserByEmailHandler := connect.NewUnaryHandler(
 		AuthServiceUpsertUserByEmailProcedure,
 		svc.UpsertUserByEmail,
@@ -780,6 +803,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceCreateVerificationTokenHandler.ServeHTTP(w, r)
 		case AuthServiceUseVerificationTokenProcedure:
 			authServiceUseVerificationTokenHandler.ServeHTTP(w, r)
+		case AuthServiceReportEmailCodeSignInRefusalProcedure:
+			authServiceReportEmailCodeSignInRefusalHandler.ServeHTTP(w, r)
 		case AuthServiceUpsertUserByEmailProcedure:
 			authServiceUpsertUserByEmailHandler.ServeHTTP(w, r)
 		case AuthServiceSelfServiceCreateTeamProcedure:
@@ -881,6 +906,10 @@ func (UnimplementedAuthServiceHandler) CreateVerificationToken(context.Context, 
 
 func (UnimplementedAuthServiceHandler) UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UseVerificationToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) ReportEmailCodeSignInRefusal(context.Context, *connect.Request[v1.ReportEmailCodeSignInRefusalRequest]) (*connect.Response[v1.ReportEmailCodeSignInRefusalResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.ReportEmailCodeSignInRefusal is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error) {

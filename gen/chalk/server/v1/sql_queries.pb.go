@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -22,6 +23,70 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type SqlQueryLifecyclePhase int32
+
+const (
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_UNSPECIFIED SqlQueryLifecyclePhase = 0
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_QUEUED      SqlQueryLifecyclePhase = 1
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_SETTING_UP  SqlQueryLifecyclePhase = 2
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_EXECUTING   SqlQueryLifecyclePhase = 3
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_RETRYING    SqlQueryLifecyclePhase = 4
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_SUCCEEDED   SqlQueryLifecyclePhase = 5
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_FAILED      SqlQueryLifecyclePhase = 6
+	SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_CANCELED    SqlQueryLifecyclePhase = 7
+)
+
+// Enum value maps for SqlQueryLifecyclePhase.
+var (
+	SqlQueryLifecyclePhase_name = map[int32]string{
+		0: "SQL_QUERY_LIFECYCLE_PHASE_UNSPECIFIED",
+		1: "SQL_QUERY_LIFECYCLE_PHASE_QUEUED",
+		2: "SQL_QUERY_LIFECYCLE_PHASE_SETTING_UP",
+		3: "SQL_QUERY_LIFECYCLE_PHASE_EXECUTING",
+		4: "SQL_QUERY_LIFECYCLE_PHASE_RETRYING",
+		5: "SQL_QUERY_LIFECYCLE_PHASE_SUCCEEDED",
+		6: "SQL_QUERY_LIFECYCLE_PHASE_FAILED",
+		7: "SQL_QUERY_LIFECYCLE_PHASE_CANCELED",
+	}
+	SqlQueryLifecyclePhase_value = map[string]int32{
+		"SQL_QUERY_LIFECYCLE_PHASE_UNSPECIFIED": 0,
+		"SQL_QUERY_LIFECYCLE_PHASE_QUEUED":      1,
+		"SQL_QUERY_LIFECYCLE_PHASE_SETTING_UP":  2,
+		"SQL_QUERY_LIFECYCLE_PHASE_EXECUTING":   3,
+		"SQL_QUERY_LIFECYCLE_PHASE_RETRYING":    4,
+		"SQL_QUERY_LIFECYCLE_PHASE_SUCCEEDED":   5,
+		"SQL_QUERY_LIFECYCLE_PHASE_FAILED":      6,
+		"SQL_QUERY_LIFECYCLE_PHASE_CANCELED":    7,
+	}
+)
+
+func (x SqlQueryLifecyclePhase) Enum() *SqlQueryLifecyclePhase {
+	p := new(SqlQueryLifecyclePhase)
+	*p = x
+	return p
+}
+
+func (x SqlQueryLifecyclePhase) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SqlQueryLifecyclePhase) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_sql_queries_proto_enumTypes[0].Descriptor()
+}
+
+func (SqlQueryLifecyclePhase) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_sql_queries_proto_enumTypes[0]
+}
+
+func (x SqlQueryLifecyclePhase) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SqlQueryLifecyclePhase.Descriptor instead.
+func (SqlQueryLifecyclePhase) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{0}
+}
 
 type SqlQuery struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -39,7 +104,8 @@ type SqlQuery struct {
 	QueryText string `protobuf:"bytes,6,opt,name=query_text,json=queryText,proto3" json:"query_text,omitempty"`
 	// Query duration in seconds
 	Duration *float64 `protobuf:"fixed64,7,opt,name=duration,proto3,oneof" json:"duration,omitempty"`
-	// Query status: 0=failure, 1=success
+	// Query status: 0=failure, 1=success, 2=queued/setup/retry, 3=executing, 4=canceled.
+	// Queue-backed queries use lifecycle as the authoritative phase.
 	Status int32 `protobuf:"varint,8,opt,name=status,proto3" json:"status,omitempty"`
 	// Additional metadata as JSON string
 	QueryMetadata *string `protobuf:"bytes,9,opt,name=query_metadata,json=queryMetadata,proto3,oneof" json:"query_metadata,omitempty"`
@@ -62,7 +128,9 @@ type SqlQuery struct {
 	// Cloud storage URI for the serialized query plan JSON
 	PlanUri *string `protobuf:"bytes,18,opt,name=plan_uri,json=planUri,proto3,oneof" json:"plan_uri,omitempty"`
 	// Human-readable failure reason, populated when status=0 (failure)
-	Error         *string `protobuf:"bytes,19,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error *string `protobuf:"bytes,19,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	// Queue-authoritative lifecycle when this query is backed by a job.
+	Lifecycle     *SqlQueryLifecycle `protobuf:"bytes,20,opt,name=lifecycle,proto3" json:"lifecycle,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,13 +298,20 @@ func (x *SqlQuery) GetError() string {
 	return ""
 }
 
+func (x *SqlQuery) GetLifecycle() *SqlQueryLifecycle {
+	if x != nil {
+		return x.Lifecycle
+	}
+	return nil
+}
+
 type ListSqlQueriesRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	Limit        int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	Cursor       *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	AgentId      *string                `protobuf:"bytes,3,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
 	DeploymentId *string                `protobuf:"bytes,4,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
-	// Optional filter by status (0=failure, 1=success)
+	// Optional filter by status (0=failure, 1=success, 2=queued/setup/retry, 3=executing, 4=canceled)
 	Status        *int32                 `protobuf:"varint,5,opt,name=status,proto3,oneof" json:"status,omitempty"`
 	BranchName    *string                `protobuf:"bytes,6,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"`
 	ExternalId    *string                `protobuf:"bytes,7,opt,name=external_id,json=externalId,proto3,oneof" json:"external_id,omitempty"`
@@ -449,7 +524,10 @@ func (x *GetSqlQueryRequest) GetId() string {
 type GetSqlQueryResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The SQL query
-	Query         *SqlQuery `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Query *SqlQuery `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	// Queue-authoritative lifecycle, available even before query history is written.
+	// Absent for queries that were not submitted through the job queue.
+	Lifecycle     *SqlQueryLifecycle `protobuf:"bytes,2,opt,name=lifecycle,proto3" json:"lifecycle,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -491,6 +569,133 @@ func (x *GetSqlQueryResponse) GetQuery() *SqlQuery {
 	return nil
 }
 
+func (x *GetSqlQueryResponse) GetLifecycle() *SqlQueryLifecycle {
+	if x != nil {
+		return x.Lifecycle
+	}
+	return nil
+}
+
+type SqlQueryLifecycle struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Phase SqlQueryLifecyclePhase `protobuf:"varint,1,opt,name=phase,proto3,enum=chalk.server.v1.SqlQueryLifecyclePhase" json:"phase,omitempty"`
+	// Monotonic within an operation. Compare revisions, not phase enum numbers:
+	// retries reenter the queue and advance the attempt number.
+	Revision       uint64                 `protobuf:"varint,2,opt,name=revision,proto3" json:"revision,omitempty"`
+	AttemptNumber  int64                  `protobuf:"varint,3,opt,name=attempt_number,json=attemptNumber,proto3" json:"attempt_number,omitempty"`
+	EnqueuedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=enqueued_at,json=enqueuedAt,proto3" json:"enqueued_at,omitempty"`
+	QueuedAt       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=queued_at,json=queuedAt,proto3" json:"queued_at,omitempty"`
+	StartedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	WorkStartedAt  *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=work_started_at,json=workStartedAt,proto3" json:"work_started_at,omitempty"`
+	FinishedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	PhaseStartedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=phase_started_at,json=phaseStartedAt,proto3" json:"phase_started_at,omitempty"`
+	// Last recorded query error while retrying; absent if the worker failed before
+	// it could record an error. An attempt error is not a terminal query failure.
+	RetryReason   *string `protobuf:"bytes,10,opt,name=retry_reason,json=retryReason,proto3,oneof" json:"retry_reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SqlQueryLifecycle) Reset() {
+	*x = SqlQueryLifecycle{}
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlQueryLifecycle) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlQueryLifecycle) ProtoMessage() {}
+
+func (x *SqlQueryLifecycle) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlQueryLifecycle.ProtoReflect.Descriptor instead.
+func (*SqlQueryLifecycle) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SqlQueryLifecycle) GetPhase() SqlQueryLifecyclePhase {
+	if x != nil {
+		return x.Phase
+	}
+	return SqlQueryLifecyclePhase_SQL_QUERY_LIFECYCLE_PHASE_UNSPECIFIED
+}
+
+func (x *SqlQueryLifecycle) GetRevision() uint64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *SqlQueryLifecycle) GetAttemptNumber() int64 {
+	if x != nil {
+		return x.AttemptNumber
+	}
+	return 0
+}
+
+func (x *SqlQueryLifecycle) GetEnqueuedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EnqueuedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetQueuedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.QueuedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetWorkStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.WorkStartedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetFinishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetPhaseStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PhaseStartedAt
+	}
+	return nil
+}
+
+func (x *SqlQueryLifecycle) GetRetryReason() string {
+	if x != nil && x.RetryReason != nil {
+		return *x.RetryReason
+	}
+	return ""
+}
+
 type GetSqlQueryPlanRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the SQL query whose persisted plan should be retrieved.
@@ -501,7 +706,7 @@ type GetSqlQueryPlanRequest struct {
 
 func (x *GetSqlQueryPlanRequest) Reset() {
 	*x = GetSqlQueryPlanRequest{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -513,7 +718,7 @@ func (x *GetSqlQueryPlanRequest) String() string {
 func (*GetSqlQueryPlanRequest) ProtoMessage() {}
 
 func (x *GetSqlQueryPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -526,7 +731,7 @@ func (x *GetSqlQueryPlanRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQueryPlanRequest.ProtoReflect.Descriptor instead.
 func (*GetSqlQueryPlanRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetSqlQueryPlanRequest) GetQueryId() string {
@@ -550,7 +755,7 @@ type GetSqlQueryPlanResponse struct {
 
 func (x *GetSqlQueryPlanResponse) Reset() {
 	*x = GetSqlQueryPlanResponse{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +767,7 @@ func (x *GetSqlQueryPlanResponse) String() string {
 func (*GetSqlQueryPlanResponse) ProtoMessage() {}
 
 func (x *GetSqlQueryPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +780,7 @@ func (x *GetSqlQueryPlanResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQueryPlanResponse.ProtoReflect.Descriptor instead.
 func (*GetSqlQueryPlanResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetSqlQueryPlanResponse) GetQueryPlanJson() string {
@@ -608,7 +813,7 @@ type GetSqlQuerySignedUrlsRequest struct {
 
 func (x *GetSqlQuerySignedUrlsRequest) Reset() {
 	*x = GetSqlQuerySignedUrlsRequest{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +825,7 @@ func (x *GetSqlQuerySignedUrlsRequest) String() string {
 func (*GetSqlQuerySignedUrlsRequest) ProtoMessage() {}
 
 func (x *GetSqlQuerySignedUrlsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +838,7 @@ func (x *GetSqlQuerySignedUrlsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQuerySignedUrlsRequest.ProtoReflect.Descriptor instead.
 func (*GetSqlQuerySignedUrlsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSqlQuerySignedUrlsRequest) GetQueryId() string {
@@ -660,7 +865,7 @@ type GetSqlQuerySignedUrlsResponse struct {
 
 func (x *GetSqlQuerySignedUrlsResponse) Reset() {
 	*x = GetSqlQuerySignedUrlsResponse{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -672,7 +877,7 @@ func (x *GetSqlQuerySignedUrlsResponse) String() string {
 func (*GetSqlQuerySignedUrlsResponse) ProtoMessage() {}
 
 func (x *GetSqlQuerySignedUrlsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -685,7 +890,7 @@ func (x *GetSqlQuerySignedUrlsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQuerySignedUrlsResponse.ProtoReflect.Descriptor instead.
 func (*GetSqlQuerySignedUrlsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetSqlQuerySignedUrlsResponse) GetSignedResultUrls() []string {
@@ -713,7 +918,7 @@ var File_chalk_server_v1_sql_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/datasets.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbb\a\n" +
+	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/datasets.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfd\a\n" +
 	"\bSqlQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\bagent_id\x18\x02 \x01(\tH\x00R\aagentId\x88\x01\x01\x12%\n" +
@@ -739,7 +944,8 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"R\rqueryPlanJson\x88\x01\x01\x12/\n" +
 	"\x11output_uri_prefix\x18\x11 \x01(\tH\vR\x0foutputUriPrefix\x88\x01\x01\x12\x1e\n" +
 	"\bplan_uri\x18\x12 \x01(\tH\fR\aplanUri\x88\x01\x01\x12\x19\n" +
-	"\x05error\x18\x13 \x01(\tH\rR\x05error\x88\x01\x01B\v\n" +
+	"\x05error\x18\x13 \x01(\tH\rR\x05error\x88\x01\x01\x12@\n" +
+	"\tlifecycle\x18\x14 \x01(\v2\".chalk.server.v1.SqlQueryLifecycleR\tlifecycleB\v\n" +
 	"\t_agent_idB\x10\n" +
 	"\x0e_deployment_idB\v\n" +
 	"\t_durationB\x11\n" +
@@ -783,9 +989,26 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
 	"\f_next_cursor\"$\n" +
 	"\x12GetSqlQueryRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x88\x01\n" +
 	"\x13GetSqlQueryResponse\x12/\n" +
-	"\x05query\x18\x01 \x01(\v2\x19.chalk.server.v1.SqlQueryR\x05query\"3\n" +
+	"\x05query\x18\x01 \x01(\v2\x19.chalk.server.v1.SqlQueryR\x05query\x12@\n" +
+	"\tlifecycle\x18\x02 \x01(\v2\".chalk.server.v1.SqlQueryLifecycleR\tlifecycle\"\xc6\x04\n" +
+	"\x11SqlQueryLifecycle\x12=\n" +
+	"\x05phase\x18\x01 \x01(\x0e2'.chalk.server.v1.SqlQueryLifecyclePhaseR\x05phase\x12\x1a\n" +
+	"\brevision\x18\x02 \x01(\x04R\brevision\x12%\n" +
+	"\x0eattempt_number\x18\x03 \x01(\x03R\rattemptNumber\x12;\n" +
+	"\venqueued_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"enqueuedAt\x127\n" +
+	"\tqueued_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bqueuedAt\x129\n" +
+	"\n" +
+	"started_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12B\n" +
+	"\x0fwork_started_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\rworkStartedAt\x12;\n" +
+	"\vfinished_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"finishedAt\x12D\n" +
+	"\x10phase_started_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x0ephaseStartedAt\x12&\n" +
+	"\fretry_reason\x18\n" +
+	" \x01(\tH\x00R\vretryReason\x88\x01\x01B\x0f\n" +
+	"\r_retry_reason\"3\n" +
 	"\x16GetSqlQueryPlanRequest\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xcf\x01\n" +
 	"\x17GetSqlQueryPlanResponse\x12+\n" +
@@ -796,11 +1019,20 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\r_logical_planB\x10\n" +
 	"\x0e_physical_plan\"9\n" +
 	"\x1cGetSqlQuerySignedUrlsRequest\x12\x19\n" +
-	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xe7\x01\n" +
-	"\x1dGetSqlQuerySignedUrlsResponse\x12,\n" +
-	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls\x12h\n" +
-	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks\x12.\n" +
-	"\x13signed_preview_urls\x18\x03 \x03(\tR\x11signedPreviewUrls2\xce\x03\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xf3\x01\n" +
+	"\x1dGetSqlQuerySignedUrlsResponse\x122\n" +
+	"\x12signed_result_urls\x18\x01 \x03(\tB\x04ء'\x01R\x10signedResultUrls\x12h\n" +
+	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks\x124\n" +
+	"\x13signed_preview_urls\x18\x03 \x03(\tB\x04ء'\x01R\x11signedPreviewUrls*\xdb\x02\n" +
+	"\x16SqlQueryLifecyclePhase\x12)\n" +
+	"%SQL_QUERY_LIFECYCLE_PHASE_UNSPECIFIED\x10\x00\x12$\n" +
+	" SQL_QUERY_LIFECYCLE_PHASE_QUEUED\x10\x01\x12(\n" +
+	"$SQL_QUERY_LIFECYCLE_PHASE_SETTING_UP\x10\x02\x12'\n" +
+	"#SQL_QUERY_LIFECYCLE_PHASE_EXECUTING\x10\x03\x12&\n" +
+	"\"SQL_QUERY_LIFECYCLE_PHASE_RETRYING\x10\x04\x12'\n" +
+	"#SQL_QUERY_LIFECYCLE_PHASE_SUCCEEDED\x10\x05\x12$\n" +
+	" SQL_QUERY_LIFECYCLE_PHASE_FAILED\x10\x06\x12&\n" +
+	"\"SQL_QUERY_LIFECYCLE_PHASE_CANCELED\x10\a2\xce\x03\n" +
 	"\x11SqlQueriesService\x12i\n" +
 	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}$\x90\x02\x01\x12`\n" +
 	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12l\n" +
@@ -820,40 +1052,52 @@ func file_chalk_server_v1_sql_queries_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_sql_queries_proto_rawDescData
 }
 
-var file_chalk_server_v1_sql_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chalk_server_v1_sql_queries_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_sql_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chalk_server_v1_sql_queries_proto_goTypes = []any{
-	(*SqlQuery)(nil),                      // 0: chalk.server.v1.SqlQuery
-	(*ListSqlQueriesRequest)(nil),         // 1: chalk.server.v1.ListSqlQueriesRequest
-	(*ListSqlQueriesResponse)(nil),        // 2: chalk.server.v1.ListSqlQueriesResponse
-	(*GetSqlQueryRequest)(nil),            // 3: chalk.server.v1.GetSqlQueryRequest
-	(*GetSqlQueryResponse)(nil),           // 4: chalk.server.v1.GetSqlQueryResponse
-	(*GetSqlQueryPlanRequest)(nil),        // 5: chalk.server.v1.GetSqlQueryPlanRequest
-	(*GetSqlQueryPlanResponse)(nil),       // 6: chalk.server.v1.GetSqlQueryPlanResponse
-	(*GetSqlQuerySignedUrlsRequest)(nil),  // 7: chalk.server.v1.GetSqlQuerySignedUrlsRequest
-	(*GetSqlQuerySignedUrlsResponse)(nil), // 8: chalk.server.v1.GetSqlQuerySignedUrlsResponse
-	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
-	(*ShardPerformanceSummaryLink)(nil),   // 10: chalk.server.v1.ShardPerformanceSummaryLink
+	(SqlQueryLifecyclePhase)(0),           // 0: chalk.server.v1.SqlQueryLifecyclePhase
+	(*SqlQuery)(nil),                      // 1: chalk.server.v1.SqlQuery
+	(*ListSqlQueriesRequest)(nil),         // 2: chalk.server.v1.ListSqlQueriesRequest
+	(*ListSqlQueriesResponse)(nil),        // 3: chalk.server.v1.ListSqlQueriesResponse
+	(*GetSqlQueryRequest)(nil),            // 4: chalk.server.v1.GetSqlQueryRequest
+	(*GetSqlQueryResponse)(nil),           // 5: chalk.server.v1.GetSqlQueryResponse
+	(*SqlQueryLifecycle)(nil),             // 6: chalk.server.v1.SqlQueryLifecycle
+	(*GetSqlQueryPlanRequest)(nil),        // 7: chalk.server.v1.GetSqlQueryPlanRequest
+	(*GetSqlQueryPlanResponse)(nil),       // 8: chalk.server.v1.GetSqlQueryPlanResponse
+	(*GetSqlQuerySignedUrlsRequest)(nil),  // 9: chalk.server.v1.GetSqlQuerySignedUrlsRequest
+	(*GetSqlQuerySignedUrlsResponse)(nil), // 10: chalk.server.v1.GetSqlQuerySignedUrlsResponse
+	(*timestamppb.Timestamp)(nil),         // 11: google.protobuf.Timestamp
+	(*ShardPerformanceSummaryLink)(nil),   // 12: chalk.server.v1.ShardPerformanceSummaryLink
 }
 var file_chalk_server_v1_sql_queries_proto_depIdxs = []int32{
-	9,  // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 1: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	9,  // 2: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
-	0,  // 3: chalk.server.v1.ListSqlQueriesResponse.queries:type_name -> chalk.server.v1.SqlQuery
-	0,  // 4: chalk.server.v1.GetSqlQueryResponse.query:type_name -> chalk.server.v1.SqlQuery
-	10, // 5: chalk.server.v1.GetSqlQuerySignedUrlsResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
-	1,  // 6: chalk.server.v1.SqlQueriesService.ListSqlQueries:input_type -> chalk.server.v1.ListSqlQueriesRequest
-	3,  // 7: chalk.server.v1.SqlQueriesService.GetSqlQuery:input_type -> chalk.server.v1.GetSqlQueryRequest
-	5,  // 8: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:input_type -> chalk.server.v1.GetSqlQueryPlanRequest
-	7,  // 9: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
-	2,  // 10: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
-	4,  // 11: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
-	6,  // 12: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:output_type -> chalk.server.v1.GetSqlQueryPlanResponse
-	8,  // 13: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	11, // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 1: chalk.server.v1.SqlQuery.lifecycle:type_name -> chalk.server.v1.SqlQueryLifecycle
+	11, // 2: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	11, // 3: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	1,  // 4: chalk.server.v1.ListSqlQueriesResponse.queries:type_name -> chalk.server.v1.SqlQuery
+	1,  // 5: chalk.server.v1.GetSqlQueryResponse.query:type_name -> chalk.server.v1.SqlQuery
+	6,  // 6: chalk.server.v1.GetSqlQueryResponse.lifecycle:type_name -> chalk.server.v1.SqlQueryLifecycle
+	0,  // 7: chalk.server.v1.SqlQueryLifecycle.phase:type_name -> chalk.server.v1.SqlQueryLifecyclePhase
+	11, // 8: chalk.server.v1.SqlQueryLifecycle.enqueued_at:type_name -> google.protobuf.Timestamp
+	11, // 9: chalk.server.v1.SqlQueryLifecycle.queued_at:type_name -> google.protobuf.Timestamp
+	11, // 10: chalk.server.v1.SqlQueryLifecycle.started_at:type_name -> google.protobuf.Timestamp
+	11, // 11: chalk.server.v1.SqlQueryLifecycle.work_started_at:type_name -> google.protobuf.Timestamp
+	11, // 12: chalk.server.v1.SqlQueryLifecycle.finished_at:type_name -> google.protobuf.Timestamp
+	11, // 13: chalk.server.v1.SqlQueryLifecycle.phase_started_at:type_name -> google.protobuf.Timestamp
+	12, // 14: chalk.server.v1.GetSqlQuerySignedUrlsResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
+	2,  // 15: chalk.server.v1.SqlQueriesService.ListSqlQueries:input_type -> chalk.server.v1.ListSqlQueriesRequest
+	4,  // 16: chalk.server.v1.SqlQueriesService.GetSqlQuery:input_type -> chalk.server.v1.GetSqlQueryRequest
+	7,  // 17: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:input_type -> chalk.server.v1.GetSqlQueryPlanRequest
+	9,  // 18: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
+	3,  // 19: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
+	5,  // 20: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
+	8,  // 21: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:output_type -> chalk.server.v1.GetSqlQueryPlanResponse
+	10, // 22: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_sql_queries_proto_init() }
@@ -865,19 +1109,21 @@ func file_chalk_server_v1_sql_queries_proto_init() {
 	file_chalk_server_v1_sql_queries_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_server_v1_sql_queries_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_sql_queries_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_sql_queries_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_sql_queries_proto_rawDesc), len(file_chalk_server_v1_sql_queries_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_sql_queries_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_sql_queries_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_sql_queries_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_sql_queries_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_sql_queries_proto = out.File

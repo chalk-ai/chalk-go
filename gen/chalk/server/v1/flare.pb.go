@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -344,7 +345,7 @@ var File_chalk_server_v1_flare_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_flare_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/server/v1/flare.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a chalk/auth/v1/displayagent.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
+	"\x1bchalk/server/v1/flare.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a chalk/auth/v1/displayagent.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
 	"\x05Flare\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x121\n" +
 	"\x05agent\x18\x02 \x01(\v2\x1b.chalk.auth.v1.DisplayAgentR\x05agent\x129\n" +
@@ -354,12 +355,12 @@ const file_chalk_server_v1_flare_proto_rawDesc = "" +
 	"\x12ListFlaresResponse\x12.\n" +
 	"\x06flares\x18\x01 \x03(\v2\x16.chalk.server.v1.FlareR\x06flares\"6\n" +
 	"\x1bGetFlareDownloadLinkRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"=\n" +
-	"\x1cGetFlareDownloadLinkResponse\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"C\n" +
+	"\x1cGetFlareDownloadLinkResponse\x12#\n" +
 	"\n" +
-	"signed_uri\x18\x01 \x01(\tR\tsignedUri\".\n" +
-	"\x12UploadFlareRequest\x12\x18\n" +
-	"\aarchive\x18\x02 \x01(\fR\aarchive\")\n" +
+	"signed_uri\x18\x01 \x01(\tB\x04ء'\x01R\tsignedUri\"4\n" +
+	"\x12UploadFlareRequest\x12\x1e\n" +
+	"\aarchive\x18\x02 \x01(\fB\x04\xe8\xa1'\x01R\aarchive\")\n" +
 	"\x13UploadFlareResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name2\xc3\x02\n" +
 	"\fFlareService\x12]\n" +

@@ -906,14 +906,16 @@ const file_chalk_router_v1_usage_budget_proto_rawDesc = "" +
 	"\x1fUSAGE_BUDGET_PERIOD_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19USAGE_BUDGET_PERIOD_DAILY\x10\x01\x12\x1e\n" +
 	"\x1aUSAGE_BUDGET_PERIOD_WEEKLY\x10\x02\x12\x1f\n" +
-	"\x1bUSAGE_BUDGET_PERIOD_MONTHLY\x10\x032\x80\x05\n" +
-	"\x12UsageBudgetService\x12\xab\x01\n" +
-	"\x11CreateUsageBudget\x12).chalk.router.v1.CreateUsageBudgetRequest\x1a*.chalk.router.v1.CreateUsageBudgetResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
-	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12o\n" +
-	"\x10ListUsageBudgets\x12(.chalk.router.v1.ListUsageBudgetsRequest\x1a).chalk.router.v1.ListUsageBudgetsResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +
-	"\x11UpdateUsageBudget\x12).chalk.router.v1.UpdateUsageBudgetRequest\x1a*.chalk.router.v1.UpdateUsageBudgetResponse\"\x03\x80}\x02\x12i\n" +
-	"\x0eGetUsageBudget\x12&.chalk.router.v1.GetUsageBudgetRequest\x1a'.chalk.router.v1.GetUsageBudgetResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +
-	"\x11DeleteUsageBudget\x12).chalk.router.v1.DeleteUsageBudgetRequest\x1a*.chalk.router.v1.DeleteUsageBudgetResponse\"\x03\x80}\x02B\xc0\x01\n" +
+	"\x1bUSAGE_BUDGET_PERIOD_MONTHLY\x10\x032\x94\x05\n" +
+	"\x12UsageBudgetService\x12\xaf\x01\n" +
+	"\x11CreateUsageBudget\x12).chalk.router.v1.CreateUsageBudgetRequest\x1a*.chalk.router.v1.CreateUsageBudgetResponse\"C\x80}L\x92}\x01\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12s\n" +
+	"\x10ListUsageBudgets\x12(.chalk.router.v1.ListUsageBudgetsRequest\x1a).chalk.router.v1.ListUsageBudgetsResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12s\n" +
+	"\x11UpdateUsageBudget\x12).chalk.router.v1.UpdateUsageBudgetRequest\x1a*.chalk.router.v1.UpdateUsageBudgetResponse\"\a\x80}L\x92}\x01\x02\x12m\n" +
+	"\x0eGetUsageBudget\x12&.chalk.router.v1.GetUsageBudgetRequest\x1a'.chalk.router.v1.GetUsageBudgetResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12s\n" +
+	"\x11DeleteUsageBudget\x12).chalk.router.v1.DeleteUsageBudgetRequest\x1a*.chalk.router.v1.DeleteUsageBudgetResponse\"\a\x80}L\x92}\x01\x02B\xc0\x01\n" +
 	"\x13com.chalk.router.v1B\x10UsageBudgetProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

@@ -7,6 +7,7 @@
 package aggregatev1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -796,11 +797,230 @@ func (x *CronAggregateBackfill) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// A stretch of one tile series with no tiles, as [lower_bound, upper_bound).
+type TileSeriesGap struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	MaterializationKeyHash string                 `protobuf:"bytes,1,opt,name=materialization_key_hash,json=materializationKeyHash,proto3" json:"materialization_key_hash,omitempty"`
+	LowerBound             *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=lower_bound,json=lowerBound,proto3" json:"lower_bound,omitempty"`
+	UpperBound             *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TileSeriesGap) Reset() {
+	*x = TileSeriesGap{}
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TileSeriesGap) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TileSeriesGap) ProtoMessage() {}
+
+func (x *TileSeriesGap) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TileSeriesGap.ProtoReflect.Descriptor instead.
+func (*TileSeriesGap) Descriptor() ([]byte, []int) {
+	return file_chalk_aggregate_v1_backfill_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *TileSeriesGap) GetMaterializationKeyHash() string {
+	if x != nil {
+		return x.MaterializationKeyHash
+	}
+	return ""
+}
+
+func (x *TileSeriesGap) GetLowerBound() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LowerBound
+	}
+	return nil
+}
+
+func (x *TileSeriesGap) GetUpperBound() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpperBound
+	}
+	return nil
+}
+
+// One backfill filling every requested gap on one bucket grid with the same source and bounds.
+type TileSeriesGapBackfill struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The windowed features planned to write the gaps' series.
+	Features []string `protobuf:"bytes,1,rep,name=features,proto3" json:"features,omitempty"`
+	// The resolver that wrote the series' existing tiles, reused as the source.
+	Resolver string `protobuf:"bytes,2,opt,name=resolver,proto3" json:"resolver,omitempty"`
+	// Absent in plan mode and when the backfill failed to start.
+	Job *AggregateBackfillJob `protobuf:"bytes,3,opt,name=job,proto3,oneof" json:"job,omitempty"`
+	// Why the backfill failed to start.
+	Error         *v1.ChalkError `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TileSeriesGapBackfill) Reset() {
+	*x = TileSeriesGapBackfill{}
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TileSeriesGapBackfill) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TileSeriesGapBackfill) ProtoMessage() {}
+
+func (x *TileSeriesGapBackfill) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TileSeriesGapBackfill.ProtoReflect.Descriptor instead.
+func (*TileSeriesGapBackfill) Descriptor() ([]byte, []int) {
+	return file_chalk_aggregate_v1_backfill_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TileSeriesGapBackfill) GetFeatures() []string {
+	if x != nil {
+		return x.Features
+	}
+	return nil
+}
+
+func (x *TileSeriesGapBackfill) GetResolver() string {
+	if x != nil {
+		return x.Resolver
+	}
+	return ""
+}
+
+func (x *TileSeriesGapBackfill) GetJob() *AggregateBackfillJob {
+	if x != nil {
+		return x.Job
+	}
+	return nil
+}
+
+func (x *TileSeriesGapBackfill) GetError() *v1.ChalkError {
+	if x != nil {
+		return x.Error
+	}
+	return nil
+}
+
+// The outcome for one requested gap.
+type TileSeriesGapBackfillResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Outcome:
+	//
+	//	*TileSeriesGapBackfillResult_BackfillIndex
+	//	*TileSeriesGapBackfillResult_Error
+	Outcome       isTileSeriesGapBackfillResult_Outcome `protobuf_oneof:"outcome"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TileSeriesGapBackfillResult) Reset() {
+	*x = TileSeriesGapBackfillResult{}
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TileSeriesGapBackfillResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TileSeriesGapBackfillResult) ProtoMessage() {}
+
+func (x *TileSeriesGapBackfillResult) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_aggregate_v1_backfill_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TileSeriesGapBackfillResult.ProtoReflect.Descriptor instead.
+func (*TileSeriesGapBackfillResult) Descriptor() ([]byte, []int) {
+	return file_chalk_aggregate_v1_backfill_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *TileSeriesGapBackfillResult) GetOutcome() isTileSeriesGapBackfillResult_Outcome {
+	if x != nil {
+		return x.Outcome
+	}
+	return nil
+}
+
+func (x *TileSeriesGapBackfillResult) GetBackfillIndex() int32 {
+	if x != nil {
+		if x, ok := x.Outcome.(*TileSeriesGapBackfillResult_BackfillIndex); ok {
+			return x.BackfillIndex
+		}
+	}
+	return 0
+}
+
+func (x *TileSeriesGapBackfillResult) GetError() *v1.ChalkError {
+	if x != nil {
+		if x, ok := x.Outcome.(*TileSeriesGapBackfillResult_Error); ok {
+			return x.Error
+		}
+	}
+	return nil
+}
+
+type isTileSeriesGapBackfillResult_Outcome interface {
+	isTileSeriesGapBackfillResult_Outcome()
+}
+
+type TileSeriesGapBackfillResult_BackfillIndex struct {
+	// Index into the response's backfills of the one that fills this gap.
+	BackfillIndex int32 `protobuf:"varint,1,opt,name=backfill_index,json=backfillIndex,proto3,oneof"`
+}
+
+type TileSeriesGapBackfillResult_Error struct {
+	// Why this gap can't be backfilled.
+	Error *v1.ChalkError `protobuf:"bytes,2,opt,name=error,proto3,oneof"`
+}
+
+func (*TileSeriesGapBackfillResult_BackfillIndex) isTileSeriesGapBackfillResult_Outcome() {}
+
+func (*TileSeriesGapBackfillResult_Error) isTileSeriesGapBackfillResult_Outcome() {}
+
 var File_chalk_aggregate_v1_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/aggregate/v1/backfill.proto\x12\x12chalk.aggregate.v1\x1a#chalk/aggregate/v1/timeseries.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x02\n" +
+	"!chalk/aggregate/v1/backfill.proto\x12\x12chalk.aggregate.v1\x1a#chalk/aggregate/v1/timeseries.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x02\n" +
 	"\x1dAggregateBackfillCostEstimate\x12\x1f\n" +
 	"\vmax_buckets\x18\x01 \x01(\x03R\n" +
 	"maxBuckets\x12)\n" +
@@ -891,7 +1111,24 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\v\n" +
 	"\t_filenameB\x11\n" +
-	"\x0f_resource_group*\x86\x03\n" +
+	"\x0f_resource_group\"\xc3\x01\n" +
+	"\rTileSeriesGap\x128\n" +
+	"\x18materialization_key_hash\x18\x01 \x01(\tR\x16materializationKeyHash\x12;\n" +
+	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"lowerBound\x12;\n" +
+	"\vupper_bound\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"upperBound\"\xda\x01\n" +
+	"\x15TileSeriesGapBackfill\x12\x1a\n" +
+	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12\x1a\n" +
+	"\bresolver\x18\x02 \x01(\tR\bresolver\x12?\n" +
+	"\x03job\x18\x03 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobH\x00R\x03job\x88\x01\x01\x126\n" +
+	"\x05error\x18\x04 \x01(\v2\x1b.chalk.common.v1.ChalkErrorH\x01R\x05error\x88\x01\x01B\x06\n" +
+	"\x04_jobB\b\n" +
+	"\x06_error\"\x86\x01\n" +
+	"\x1bTileSeriesGapBackfillResult\x12'\n" +
+	"\x0ebackfill_index\x18\x01 \x01(\x05H\x00R\rbackfillIndex\x123\n" +
+	"\x05error\x18\x02 \x01(\v2\x1b.chalk.common.v1.ChalkErrorH\x00R\x05errorB\t\n" +
+	"\aoutcome*\x86\x03\n" +
 	"\x17AggregateBackfillStatus\x12)\n" +
 	"%AGGREGATE_BACKFILL_STATUS_UNSPECIFIED\x10\x00\x12*\n" +
 	"&AGGREGATE_BACKFILL_STATUS_INITIALIZING\x10\x01\x12)\n" +
@@ -922,7 +1159,7 @@ func file_chalk_aggregate_v1_backfill_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_aggregate_v1_backfill_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_aggregate_v1_backfill_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_aggregate_v1_backfill_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_aggregate_v1_backfill_proto_goTypes = []any{
 	(AggregateBackfillStatus)(0),              // 0: chalk.aggregate.v1.AggregateBackfillStatus
 	(AggregateBackfillTarget)(0),              // 1: chalk.aggregate.v1.AggregateBackfillTarget
@@ -932,33 +1169,42 @@ var file_chalk_aggregate_v1_backfill_proto_goTypes = []any{
 	(*AggregateBackfillWithCostEstimate)(nil), // 5: chalk.aggregate.v1.AggregateBackfillWithCostEstimate
 	(*AggregateBackfillJob)(nil),              // 6: chalk.aggregate.v1.AggregateBackfillJob
 	(*CronAggregateBackfill)(nil),             // 7: chalk.aggregate.v1.CronAggregateBackfill
-	(*durationpb.Duration)(nil),               // 8: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),             // 9: google.protobuf.Timestamp
-	(*AggregateTimeSeries)(nil),               // 10: chalk.aggregate.v1.AggregateTimeSeries
+	(*TileSeriesGap)(nil),                     // 8: chalk.aggregate.v1.TileSeriesGap
+	(*TileSeriesGapBackfill)(nil),             // 9: chalk.aggregate.v1.TileSeriesGapBackfill
+	(*TileSeriesGapBackfillResult)(nil),       // 10: chalk.aggregate.v1.TileSeriesGapBackfillResult
+	(*durationpb.Duration)(nil),               // 11: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),             // 12: google.protobuf.Timestamp
+	(*AggregateTimeSeries)(nil),               // 13: chalk.aggregate.v1.AggregateTimeSeries
+	(*v1.ChalkError)(nil),                     // 14: chalk.common.v1.ChalkError
 }
 var file_chalk_aggregate_v1_backfill_proto_depIdxs = []int32{
-	8,  // 0: chalk.aggregate.v1.AggregateBackfillCostEstimate.expected_runtime:type_name -> google.protobuf.Duration
-	9,  // 1: chalk.aggregate.v1.AggregateBackfillUserParams.lower_bound:type_name -> google.protobuf.Timestamp
-	9,  // 2: chalk.aggregate.v1.AggregateBackfillUserParams.upper_bound:type_name -> google.protobuf.Timestamp
-	10, // 3: chalk.aggregate.v1.AggregateBackfill.series:type_name -> chalk.aggregate.v1.AggregateTimeSeries
-	8,  // 4: chalk.aggregate.v1.AggregateBackfill.bucket_duration:type_name -> google.protobuf.Duration
-	8,  // 5: chalk.aggregate.v1.AggregateBackfill.max_retention:type_name -> google.protobuf.Duration
-	9,  // 6: chalk.aggregate.v1.AggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
-	9,  // 7: chalk.aggregate.v1.AggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
+	11, // 0: chalk.aggregate.v1.AggregateBackfillCostEstimate.expected_runtime:type_name -> google.protobuf.Duration
+	12, // 1: chalk.aggregate.v1.AggregateBackfillUserParams.lower_bound:type_name -> google.protobuf.Timestamp
+	12, // 2: chalk.aggregate.v1.AggregateBackfillUserParams.upper_bound:type_name -> google.protobuf.Timestamp
+	13, // 3: chalk.aggregate.v1.AggregateBackfill.series:type_name -> chalk.aggregate.v1.AggregateTimeSeries
+	11, // 4: chalk.aggregate.v1.AggregateBackfill.bucket_duration:type_name -> google.protobuf.Duration
+	11, // 5: chalk.aggregate.v1.AggregateBackfill.max_retention:type_name -> google.protobuf.Duration
+	12, // 6: chalk.aggregate.v1.AggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
+	12, // 7: chalk.aggregate.v1.AggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
 	4,  // 8: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.backfill:type_name -> chalk.aggregate.v1.AggregateBackfill
 	2,  // 9: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.estimate:type_name -> chalk.aggregate.v1.AggregateBackfillCostEstimate
-	9,  // 10: chalk.aggregate.v1.AggregateBackfillJob.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 11: chalk.aggregate.v1.AggregateBackfillJob.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 10: chalk.aggregate.v1.AggregateBackfillJob.created_at:type_name -> google.protobuf.Timestamp
+	12, // 11: chalk.aggregate.v1.AggregateBackfillJob.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 12: chalk.aggregate.v1.AggregateBackfillJob.status:type_name -> chalk.aggregate.v1.AggregateBackfillStatus
 	1,  // 13: chalk.aggregate.v1.CronAggregateBackfill.target:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
 	1,  // 14: chalk.aggregate.v1.CronAggregateBackfill.targets:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
-	9,  // 15: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 16: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	12, // 15: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
+	12, // 16: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 17: chalk.aggregate.v1.TileSeriesGap.lower_bound:type_name -> google.protobuf.Timestamp
+	12, // 18: chalk.aggregate.v1.TileSeriesGap.upper_bound:type_name -> google.protobuf.Timestamp
+	6,  // 19: chalk.aggregate.v1.TileSeriesGapBackfill.job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	14, // 20: chalk.aggregate.v1.TileSeriesGapBackfill.error:type_name -> chalk.common.v1.ChalkError
+	14, // 21: chalk.aggregate.v1.TileSeriesGapBackfillResult.error:type_name -> chalk.common.v1.ChalkError
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_chalk_aggregate_v1_backfill_proto_init() }
@@ -971,13 +1217,18 @@ func file_chalk_aggregate_v1_backfill_proto_init() {
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_aggregate_v1_backfill_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_aggregate_v1_backfill_proto_msgTypes[8].OneofWrappers = []any{
+		(*TileSeriesGapBackfillResult_BackfillIndex)(nil),
+		(*TileSeriesGapBackfillResult_Error)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_aggregate_v1_backfill_proto_rawDesc), len(file_chalk_aggregate_v1_backfill_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   6,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

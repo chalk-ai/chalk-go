@@ -7,6 +7,7 @@
 package kubernetesv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -561,16 +562,16 @@ var File_chalk_kubernetes_v1_httproute_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_httproute_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/kubernetes/v1/httproute.proto\x12\x13chalk.kubernetes.v1\x1a chalk/kubernetes/v1/routes.proto\"`\n" +
+	"#chalk/kubernetes/v1/httproute.proto\x12\x13chalk.kubernetes.v1\x1a chalk/kubernetes/v1/routes.proto\x1a\x1echalk/utils/v1/sensitive.proto\"`\n" +
 	"\x17KubernetesHTTPPathMatch\x12\x17\n" +
 	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x01R\x05value\x88\x01\x01B\a\n" +
 	"\x05_typeB\b\n" +
-	"\x06_value\"g\n" +
+	"\x06_value\"m\n" +
 	"\x19KubernetesHTTPHeaderMatch\x12\x17\n" +
 	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x03 \x01(\tR\x05valueB\a\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x03 \x01(\tB\x04ء'\x01R\x05valueB\a\n" +
 	"\x05_type\"k\n" +
 	"\x1dKubernetesHTTPQueryParamMatch\x12\x17\n" +
 	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12\x12\n" +

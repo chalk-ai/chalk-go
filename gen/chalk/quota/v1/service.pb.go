@@ -104,6 +104,8 @@ const (
 	QuotaWorkloadKind_QUOTA_WORKLOAD_KIND_FUNCTION         QuotaWorkloadKind = 3
 	QuotaWorkloadKind_QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT QuotaWorkloadKind = 4
 	QuotaWorkloadKind_QUOTA_WORKLOAD_KIND_NOTEBOOK         QuotaWorkloadKind = 5
+	// Environment deployment services consume CPU, memory, and GPU resources only.
+	QuotaWorkloadKind_QUOTA_WORKLOAD_KIND_DEPLOYMENT_SERVICE QuotaWorkloadKind = 6
 )
 
 // Enum value maps for QuotaWorkloadKind.
@@ -115,14 +117,16 @@ var (
 		3: "QUOTA_WORKLOAD_KIND_FUNCTION",
 		4: "QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT",
 		5: "QUOTA_WORKLOAD_KIND_NOTEBOOK",
+		6: "QUOTA_WORKLOAD_KIND_DEPLOYMENT_SERVICE",
 	}
 	QuotaWorkloadKind_value = map[string]int32{
-		"QUOTA_WORKLOAD_KIND_UNSPECIFIED":      0,
-		"QUOTA_WORKLOAD_KIND_SANDBOX":          1,
-		"QUOTA_WORKLOAD_KIND_SCALING_GROUP":    2,
-		"QUOTA_WORKLOAD_KIND_FUNCTION":         3,
-		"QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT": 4,
-		"QUOTA_WORKLOAD_KIND_NOTEBOOK":         5,
+		"QUOTA_WORKLOAD_KIND_UNSPECIFIED":        0,
+		"QUOTA_WORKLOAD_KIND_SANDBOX":            1,
+		"QUOTA_WORKLOAD_KIND_SCALING_GROUP":      2,
+		"QUOTA_WORKLOAD_KIND_FUNCTION":           3,
+		"QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT":   4,
+		"QUOTA_WORKLOAD_KIND_NOTEBOOK":           5,
+		"QUOTA_WORKLOAD_KIND_DEPLOYMENT_SERVICE": 6,
 	}
 )
 
@@ -988,14 +992,15 @@ const file_chalk_quota_v1_service_proto_rawDesc = "" +
 	"'QUOTA_RESOURCE_KIND_SCALING_GROUP_COUNT\x10\x06\x12&\n" +
 	"\"QUOTA_RESOURCE_KIND_FUNCTION_COUNT\x10\a\x12.\n" +
 	"*QUOTA_RESOURCE_KIND_MODEL_DEPLOYMENT_COUNT\x10\b\x12&\n" +
-	"\"QUOTA_RESOURCE_KIND_NOTEBOOK_COUNT\x10\t*\xee\x01\n" +
+	"\"QUOTA_RESOURCE_KIND_NOTEBOOK_COUNT\x10\t*\x9a\x02\n" +
 	"\x11QuotaWorkloadKind\x12#\n" +
 	"\x1fQUOTA_WORKLOAD_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bQUOTA_WORKLOAD_KIND_SANDBOX\x10\x01\x12%\n" +
 	"!QUOTA_WORKLOAD_KIND_SCALING_GROUP\x10\x02\x12 \n" +
 	"\x1cQUOTA_WORKLOAD_KIND_FUNCTION\x10\x03\x12(\n" +
 	"$QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT\x10\x04\x12 \n" +
-	"\x1cQUOTA_WORKLOAD_KIND_NOTEBOOK\x10\x052\x8f\x05\n" +
+	"\x1cQUOTA_WORKLOAD_KIND_NOTEBOOK\x10\x05\x12*\n" +
+	"&QUOTA_WORKLOAD_KIND_DEPLOYMENT_SERVICE\x10\x062\x8f\x05\n" +
 	"\fQuotaService\x12X\n" +
 	"\n" +
 	"ListQuotas\x12!.chalk.quota.v1.ListQuotasRequest\x1a\".chalk.quota.v1.ListQuotasResponse\"\x03\x80}\v\x12R\n" +

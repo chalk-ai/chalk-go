@@ -265,15 +265,18 @@ func (x *KarpenterNodeSelectorRequirement) GetValues() []string {
 }
 
 type KarpenterNodepoolTemplateSpec struct {
-	state                  protoimpl.MessageState              `protogen:"open.v1"`
-	Taints                 []*v1.KubernetesNodeTaint           `protobuf:"bytes,1,rep,name=taints,proto3" json:"taints,omitempty"`
-	StartupTaints          []*v1.KubernetesNodeTaint           `protobuf:"bytes,2,rep,name=startup_taints,json=startupTaints,proto3" json:"startup_taints,omitempty"`
-	Requirements           []*KarpenterNodeSelectorRequirement `protobuf:"bytes,3,rep,name=requirements,proto3" json:"requirements,omitempty"`
-	NodeClassRef           *KarpenterNodeClassRef              `protobuf:"bytes,4,opt,name=node_class_ref,json=nodeClassRef,proto3" json:"node_class_ref,omitempty"`
-	ExpireAfter            *durationpb.Duration                `protobuf:"bytes,5,opt,name=expire_after,json=expireAfter,proto3,oneof" json:"expire_after,omitempty"`
-	TerminationGracePeriod *durationpb.Duration                `protobuf:"bytes,6,opt,name=termination_grace_period,json=terminationGracePeriod,proto3,oneof" json:"termination_grace_period,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Taints        []*v1.KubernetesNodeTaint           `protobuf:"bytes,1,rep,name=taints,proto3" json:"taints,omitempty"`
+	StartupTaints []*v1.KubernetesNodeTaint           `protobuf:"bytes,2,rep,name=startup_taints,json=startupTaints,proto3" json:"startup_taints,omitempty"`
+	Requirements  []*KarpenterNodeSelectorRequirement `protobuf:"bytes,3,rep,name=requirements,proto3" json:"requirements,omitempty"`
+	NodeClassRef  *KarpenterNodeClassRef              `protobuf:"bytes,4,opt,name=node_class_ref,json=nodeClassRef,proto3" json:"node_class_ref,omitempty"`
+	// Absent means Never unless use_default_expire_after is true.
+	ExpireAfter            *durationpb.Duration `protobuf:"bytes,5,opt,name=expire_after,json=expireAfter,proto3,oneof" json:"expire_after,omitempty"`
+	TerminationGracePeriod *durationpb.Duration `protobuf:"bytes,6,opt,name=termination_grace_period,json=terminationGracePeriod,proto3,oneof" json:"termination_grace_period,omitempty"`
+	// Use Kubernetes defaulting instead of an explicit duration or Never.
+	UseDefaultExpireAfter bool `protobuf:"varint,7,opt,name=use_default_expire_after,json=useDefaultExpireAfter,proto3" json:"use_default_expire_after,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *KarpenterNodepoolTemplateSpec) Reset() {
@@ -346,6 +349,13 @@ func (x *KarpenterNodepoolTemplateSpec) GetTerminationGracePeriod() *durationpb.
 		return x.TerminationGracePeriod
 	}
 	return nil
+}
+
+func (x *KarpenterNodepoolTemplateSpec) GetUseDefaultExpireAfter() bool {
+	if x != nil {
+		return x.UseDefaultExpireAfter
+	}
+	return false
 }
 
 type KarpenterNodepoolTemplateMetadata struct {
@@ -858,14 +868,15 @@ const file_chalk_nodepools_v1_karpenter_proto_rawDesc = "" +
 	" KarpenterNodeSelectorRequirement\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\boperator\x18\x02 \x01(\tR\boperator\x12\x16\n" +
-	"\x06values\x18\x03 \x03(\tR\x06values\"\xa8\x04\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"\xe1\x04\n" +
 	"\x1dKarpenterNodepoolTemplateSpec\x12@\n" +
 	"\x06taints\x18\x01 \x03(\v2(.chalk.kubernetes.v1.KubernetesNodeTaintR\x06taints\x12O\n" +
 	"\x0estartup_taints\x18\x02 \x03(\v2(.chalk.kubernetes.v1.KubernetesNodeTaintR\rstartupTaints\x12X\n" +
 	"\frequirements\x18\x03 \x03(\v24.chalk.nodepools.v1.KarpenterNodeSelectorRequirementR\frequirements\x12O\n" +
 	"\x0enode_class_ref\x18\x04 \x01(\v2).chalk.nodepools.v1.KarpenterNodeClassRefR\fnodeClassRef\x12A\n" +
 	"\fexpire_after\x18\x05 \x01(\v2\x19.google.protobuf.DurationH\x00R\vexpireAfter\x88\x01\x01\x12X\n" +
-	"\x18termination_grace_period\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\x16terminationGracePeriod\x88\x01\x01B\x0f\n" +
+	"\x18termination_grace_period\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\x16terminationGracePeriod\x88\x01\x01\x127\n" +
+	"\x18use_default_expire_after\x18\a \x01(\bR\x15useDefaultExpireAfterB\x0f\n" +
 	"\r_expire_afterB\x1b\n" +
 	"\x19_termination_grace_period\"\xe3\x02\n" +
 	"!KarpenterNodepoolTemplateMetadata\x12Y\n" +

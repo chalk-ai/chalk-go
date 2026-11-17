@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/dataframe/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -1486,7 +1487,7 @@ var File_chalk_server_v1_dataframe_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/dataframe.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\"chalk/dataframe/v1/dataframe.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xac\x03\n" +
+	"\x1fchalk/server/v1/dataframe.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\"chalk/dataframe/v1/dataframe.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xac\x03\n" +
 	"\x1bExecuteDataFramePlanRequest\x127\n" +
 	"\x04plan\x18\x01 \x01(\v2!.chalk.dataframe.v1.DataFramePlanH\x00R\x04plan\x12=\n" +
 	"\x1acompressed_plan_uri_prefix\x18\x04 \x01(\tH\x00R\x17compressedPlanUriPrefix\x12*\n" +
@@ -1501,10 +1502,10 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12/\n" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.DataFrameRunR\x03run\x123\n" +
 	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\"\n" +
-	" GetDataFramePlanUploadUrlRequest\"\x7f\n" +
-	"!GetDataFramePlanUploadUrlResponse\x12\x1d\n" +
+	" GetDataFramePlanUploadUrlRequest\"\x85\x01\n" +
+	"!GetDataFramePlanUploadUrlResponse\x12#\n" +
 	"\n" +
-	"upload_url\x18\x01 \x01(\tR\tuploadUrl\x12;\n" +
+	"upload_url\x18\x01 \x01(\tB\x04ء'\x01R\tuploadUrl\x12;\n" +
 	"\x1acompressed_plan_uri_prefix\x18\x02 \x01(\tR\x17compressedPlanUriPrefix\";\n" +
 	"\x16GetDataFrameRunRequest\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\"A\n" +
@@ -1599,10 +1600,10 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\t_plan_uriB\x1a\n" +
 	"\x18_performance_summary_uri\"G\n" +
 	"\"GetDataFrameRunDownloadUrlsRequest\x12!\n" +
-	"\foperation_id\x18\x01 \x01(\tR\voperationId\"X\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\"^\n" +
 	"\x17DataFrameRunDownloadUrl\x12\x1a\n" +
-	"\bfilename\x18\x01 \x01(\tR\bfilename\x12!\n" +
-	"\fdownload_url\x18\x02 \x01(\tR\vdownloadUrl\"t\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12'\n" +
+	"\fdownload_url\x18\x02 \x01(\tB\x04ء'\x01R\vdownloadUrl\"t\n" +
 	"#GetDataFrameRunDownloadUrlsResponse\x12M\n" +
 	"\rdownload_urls\x18\x01 \x03(\v2(.chalk.server.v1.DataFrameRunDownloadUrlR\fdownloadUrls\"\x90\x04\n" +
 	"\x18ListDataFrameRunsRequest\x12\x14\n" +

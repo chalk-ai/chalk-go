@@ -18,6 +18,7 @@ package mcp_gatewayv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -699,7 +700,7 @@ type CallerIdentity struct {
 	// Add `_meta["ai.chalk/caller"]` ({subject, kind, issuer?}) to the MCP
 	// request. http and stdio transports.
 	Meta bool `protobuf:"varint,1,opt,name=meta,proto3" json:"meta,omitempty"`
-	// HTTP header name -> caller attribute: "subject", "user", "kind", "issuer",
+	// HTTP header name -> caller attribute: "subject", "user", "email", "kind", "issuer",
 	// or "attribute:<name>" (a trusted-issuer claims-mapping attribute). The
 	// gateway sets these headers itself and drops any other value of them.
 	// http and openapi transports.
@@ -4858,7 +4859,16 @@ type SimulatePolicyRequest struct {
 	// TRUSTED_ISSUER when identity is set and USER otherwise; identity and
 	// TRUSTED_ISSUER must be set together. Not applicable to sql_call, whose
 	// input.auth.kind is always null.
-	CallerKind    *CallerKind `protobuf:"varint,9,opt,name=caller_kind,json=callerKind,proto3,enum=chalk.mcp_gateway.v1.CallerKind,oneof" json:"caller_kind,omitempty"`
+	CallerKind *CallerKind `protobuf:"varint,9,opt,name=caller_kind,json=callerKind,proto3,enum=chalk.mcp_gateway.v1.CallerKind,oneof" json:"caller_kind,omitempty"`
+	// User email exercised as input.auth.email. Absent means null. Only valid
+	// with caller_kind USER (including its default) and a nonblank operation
+	// user (subject). Trimmed, with case preserved; use lower() in Rego for
+	// case-insensitive comparisons. Rejected with sql_call.
+	Email *string `protobuf:"bytes,11,opt,name=email,proto3,oneof" json:"email,omitempty"`
+	// Chalk group ids exercised as input.auth.groups. Empty means none.
+	// Nonempty groups require a nonblank operation user (subject) and are not
+	// valid with TRUSTED_ISSUER. Rejected with sql_call when nonempty.
+	Groups        []string `protobuf:"bytes,10,rep,name=groups,proto3" json:"groups,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4954,6 +4964,20 @@ func (x *SimulatePolicyRequest) GetCallerKind() CallerKind {
 		return *x.CallerKind
 	}
 	return CallerKind_CALLER_KIND_UNSPECIFIED
+}
+
+func (x *SimulatePolicyRequest) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
+	}
+	return ""
+}
+
+func (x *SimulatePolicyRequest) GetGroups() []string {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
 }
 
 type SimulateIdentity struct {
@@ -7100,24 +7124,24 @@ var File_chalk_mcp_gateway_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/mcp_gateway/v1/service.proto\x12\x14chalk.mcp_gateway.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"(\n" +
-	"\x10BearerCredential\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\x9b\x01\n" +
-	"\x11HeadersCredential\x12K\n" +
-	"\x06values\x18\x01 \x03(\v23.chalk.mcp_gateway.v1.HeadersCredential.ValuesEntryR\x06values\x1a9\n" +
+	"\"chalk/mcp_gateway/v1/service.proto\x12\x14chalk.mcp_gateway.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\".\n" +
+	"\x10BearerCredential\x12\x1a\n" +
+	"\x05token\x18\x01 \x01(\tB\x04ء'\x01R\x05token\"\xa1\x01\n" +
+	"\x11HeadersCredential\x12Q\n" +
+	"\x06values\x18\x01 \x03(\v23.chalk.mcp_gateway.v1.HeadersCredential.ValuesEntryB\x04ء'\x01R\x06values\x1a9\n" +
 	"\vValuesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\x01\n" +
-	"\rEnvCredential\x12A\n" +
-	"\x04vars\x18\x01 \x03(\v2-.chalk.mcp_gateway.v1.EnvCredential.VarsEntryR\x04vars\x1a7\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x91\x01\n" +
+	"\rEnvCredential\x12G\n" +
+	"\x04vars\x18\x01 \x03(\v2-.chalk.mcp_gateway.v1.EnvCredential.VarsEntryB\x04ء'\x01R\x04vars\x1a7\n" +
 	"\tVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf7\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\x03\n" +
 	"\x13OauthUserCredential\x12\x19\n" +
 	"\bauth_url\x18\x01 \x01(\tR\aauthUrl\x12\x1b\n" +
 	"\ttoken_url\x18\x02 \x01(\tR\btokenUrl\x12\x1b\n" +
-	"\tclient_id\x18\x03 \x01(\tR\bclientId\x12(\n" +
-	"\rclient_secret\x18\x04 \x01(\tH\x00R\fclientSecret\x88\x01\x01\x12\x16\n" +
+	"\tclient_id\x18\x03 \x01(\tR\bclientId\x12.\n" +
+	"\rclient_secret\x18\x04 \x01(\tB\x04ء'\x01H\x00R\fclientSecret\x88\x01\x01\x12\x16\n" +
 	"\x06scopes\x18\x05 \x03(\tR\x06scopes\x12y\n" +
 	"\x16extra_authorize_params\x18\x06 \x03(\v2C.chalk.mcp_gateway.v1.OauthUserCredential.ExtraAuthorizeParamsEntryR\x14extraAuthorizeParams\x12/\n" +
 	"\x11token_auth_method\x18\a \x01(\tH\x01R\x0ftokenAuthMethod\x88\x01\x01\x12\x1f\n" +
@@ -7172,12 +7196,12 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x128\n" +
 	"\targuments\x18\x04 \x01(\v2\x1a.google.protobuf.ListValueR\targumentsB\b\n" +
 	"\x06_titleB\x0e\n" +
-	"\f_description\"\x80\x04\n" +
+	"\f_description\"\x86\x04\n" +
 	"\x0eBackendDetails\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12=\n" +
 	"\ttransport\x18\x02 \x01(\x0e2\x1f.chalk.mcp_gateway.v1.TransportR\ttransport\x12\x15\n" +
-	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x04 \x01(\tH\x01R\acommand\x88\x01\x01\x12\x1c\n" +
+	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12#\n" +
+	"\acommand\x18\x04 \x01(\tB\x04ء'\x01H\x01R\acommand\x88\x01\x01\x12\x1c\n" +
 	"\tconnected\x18\x05 \x01(\bR\tconnected\x12\x19\n" +
 	"\bper_user\x18\x06 \x01(\bR\aperUser\x12\x1d\n" +
 	"\n" +
@@ -7323,13 +7347,13 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x02 \x01(\tH\x01R\vdescription\x88\x01\x01B\b\n" +
 	"\x06_titleB\x0e\n" +
-	"\f_description\"\xcf\x05\n" +
+	"\f_description\"\xdb\x05\n" +
 	"\vServerEntry\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12=\n" +
 	"\ttransport\x18\x02 \x01(\x0e2\x1f.chalk.mcp_gateway.v1.TransportR\ttransport\x12\x15\n" +
-	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x04 \x01(\tH\x01R\acommand\x88\x01\x01\x12\x12\n" +
-	"\x04args\x18\x05 \x03(\tR\x04args\x12'\n" +
+	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12#\n" +
+	"\acommand\x18\x04 \x01(\tB\x04ء'\x01H\x01R\acommand\x88\x01\x01\x12\x18\n" +
+	"\x04args\x18\x05 \x03(\tB\x04ء'\x01R\x04args\x12'\n" +
 	"\x0fcredential_kind\x18\x06 \x01(\tR\x0ecredentialKind\x12%\n" +
 	"\x0ehas_credential\x18\a \x01(\bR\rhasCredential\x12\x1e\n" +
 	"\n" +
@@ -7382,13 +7406,13 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x11GetServerResponse\x129\n" +
 	"\x06server\x18\x01 \x01(\v2!.chalk.mcp_gateway.v1.ServerEntryR\x06server\x12O\n" +
 	"\x0eoauth_settings\x18\x02 \x01(\v2#.chalk.mcp_gateway.v1.OauthSettingsH\x00R\roauthSettings\x88\x01\x01B\x11\n" +
-	"\x0f_oauth_settings\"\xdb\x05\n" +
+	"\x0f_oauth_settings\"\xe7\x05\n" +
 	"\x13CreateServerRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12=\n" +
 	"\ttransport\x18\x02 \x01(\x0e2\x1f.chalk.mcp_gateway.v1.TransportR\ttransport\x12\x15\n" +
-	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x04 \x01(\tH\x01R\acommand\x88\x01\x01\x12\x12\n" +
-	"\x04args\x18\x05 \x03(\tR\x04args\x12E\n" +
+	"\x03url\x18\x03 \x01(\tH\x00R\x03url\x88\x01\x01\x12#\n" +
+	"\acommand\x18\x04 \x01(\tB\x04ء'\x01H\x01R\acommand\x88\x01\x01\x12\x18\n" +
+	"\x04args\x18\x05 \x03(\tB\x04ء'\x01R\x04args\x12E\n" +
 	"\n" +
 	"credential\x18\x06 \x01(\v2 .chalk.mcp_gateway.v1.CredentialH\x02R\n" +
 	"credential\x88\x01\x01\x12\x1e\n" +
@@ -7412,12 +7436,12 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\awarning\x18\x01 \x01(\tR\awarning\x12\x1e\n" +
 	"\n" +
 	"advisories\x18\x02 \x03(\tR\n" +
-	"advisories\"\xc2\x06\n" +
+	"advisories\"\xce\x06\n" +
 	"\x15UpdateServerOperation\x12B\n" +
 	"\ttransport\x18\x01 \x01(\x0e2\x1f.chalk.mcp_gateway.v1.TransportH\x00R\ttransport\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\x02 \x01(\tH\x01R\x03url\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x03 \x01(\tH\x02R\acommand\x88\x01\x01\x12\x12\n" +
-	"\x04args\x18\x04 \x03(\tR\x04args\x12E\n" +
+	"\x03url\x18\x02 \x01(\tH\x01R\x03url\x88\x01\x01\x12#\n" +
+	"\acommand\x18\x03 \x01(\tB\x04ء'\x01H\x02R\acommand\x88\x01\x01\x12\x18\n" +
+	"\x04args\x18\x04 \x03(\tB\x04ء'\x01R\x04args\x12E\n" +
 	"\n" +
 	"credential\x18\x05 \x01(\v2 .chalk.mcp_gateway.v1.CredentialH\x03R\n" +
 	"credential\x88\x01\x01\x12\x1e\n" +
@@ -7550,7 +7574,7 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\f_environmentB\n" +
 	"\n" +
 	"\b_backendB\a\n" +
-	"\x05_user\"\xef\x05\n" +
+	"\x05_user\"\xac\x06\n" +
 	"\x15SimulatePolicyRequest\x12>\n" +
 	"\bpolicies\x18\x01 \x03(\v2\".chalk.mcp_gateway.v1.PolicySourceR\bpolicies\x12\x19\n" +
 	"\x05query\x18\x02 \x01(\tH\x00R\x05query\x88\x01\x01\x12H\n" +
@@ -7562,7 +7586,10 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\bsql_call\x18\a \x01(\v2%.chalk.mcp_gateway.v1.SimulateSqlCallH\x05R\asqlCall\x88\x01\x01\x12G\n" +
 	"\bidentity\x18\b \x01(\v2&.chalk.mcp_gateway.v1.SimulateIdentityH\x06R\bidentity\x88\x01\x01\x12F\n" +
 	"\vcaller_kind\x18\t \x01(\x0e2 .chalk.mcp_gateway.v1.CallerKindH\aR\n" +
-	"callerKind\x88\x01\x01B\b\n" +
+	"callerKind\x88\x01\x01\x12\x19\n" +
+	"\x05email\x18\v \x01(\tH\bR\x05email\x88\x01\x01\x12\x16\n" +
+	"\x06groups\x18\n" +
+	" \x03(\tR\x06groupsB\b\n" +
 	"\x06_queryB\f\n" +
 	"\n" +
 	"_tool_callB\x10\n" +
@@ -7571,7 +7598,8 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0e_access_countsB\v\n" +
 	"\t_sql_callB\v\n" +
 	"\t_identityB\x0e\n" +
-	"\f_caller_kind\"w\n" +
+	"\f_caller_kindB\b\n" +
+	"\x06_email\"w\n" +
 	"\x10SimulateIdentity\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12<\n" +
 	"\n" +
@@ -7763,53 +7791,72 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x19CallerIdentityWhenMissing\x12,\n" +
 	"(CALLER_IDENTITY_WHEN_MISSING_UNSPECIFIED\x10\x00\x12%\n" +
 	"!CALLER_IDENTITY_WHEN_MISSING_DENY\x10\x01\x12%\n" +
-	"!CALLER_IDENTITY_WHEN_MISSING_OMIT\x10\x022\xa2 \n" +
+	"!CALLER_IDENTITY_WHEN_MISSING_OMIT\x10\x022\xa3!\n" +
 	"\x11McpGatewayService\x12X\n" +
-	"\x05GetMe\x12\".chalk.mcp_gateway.v1.GetMeRequest\x1a#.chalk.mcp_gateway.v1.GetMeResponse\"\x06\x80}\x02\x90\x02\x01\x12m\n" +
-	"\fListBackends\x12).chalk.mcp_gateway.v1.ListBackendsRequest\x1a*.chalk.mcp_gateway.v1.ListBackendsResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
+	"\x05GetMe\x12\".chalk.mcp_gateway.v1.GetMeRequest\x1a#.chalk.mcp_gateway.v1.GetMeResponse\"\x06\x80}\x02\x90\x02\x01\x12q\n" +
+	"\fListBackends\x12).chalk.mcp_gateway.v1.ListBackendsRequest\x1a*.chalk.mcp_gateway.v1.ListBackendsResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12k\n" +
 	"\n" +
-	"GetBackend\x12'.chalk.mcp_gateway.v1.GetBackendRequest\x1a(.chalk.mcp_gateway.v1.GetBackendResponse\"\x06\x80}\x02\x90\x02\x01\x12^\n" +
-	"\bCallTool\x12%.chalk.mcp_gateway.v1.CallToolRequest\x1a&.chalk.mcp_gateway.v1.CallToolResponse\"\x03\x80}\x02\x12m\n" +
-	"\fReadResource\x12).chalk.mcp_gateway.v1.ReadResourceRequest\x1a*.chalk.mcp_gateway.v1.ReadResourceResponse\"\x06\x80}\x02\x90\x02\x01\x12d\n" +
-	"\tGetPrompt\x12&.chalk.mcp_gateway.v1.GetPromptRequest\x1a'.chalk.mcp_gateway.v1.GetPromptResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
+	"GetBackend\x12'.chalk.mcp_gateway.v1.GetBackendRequest\x1a(.chalk.mcp_gateway.v1.GetBackendResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12b\n" +
+	"\bCallTool\x12%.chalk.mcp_gateway.v1.CallToolRequest\x1a&.chalk.mcp_gateway.v1.CallToolResponse\"\a\x80}M\x92}\x01\x02\x12q\n" +
+	"\fReadResource\x12).chalk.mcp_gateway.v1.ReadResourceRequest\x1a*.chalk.mcp_gateway.v1.ReadResourceResponse\"\n" +
+	"\x80}M\x92}\x01\x02\x90\x02\x01\x12h\n" +
+	"\tGetPrompt\x12&.chalk.mcp_gateway.v1.GetPromptRequest\x1a'.chalk.mcp_gateway.v1.GetPromptResponse\"\n" +
+	"\x80}M\x92}\x01\x02\x90\x02\x01\x12k\n" +
 	"\n" +
-	"ListAgents\x12'.chalk.mcp_gateway.v1.ListAgentsRequest\x1a(.chalk.mcp_gateway.v1.ListAgentsResponse\"\x06\x80}\x02\x90\x02\x01\x12a\n" +
-	"\bGetAgent\x12%.chalk.mcp_gateway.v1.GetAgentRequest\x1a&.chalk.mcp_gateway.v1.GetAgentResponse\"\x06\x80}\x02\x90\x02\x01\x12^\n" +
-	"\bSetAgent\x12%.chalk.mcp_gateway.v1.SetAgentRequest\x1a&.chalk.mcp_gateway.v1.SetAgentResponse\"\x03\x80}\x02\x12g\n" +
-	"\vDeleteAgent\x12(.chalk.mcp_gateway.v1.DeleteAgentRequest\x1a).chalk.mcp_gateway.v1.DeleteAgentResponse\"\x03\x80}\x02\x12p\n" +
-	"\rListToolBelts\x12*.chalk.mcp_gateway.v1.ListToolBeltsRequest\x1a+.chalk.mcp_gateway.v1.ListToolBeltsResponse\"\x06\x80}\x02\x90\x02\x01\x12j\n" +
-	"\vGetToolBelt\x12(.chalk.mcp_gateway.v1.GetToolBeltRequest\x1a).chalk.mcp_gateway.v1.GetToolBeltResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
-	"\vSetToolBelt\x12(.chalk.mcp_gateway.v1.SetToolBeltRequest\x1a).chalk.mcp_gateway.v1.SetToolBeltResponse\"\x03\x80}\n" +
-	"\x12p\n" +
-	"\x0eDeleteToolBelt\x12+.chalk.mcp_gateway.v1.DeleteToolBeltRequest\x1a,.chalk.mcp_gateway.v1.DeleteToolBeltResponse\"\x03\x80}\n" +
-	"\x12s\n" +
-	"\x0eListOauthLinks\x12+.chalk.mcp_gateway.v1.ListOauthLinksRequest\x1a,.chalk.mcp_gateway.v1.ListOauthLinksResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
-	"\vUnlinkOauth\x12(.chalk.mcp_gateway.v1.UnlinkOauthRequest\x1a).chalk.mcp_gateway.v1.UnlinkOauthResponse\"\x03\x80}\x02\x12|\n" +
+	"ListAgents\x12'.chalk.mcp_gateway.v1.ListAgentsRequest\x1a(.chalk.mcp_gateway.v1.ListAgentsResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12e\n" +
+	"\bGetAgent\x12%.chalk.mcp_gateway.v1.GetAgentRequest\x1a&.chalk.mcp_gateway.v1.GetAgentResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12b\n" +
+	"\bSetAgent\x12%.chalk.mcp_gateway.v1.SetAgentRequest\x1a&.chalk.mcp_gateway.v1.SetAgentResponse\"\a\x80}J\x92}\x01\x02\x12k\n" +
+	"\vDeleteAgent\x12(.chalk.mcp_gateway.v1.DeleteAgentRequest\x1a).chalk.mcp_gateway.v1.DeleteAgentResponse\"\a\x80}J\x92}\x01\x02\x12t\n" +
+	"\rListToolBelts\x12*.chalk.mcp_gateway.v1.ListToolBeltsRequest\x1a+.chalk.mcp_gateway.v1.ListToolBeltsResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12n\n" +
+	"\vGetToolBelt\x12(.chalk.mcp_gateway.v1.GetToolBeltRequest\x1a).chalk.mcp_gateway.v1.GetToolBeltResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12k\n" +
+	"\vSetToolBelt\x12(.chalk.mcp_gateway.v1.SetToolBeltRequest\x1a).chalk.mcp_gateway.v1.SetToolBeltResponse\"\a\x80}J\x92}\x01\n" +
+	"\x12t\n" +
+	"\x0eDeleteToolBelt\x12+.chalk.mcp_gateway.v1.DeleteToolBeltRequest\x1a,.chalk.mcp_gateway.v1.DeleteToolBeltResponse\"\a\x80}J\x92}\x01\n" +
+	"\x12w\n" +
+	"\x0eListOauthLinks\x12+.chalk.mcp_gateway.v1.ListOauthLinksRequest\x1a,.chalk.mcp_gateway.v1.ListOauthLinksResponse\"\n" +
+	"\x80}M\x92}\x01\x02\x90\x02\x01\x12k\n" +
+	"\vUnlinkOauth\x12(.chalk.mcp_gateway.v1.UnlinkOauthRequest\x1a).chalk.mcp_gateway.v1.UnlinkOauthResponse\"\a\x80}M\x92}\x01\x02\x12|\n" +
 	"\x11ListOauthBindings\x12..chalk.mcp_gateway.v1.ListOauthBindingsRequest\x1a/.chalk.mcp_gateway.v1.ListOauthBindingsResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12j\n" +
-	"\vListServers\x12(.chalk.mcp_gateway.v1.ListServersRequest\x1a).chalk.mcp_gateway.v1.ListServersResponse\"\x06\x80}\x02\x90\x02\x01\x12d\n" +
-	"\tGetServer\x12&.chalk.mcp_gateway.v1.GetServerRequest\x1a'.chalk.mcp_gateway.v1.GetServerResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb6\x01\n" +
-	"\fCreateServer\x12).chalk.mcp_gateway.v1.CreateServerRequest\x1a*.chalk.mcp_gateway.v1.CreateServerResponse\"O\x80}\x02\x92\xd3\x0eH\n" +
-	"\x13mcp_gateway_enabled\x121Enables MCP Gateway server and policy management.\x12j\n" +
-	"\fUpdateServer\x12).chalk.mcp_gateway.v1.UpdateServerRequest\x1a*.chalk.mcp_gateway.v1.UpdateServerResponse\"\x03\x80}\x02\x12j\n" +
-	"\fDeleteServer\x12).chalk.mcp_gateway.v1.DeleteServerRequest\x1a*.chalk.mcp_gateway.v1.DeleteServerResponse\"\x03\x80}\x02\x12\xbf\x01\n" +
-	"\x0ePreviewOpenapi\x12+.chalk.mcp_gateway.v1.PreviewOpenapiRequest\x1a,.chalk.mcp_gateway.v1.PreviewOpenapiResponse\"R\x80}\x02\x92\xd3\x0eH\n" +
-	"\x13mcp_gateway_enabled\x121Enables MCP Gateway server and policy management.\x90\x02\x01\x12p\n" +
-	"\x0eSimulatePolicy\x12+.chalk.mcp_gateway.v1.SimulatePolicyRequest\x1a,.chalk.mcp_gateway.v1.SimulatePolicyResponse\"\x03\x80}\x02\x12j\n" +
-	"\vCheckPolicy\x12(.chalk.mcp_gateway.v1.CheckPolicyRequest\x1a).chalk.mcp_gateway.v1.CheckPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12j\n" +
-	"\vRecentAudit\x12(.chalk.mcp_gateway.v1.RecentAuditRequest\x1a).chalk.mcp_gateway.v1.RecentAuditResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
-	"\vStreamAudit\x12(.chalk.mcp_gateway.v1.StreamAuditRequest\x1a).chalk.mcp_gateway.v1.StreamAuditResponse\"\x06\x80}\x02\x88\x02\x010\x01\x12m\n" +
-	"\fListPolicies\x12).chalk.mcp_gateway.v1.ListPoliciesRequest\x1a*.chalk.mcp_gateway.v1.ListPoliciesResponse\"\x06\x80}\x02\x90\x02\x01\x12d\n" +
-	"\tGetPolicy\x12&.chalk.mcp_gateway.v1.GetPolicyRequest\x1a'.chalk.mcp_gateway.v1.GetPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12a\n" +
-	"\tSetPolicy\x12&.chalk.mcp_gateway.v1.SetPolicyRequest\x1a'.chalk.mcp_gateway.v1.SetPolicyResponse\"\x03\x80}\x02\x12j\n" +
-	"\fDeletePolicy\x12).chalk.mcp_gateway.v1.DeletePolicyRequest\x1a*.chalk.mcp_gateway.v1.DeletePolicyResponse\"\x03\x80}\x02\x12\x7f\n" +
-	"\x12ListTrustedIssuers\x12/.chalk.mcp_gateway.v1.ListTrustedIssuersRequest\x1a0.chalk.mcp_gateway.v1.ListTrustedIssuersResponse\"\x06\x80}\x02\x90\x02\x01\x12y\n" +
-	"\x10GetTrustedIssuer\x12-.chalk.mcp_gateway.v1.GetTrustedIssuerRequest\x1a..chalk.mcp_gateway.v1.GetTrustedIssuerResponse\"\x06\x80}\x02\x90\x02\x01\x12v\n" +
+	"\x90\x02\x01\x12n\n" +
+	"\vListServers\x12(.chalk.mcp_gateway.v1.ListServersRequest\x1a).chalk.mcp_gateway.v1.ListServersResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12h\n" +
+	"\tGetServer\x12&.chalk.mcp_gateway.v1.GetServerRequest\x1a'.chalk.mcp_gateway.v1.GetServerResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12\xba\x01\n" +
+	"\fCreateServer\x12).chalk.mcp_gateway.v1.CreateServerRequest\x1a*.chalk.mcp_gateway.v1.CreateServerResponse\"S\x80}J\x92}\x01\x02\x92\xd3\x0eH\n" +
+	"\x13mcp_gateway_enabled\x121Enables MCP Gateway server and policy management.\x12n\n" +
+	"\fUpdateServer\x12).chalk.mcp_gateway.v1.UpdateServerRequest\x1a*.chalk.mcp_gateway.v1.UpdateServerResponse\"\a\x80}J\x92}\x01\x02\x12n\n" +
+	"\fDeleteServer\x12).chalk.mcp_gateway.v1.DeleteServerRequest\x1a*.chalk.mcp_gateway.v1.DeleteServerResponse\"\a\x80}J\x92}\x01\x02\x12\xc3\x01\n" +
+	"\x0ePreviewOpenapi\x12+.chalk.mcp_gateway.v1.PreviewOpenapiRequest\x1a,.chalk.mcp_gateway.v1.PreviewOpenapiResponse\"V\x80}I\x92}\x01\x02\x92\xd3\x0eH\n" +
+	"\x13mcp_gateway_enabled\x121Enables MCP Gateway server and policy management.\x90\x02\x01\x12t\n" +
+	"\x0eSimulatePolicy\x12+.chalk.mcp_gateway.v1.SimulatePolicyRequest\x1a,.chalk.mcp_gateway.v1.SimulatePolicyResponse\"\a\x80}M\x92}\x01\x02\x12n\n" +
+	"\vCheckPolicy\x12(.chalk.mcp_gateway.v1.CheckPolicyRequest\x1a).chalk.mcp_gateway.v1.CheckPolicyResponse\"\n" +
+	"\x80}M\x92}\x01\x02\x90\x02\x01\x12n\n" +
+	"\vRecentAudit\x12(.chalk.mcp_gateway.v1.RecentAuditRequest\x1a).chalk.mcp_gateway.v1.RecentAuditResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12p\n" +
+	"\vStreamAudit\x12(.chalk.mcp_gateway.v1.StreamAuditRequest\x1a).chalk.mcp_gateway.v1.StreamAuditResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x88\x02\x010\x01\x12q\n" +
+	"\fListPolicies\x12).chalk.mcp_gateway.v1.ListPoliciesRequest\x1a*.chalk.mcp_gateway.v1.ListPoliciesResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12h\n" +
+	"\tGetPolicy\x12&.chalk.mcp_gateway.v1.GetPolicyRequest\x1a'.chalk.mcp_gateway.v1.GetPolicyResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12e\n" +
+	"\tSetPolicy\x12&.chalk.mcp_gateway.v1.SetPolicyRequest\x1a'.chalk.mcp_gateway.v1.SetPolicyResponse\"\a\x80}J\x92}\x01\x02\x12n\n" +
+	"\fDeletePolicy\x12).chalk.mcp_gateway.v1.DeletePolicyRequest\x1a*.chalk.mcp_gateway.v1.DeletePolicyResponse\"\a\x80}J\x92}\x01\x02\x12\x83\x01\n" +
+	"\x12ListTrustedIssuers\x12/.chalk.mcp_gateway.v1.ListTrustedIssuersRequest\x1a0.chalk.mcp_gateway.v1.ListTrustedIssuersResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12}\n" +
+	"\x10GetTrustedIssuer\x12-.chalk.mcp_gateway.v1.GetTrustedIssuerRequest\x1a..chalk.mcp_gateway.v1.GetTrustedIssuerResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01\x12v\n" +
 	"\x10SetTrustedIssuer\x12-.chalk.mcp_gateway.v1.SetTrustedIssuerRequest\x1a..chalk.mcp_gateway.v1.SetTrustedIssuerResponse\"\x03\x80}\n" +
 	"\x12\x7f\n" +
 	"\x13DeleteTrustedIssuer\x120.chalk.mcp_gateway.v1.DeleteTrustedIssuerRequest\x1a1.chalk.mcp_gateway.v1.DeleteTrustedIssuerResponse\"\x03\x80}\n" +
-	"\x12\x85\x01\n" +
-	"\x14PreviewClaimsMapping\x121.chalk.mcp_gateway.v1.PreviewClaimsMappingRequest\x1a2.chalk.mcp_gateway.v1.PreviewClaimsMappingResponse\"\x06\x80}\x02\x90\x02\x01B\xdb\x01\n" +
+	"\x12\x89\x01\n" +
+	"\x14PreviewClaimsMapping\x121.chalk.mcp_gateway.v1.PreviewClaimsMappingRequest\x1a2.chalk.mcp_gateway.v1.PreviewClaimsMappingResponse\"\n" +
+	"\x80}I\x92}\x01\x02\x90\x02\x01B\xdb\x01\n" +
 	"\x18com.chalk.mcp_gateway.v1B\fServiceProtoP\x01ZCgithub.com/chalk-ai/chalk-go/gen/chalk/mcp_gateway/v1;mcp_gatewayv1\xa2\x02\x03CMX\xaa\x02\x13Chalk.McpGateway.V1\xca\x02\x13Chalk\\McpGateway\\V1\xe2\x02\x1fChalk\\McpGateway\\V1\\GPBMetadata\xea\x02\x15Chalk::McpGateway::V1b\x06proto3"
 
 var (

@@ -39,6 +39,9 @@ const (
 	// ModelDeploymentServiceUpdateModelScalingGroupProcedure is the fully-qualified name of the
 	// ModelDeploymentService's UpdateModelScalingGroup RPC.
 	ModelDeploymentServiceUpdateModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/UpdateModelScalingGroup"
+	// ModelDeploymentServiceSetModelScalingGroupWeightTargetProcedure is the fully-qualified name of
+	// the ModelDeploymentService's SetModelScalingGroupWeightTarget RPC.
+	ModelDeploymentServiceSetModelScalingGroupWeightTargetProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/SetModelScalingGroupWeightTarget"
 	// ModelDeploymentServiceGetModelScalingGroupProcedure is the fully-qualified name of the
 	// ModelDeploymentService's GetModelScalingGroup RPC.
 	ModelDeploymentServiceGetModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/GetModelScalingGroup"
@@ -66,6 +69,9 @@ type ModelDeploymentServiceClient interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// UpdateModelScalingGroup updates a model scaling group's spec, traffic, or both.
 	UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error)
+	// Selects an indexed publication without appending or restarting a revision.
+	// Persists desired state only; it does not establish serving readiness.
+	SetModelScalingGroupWeightTarget(context.Context, *connect.Request[v1.SetModelScalingGroupWeightTargetRequest]) (*connect.Response[v1.SetModelScalingGroupWeightTargetResponse], error)
 	// GetModelScalingGroup retrieves a model-owned scaling group.
 	GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
@@ -102,6 +108,12 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+ModelDeploymentServiceUpdateModelScalingGroupProcedure,
 			connect.WithSchema(modelDeploymentServiceMethods.ByName("UpdateModelScalingGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		setModelScalingGroupWeightTarget: connect.NewClient[v1.SetModelScalingGroupWeightTargetRequest, v1.SetModelScalingGroupWeightTargetResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceSetModelScalingGroupWeightTargetProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("SetModelScalingGroupWeightTarget")),
 			connect.WithClientOptions(opts...),
 		),
 		getModelScalingGroup: connect.NewClient[v1.GetModelScalingGroupRequest, v1.GetModelScalingGroupResponse](
@@ -145,14 +157,15 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 
 // modelDeploymentServiceClient implements ModelDeploymentServiceClient.
 type modelDeploymentServiceClient struct {
-	createModelScalingGroup        *connect.Client[v1.CreateModelScalingGroupRequest, v1.CreateModelScalingGroupResponse]
-	updateModelScalingGroup        *connect.Client[v1.UpdateModelScalingGroupRequest, v1.UpdateModelScalingGroupResponse]
-	getModelScalingGroup           *connect.Client[v1.GetModelScalingGroupRequest, v1.GetModelScalingGroupResponse]
-	listModelScalingGroups         *connect.Client[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse]
-	deleteModelScalingGroup        *connect.Client[v1.DeleteModelScalingGroupRequest, v1.DeleteModelScalingGroupResponse]
-	getModelScalingGroupRevision   *connect.Client[v1.GetModelScalingGroupRevisionRequest, v1.GetModelScalingGroupRevisionResponse]
-	listModelScalingGroupRevisions *connect.Client[v1.ListModelScalingGroupRevisionsRequest, v1.ListModelScalingGroupRevisionsResponse]
-	callModel                      *connect.Client[v1.CallModelRequest, v1.CallModelResponse]
+	createModelScalingGroup          *connect.Client[v1.CreateModelScalingGroupRequest, v1.CreateModelScalingGroupResponse]
+	updateModelScalingGroup          *connect.Client[v1.UpdateModelScalingGroupRequest, v1.UpdateModelScalingGroupResponse]
+	setModelScalingGroupWeightTarget *connect.Client[v1.SetModelScalingGroupWeightTargetRequest, v1.SetModelScalingGroupWeightTargetResponse]
+	getModelScalingGroup             *connect.Client[v1.GetModelScalingGroupRequest, v1.GetModelScalingGroupResponse]
+	listModelScalingGroups           *connect.Client[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse]
+	deleteModelScalingGroup          *connect.Client[v1.DeleteModelScalingGroupRequest, v1.DeleteModelScalingGroupResponse]
+	getModelScalingGroupRevision     *connect.Client[v1.GetModelScalingGroupRevisionRequest, v1.GetModelScalingGroupRevisionResponse]
+	listModelScalingGroupRevisions   *connect.Client[v1.ListModelScalingGroupRevisionsRequest, v1.ListModelScalingGroupRevisionsResponse]
+	callModel                        *connect.Client[v1.CallModelRequest, v1.CallModelResponse]
 }
 
 // CreateModelScalingGroup calls
@@ -165,6 +178,12 @@ func (c *modelDeploymentServiceClient) CreateModelScalingGroup(ctx context.Conte
 // chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup.
 func (c *modelDeploymentServiceClient) UpdateModelScalingGroup(ctx context.Context, req *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error) {
 	return c.updateModelScalingGroup.CallUnary(ctx, req)
+}
+
+// SetModelScalingGroupWeightTarget calls
+// chalk.modeldeployment.v1.ModelDeploymentService.SetModelScalingGroupWeightTarget.
+func (c *modelDeploymentServiceClient) SetModelScalingGroupWeightTarget(ctx context.Context, req *connect.Request[v1.SetModelScalingGroupWeightTargetRequest]) (*connect.Response[v1.SetModelScalingGroupWeightTargetResponse], error) {
+	return c.setModelScalingGroupWeightTarget.CallUnary(ctx, req)
 }
 
 // GetModelScalingGroup calls chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup.
@@ -208,6 +227,9 @@ type ModelDeploymentServiceHandler interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// UpdateModelScalingGroup updates a model scaling group's spec, traffic, or both.
 	UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error)
+	// Selects an indexed publication without appending or restarting a revision.
+	// Persists desired state only; it does not establish serving readiness.
+	SetModelScalingGroupWeightTarget(context.Context, *connect.Request[v1.SetModelScalingGroupWeightTargetRequest]) (*connect.Response[v1.SetModelScalingGroupWeightTargetResponse], error)
 	// GetModelScalingGroup retrieves a model-owned scaling group.
 	GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
@@ -239,6 +261,12 @@ func NewModelDeploymentServiceHandler(svc ModelDeploymentServiceHandler, opts ..
 		ModelDeploymentServiceUpdateModelScalingGroupProcedure,
 		svc.UpdateModelScalingGroup,
 		connect.WithSchema(modelDeploymentServiceMethods.ByName("UpdateModelScalingGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelDeploymentServiceSetModelScalingGroupWeightTargetHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceSetModelScalingGroupWeightTargetProcedure,
+		svc.SetModelScalingGroupWeightTarget,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("SetModelScalingGroupWeightTarget")),
 		connect.WithHandlerOptions(opts...),
 	)
 	modelDeploymentServiceGetModelScalingGroupHandler := connect.NewUnaryHandler(
@@ -283,6 +311,8 @@ func NewModelDeploymentServiceHandler(svc ModelDeploymentServiceHandler, opts ..
 			modelDeploymentServiceCreateModelScalingGroupHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceUpdateModelScalingGroupProcedure:
 			modelDeploymentServiceUpdateModelScalingGroupHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceSetModelScalingGroupWeightTargetProcedure:
+			modelDeploymentServiceSetModelScalingGroupWeightTargetHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceGetModelScalingGroupProcedure:
 			modelDeploymentServiceGetModelScalingGroupHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceListModelScalingGroupsProcedure:
@@ -310,6 +340,10 @@ func (UnimplementedModelDeploymentServiceHandler) CreateModelScalingGroup(contex
 
 func (UnimplementedModelDeploymentServiceHandler) UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) SetModelScalingGroupWeightTarget(context.Context, *connect.Request[v1.SetModelScalingGroupWeightTargetRequest]) (*connect.Response[v1.SetModelScalingGroupWeightTargetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.SetModelScalingGroupWeightTarget is not implemented"))
 }
 
 func (UnimplementedModelDeploymentServiceHandler) GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error) {

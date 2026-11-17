@@ -1045,7 +1045,11 @@ type CompleteGitHubAppInstallationRequest struct {
 	// The `state` GitHub echoed back to the setup URL, exactly as received.
 	// Minted by GetGitHubAppInstallUrl and required: it is the only evidence
 	// that this team's admin, rather than an unrelated team, started the flow.
-	State         string `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	State string `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	// The OAuth code GitHub returns after user authorization during installation.
+	// Required for the shared (env-default) app: the server exchanges it to confirm
+	// the installing GitHub user can access the installation.
+	Code          *string `protobuf:"bytes,4,opt,name=code,proto3,oneof" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1097,6 +1101,13 @@ func (x *CompleteGitHubAppInstallationRequest) GetSetupAction() string {
 func (x *CompleteGitHubAppInstallationRequest) GetState() string {
 	if x != nil {
 		return x.State
+	}
+	return ""
+}
+
+func (x *CompleteGitHubAppInstallationRequest) GetCode() string {
+	if x != nil && x.Code != nil {
+		return *x.Code
 	}
 	return ""
 }
@@ -2959,14 +2970,16 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tH\x00R\tprojectId\x88\x01\x01\x12*\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tH\x01R\renvironmentId\x88\x01\x01B\r\n" +
 	"\v_project_idB\x11\n" +
-	"\x0f_environment_id\"2\n" +
-	"\x1eGetGitHubAppInstallUrlResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"\x9e\x01\n" +
+	"\x0f_environment_id\"8\n" +
+	"\x1eGetGitHubAppInstallUrlResponse\x12\x16\n" +
+	"\x03url\x18\x01 \x01(\tB\x04ء'\x01R\x03url\"\xc6\x01\n" +
 	"$CompleteGitHubAppInstallationRequest\x12'\n" +
 	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\x12&\n" +
 	"\fsetup_action\x18\x02 \x01(\tH\x00R\vsetupAction\x88\x01\x01\x12\x14\n" +
-	"\x05state\x18\x03 \x01(\tR\x05stateB\x0f\n" +
-	"\r_setup_action\"s\n" +
+	"\x05state\x18\x03 \x01(\tR\x05state\x12\x1d\n" +
+	"\x04code\x18\x04 \x01(\tB\x04ء'\x01H\x01R\x04code\x88\x01\x01B\x0f\n" +
+	"\r_setup_actionB\a\n" +
+	"\x05_code\"s\n" +
 	"%CompleteGitHubAppInstallationResponse\x12J\n" +
 	"\finstallation\x18\x01 \x01(\v2&.chalk.server.v1.GitHubAppInstallationR\finstallation\"#\n" +
 	"!ListGitHubAppInstallationsRequest\"r\n" +

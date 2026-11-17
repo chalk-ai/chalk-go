@@ -50,6 +50,12 @@ const (
 	// SandboxServiceResumeSandboxProcedure is the fully-qualified name of the SandboxService's
 	// ResumeSandbox RPC.
 	SandboxServiceResumeSandboxProcedure = "/chalk.sandbox.v2.SandboxService/ResumeSandbox"
+	// SandboxServiceRefreshSandboxCredentialsProcedure is the fully-qualified name of the
+	// SandboxService's RefreshSandboxCredentials RPC.
+	SandboxServiceRefreshSandboxCredentialsProcedure = "/chalk.sandbox.v2.SandboxService/RefreshSandboxCredentials"
+	// SandboxServiceGetSandboxCredentialRefreshStatusProcedure is the fully-qualified name of the
+	// SandboxService's GetSandboxCredentialRefreshStatus RPC.
+	SandboxServiceGetSandboxCredentialRefreshStatusProcedure = "/chalk.sandbox.v2.SandboxService/GetSandboxCredentialRefreshStatus"
 	// SandboxServiceTerminateSandboxProcedure is the fully-qualified name of the SandboxService's
 	// TerminateSandbox RPC.
 	SandboxServiceTerminateSandboxProcedure = "/chalk.sandbox.v2.SandboxService/TerminateSandbox"
@@ -68,6 +74,8 @@ type SandboxServiceClient interface {
 	ListSandboxes(context.Context, *connect.Request[v2.ListSandboxesRequest]) (*connect.Response[v2.ListSandboxesResponse], error)
 	SuspendSandbox(context.Context, *connect.Request[v2.SuspendSandboxRequest]) (*connect.Response[v2.SuspendSandboxResponse], error)
 	ResumeSandbox(context.Context, *connect.Request[v2.ResumeSandboxRequest]) (*connect.Response[v2.ResumeSandboxResponse], error)
+	RefreshSandboxCredentials(context.Context, *connect.Request[v2.RefreshSandboxCredentialsRequest]) (*connect.Response[v2.RefreshSandboxCredentialsResponse], error)
+	GetSandboxCredentialRefreshStatus(context.Context, *connect.Request[v2.GetSandboxCredentialRefreshStatusRequest]) (*connect.Response[v2.GetSandboxCredentialRefreshStatusResponse], error)
 	TerminateSandbox(context.Context, *connect.Request[v2.TerminateSandboxRequest]) (*connect.Response[v2.TerminateSandboxResponse], error)
 }
 
@@ -112,6 +120,18 @@ func NewSandboxServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(sandboxServiceMethods.ByName("ResumeSandbox")),
 			connect.WithClientOptions(opts...),
 		),
+		refreshSandboxCredentials: connect.NewClient[v2.RefreshSandboxCredentialsRequest, v2.RefreshSandboxCredentialsResponse](
+			httpClient,
+			baseURL+SandboxServiceRefreshSandboxCredentialsProcedure,
+			connect.WithSchema(sandboxServiceMethods.ByName("RefreshSandboxCredentials")),
+			connect.WithClientOptions(opts...),
+		),
+		getSandboxCredentialRefreshStatus: connect.NewClient[v2.GetSandboxCredentialRefreshStatusRequest, v2.GetSandboxCredentialRefreshStatusResponse](
+			httpClient,
+			baseURL+SandboxServiceGetSandboxCredentialRefreshStatusProcedure,
+			connect.WithSchema(sandboxServiceMethods.ByName("GetSandboxCredentialRefreshStatus")),
+			connect.WithClientOptions(opts...),
+		),
 		terminateSandbox: connect.NewClient[v2.TerminateSandboxRequest, v2.TerminateSandboxResponse](
 			httpClient,
 			baseURL+SandboxServiceTerminateSandboxProcedure,
@@ -123,12 +143,14 @@ func NewSandboxServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // sandboxServiceClient implements SandboxServiceClient.
 type sandboxServiceClient struct {
-	createSandbox    *connect.Client[v2.CreateSandboxRequest, v2.CreateSandboxResponse]
-	getSandbox       *connect.Client[v2.GetSandboxRequest, v2.GetSandboxResponse]
-	listSandboxes    *connect.Client[v2.ListSandboxesRequest, v2.ListSandboxesResponse]
-	suspendSandbox   *connect.Client[v2.SuspendSandboxRequest, v2.SuspendSandboxResponse]
-	resumeSandbox    *connect.Client[v2.ResumeSandboxRequest, v2.ResumeSandboxResponse]
-	terminateSandbox *connect.Client[v2.TerminateSandboxRequest, v2.TerminateSandboxResponse]
+	createSandbox                     *connect.Client[v2.CreateSandboxRequest, v2.CreateSandboxResponse]
+	getSandbox                        *connect.Client[v2.GetSandboxRequest, v2.GetSandboxResponse]
+	listSandboxes                     *connect.Client[v2.ListSandboxesRequest, v2.ListSandboxesResponse]
+	suspendSandbox                    *connect.Client[v2.SuspendSandboxRequest, v2.SuspendSandboxResponse]
+	resumeSandbox                     *connect.Client[v2.ResumeSandboxRequest, v2.ResumeSandboxResponse]
+	refreshSandboxCredentials         *connect.Client[v2.RefreshSandboxCredentialsRequest, v2.RefreshSandboxCredentialsResponse]
+	getSandboxCredentialRefreshStatus *connect.Client[v2.GetSandboxCredentialRefreshStatusRequest, v2.GetSandboxCredentialRefreshStatusResponse]
+	terminateSandbox                  *connect.Client[v2.TerminateSandboxRequest, v2.TerminateSandboxResponse]
 }
 
 // CreateSandbox calls chalk.sandbox.v2.SandboxService.CreateSandbox.
@@ -156,6 +178,17 @@ func (c *sandboxServiceClient) ResumeSandbox(ctx context.Context, req *connect.R
 	return c.resumeSandbox.CallUnary(ctx, req)
 }
 
+// RefreshSandboxCredentials calls chalk.sandbox.v2.SandboxService.RefreshSandboxCredentials.
+func (c *sandboxServiceClient) RefreshSandboxCredentials(ctx context.Context, req *connect.Request[v2.RefreshSandboxCredentialsRequest]) (*connect.Response[v2.RefreshSandboxCredentialsResponse], error) {
+	return c.refreshSandboxCredentials.CallUnary(ctx, req)
+}
+
+// GetSandboxCredentialRefreshStatus calls
+// chalk.sandbox.v2.SandboxService.GetSandboxCredentialRefreshStatus.
+func (c *sandboxServiceClient) GetSandboxCredentialRefreshStatus(ctx context.Context, req *connect.Request[v2.GetSandboxCredentialRefreshStatusRequest]) (*connect.Response[v2.GetSandboxCredentialRefreshStatusResponse], error) {
+	return c.getSandboxCredentialRefreshStatus.CallUnary(ctx, req)
+}
+
 // TerminateSandbox calls chalk.sandbox.v2.SandboxService.TerminateSandbox.
 func (c *sandboxServiceClient) TerminateSandbox(ctx context.Context, req *connect.Request[v2.TerminateSandboxRequest]) (*connect.Response[v2.TerminateSandboxResponse], error) {
 	return c.terminateSandbox.CallUnary(ctx, req)
@@ -168,6 +201,8 @@ type SandboxServiceHandler interface {
 	ListSandboxes(context.Context, *connect.Request[v2.ListSandboxesRequest]) (*connect.Response[v2.ListSandboxesResponse], error)
 	SuspendSandbox(context.Context, *connect.Request[v2.SuspendSandboxRequest]) (*connect.Response[v2.SuspendSandboxResponse], error)
 	ResumeSandbox(context.Context, *connect.Request[v2.ResumeSandboxRequest]) (*connect.Response[v2.ResumeSandboxResponse], error)
+	RefreshSandboxCredentials(context.Context, *connect.Request[v2.RefreshSandboxCredentialsRequest]) (*connect.Response[v2.RefreshSandboxCredentialsResponse], error)
+	GetSandboxCredentialRefreshStatus(context.Context, *connect.Request[v2.GetSandboxCredentialRefreshStatusRequest]) (*connect.Response[v2.GetSandboxCredentialRefreshStatusResponse], error)
 	TerminateSandbox(context.Context, *connect.Request[v2.TerminateSandboxRequest]) (*connect.Response[v2.TerminateSandboxResponse], error)
 }
 
@@ -208,6 +243,18 @@ func NewSandboxServiceHandler(svc SandboxServiceHandler, opts ...connect.Handler
 		connect.WithSchema(sandboxServiceMethods.ByName("ResumeSandbox")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sandboxServiceRefreshSandboxCredentialsHandler := connect.NewUnaryHandler(
+		SandboxServiceRefreshSandboxCredentialsProcedure,
+		svc.RefreshSandboxCredentials,
+		connect.WithSchema(sandboxServiceMethods.ByName("RefreshSandboxCredentials")),
+		connect.WithHandlerOptions(opts...),
+	)
+	sandboxServiceGetSandboxCredentialRefreshStatusHandler := connect.NewUnaryHandler(
+		SandboxServiceGetSandboxCredentialRefreshStatusProcedure,
+		svc.GetSandboxCredentialRefreshStatus,
+		connect.WithSchema(sandboxServiceMethods.ByName("GetSandboxCredentialRefreshStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sandboxServiceTerminateSandboxHandler := connect.NewUnaryHandler(
 		SandboxServiceTerminateSandboxProcedure,
 		svc.TerminateSandbox,
@@ -226,6 +273,10 @@ func NewSandboxServiceHandler(svc SandboxServiceHandler, opts ...connect.Handler
 			sandboxServiceSuspendSandboxHandler.ServeHTTP(w, r)
 		case SandboxServiceResumeSandboxProcedure:
 			sandboxServiceResumeSandboxHandler.ServeHTTP(w, r)
+		case SandboxServiceRefreshSandboxCredentialsProcedure:
+			sandboxServiceRefreshSandboxCredentialsHandler.ServeHTTP(w, r)
+		case SandboxServiceGetSandboxCredentialRefreshStatusProcedure:
+			sandboxServiceGetSandboxCredentialRefreshStatusHandler.ServeHTTP(w, r)
 		case SandboxServiceTerminateSandboxProcedure:
 			sandboxServiceTerminateSandboxHandler.ServeHTTP(w, r)
 		default:
@@ -255,6 +306,14 @@ func (UnimplementedSandboxServiceHandler) SuspendSandbox(context.Context, *conne
 
 func (UnimplementedSandboxServiceHandler) ResumeSandbox(context.Context, *connect.Request[v2.ResumeSandboxRequest]) (*connect.Response[v2.ResumeSandboxResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxService.ResumeSandbox is not implemented"))
+}
+
+func (UnimplementedSandboxServiceHandler) RefreshSandboxCredentials(context.Context, *connect.Request[v2.RefreshSandboxCredentialsRequest]) (*connect.Response[v2.RefreshSandboxCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxService.RefreshSandboxCredentials is not implemented"))
+}
+
+func (UnimplementedSandboxServiceHandler) GetSandboxCredentialRefreshStatus(context.Context, *connect.Request[v2.GetSandboxCredentialRefreshStatusRequest]) (*connect.Response[v2.GetSandboxCredentialRefreshStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxService.GetSandboxCredentialRefreshStatus is not implemented"))
 }
 
 func (UnimplementedSandboxServiceHandler) TerminateSandbox(context.Context, *connect.Request[v2.TerminateSandboxRequest]) (*connect.Response[v2.TerminateSandboxResponse], error) {

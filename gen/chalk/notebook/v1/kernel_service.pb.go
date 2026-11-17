@@ -7,6 +7,7 @@
 package notebookv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -21,6 +22,57 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type NotebookVariableExportFormat int32
+
+const (
+	// Unspecified uses Parquet, matching callers that omit the field.
+	NotebookVariableExportFormat_NOTEBOOK_VARIABLE_EXPORT_FORMAT_UNSPECIFIED NotebookVariableExportFormat = 0
+	// Value 1 is wire-compatible with clients that encode this field as a bool.
+	NotebookVariableExportFormat_NOTEBOOK_VARIABLE_EXPORT_FORMAT_ARROW_IPC NotebookVariableExportFormat = 1
+	NotebookVariableExportFormat_NOTEBOOK_VARIABLE_EXPORT_FORMAT_PARQUET   NotebookVariableExportFormat = 2
+)
+
+// Enum value maps for NotebookVariableExportFormat.
+var (
+	NotebookVariableExportFormat_name = map[int32]string{
+		0: "NOTEBOOK_VARIABLE_EXPORT_FORMAT_UNSPECIFIED",
+		1: "NOTEBOOK_VARIABLE_EXPORT_FORMAT_ARROW_IPC",
+		2: "NOTEBOOK_VARIABLE_EXPORT_FORMAT_PARQUET",
+	}
+	NotebookVariableExportFormat_value = map[string]int32{
+		"NOTEBOOK_VARIABLE_EXPORT_FORMAT_UNSPECIFIED": 0,
+		"NOTEBOOK_VARIABLE_EXPORT_FORMAT_ARROW_IPC":   1,
+		"NOTEBOOK_VARIABLE_EXPORT_FORMAT_PARQUET":     2,
+	}
+)
+
+func (x NotebookVariableExportFormat) Enum() *NotebookVariableExportFormat {
+	p := new(NotebookVariableExportFormat)
+	*p = x
+	return p
+}
+
+func (x NotebookVariableExportFormat) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookVariableExportFormat) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_kernel_service_proto_enumTypes[0].Descriptor()
+}
+
+func (NotebookVariableExportFormat) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_kernel_service_proto_enumTypes[0]
+}
+
+func (x NotebookVariableExportFormat) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookVariableExportFormat.Descriptor instead.
+func (NotebookVariableExportFormat) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{0}
+}
 
 type PythonExecutionOutcome int32
 
@@ -70,11 +122,11 @@ func (x PythonExecutionOutcome) String() string {
 }
 
 func (PythonExecutionOutcome) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_kernel_service_proto_enumTypes[0].Descriptor()
+	return file_chalk_notebook_v1_kernel_service_proto_enumTypes[1].Descriptor()
 }
 
 func (PythonExecutionOutcome) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_kernel_service_proto_enumTypes[0]
+	return &file_chalk_notebook_v1_kernel_service_proto_enumTypes[1]
 }
 
 func (x PythonExecutionOutcome) Number() protoreflect.EnumNumber {
@@ -83,7 +135,7 @@ func (x PythonExecutionOutcome) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PythonExecutionOutcome.Descriptor instead.
 func (PythonExecutionOutcome) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{0}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{1}
 }
 
 type PythonInterruptOutcome int32
@@ -126,11 +178,11 @@ func (x PythonInterruptOutcome) String() string {
 }
 
 func (PythonInterruptOutcome) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_kernel_service_proto_enumTypes[1].Descriptor()
+	return file_chalk_notebook_v1_kernel_service_proto_enumTypes[2].Descriptor()
 }
 
 func (PythonInterruptOutcome) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_kernel_service_proto_enumTypes[1]
+	return &file_chalk_notebook_v1_kernel_service_proto_enumTypes[2]
 }
 
 func (x PythonInterruptOutcome) Number() protoreflect.EnumNumber {
@@ -139,7 +191,7 @@ func (x PythonInterruptOutcome) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PythonInterruptOutcome.Descriptor instead.
 func (PythonInterruptOutcome) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{1}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{2}
 }
 
 // One `{{ expression }}` site extracted from a markdown/text cell by the
@@ -243,10 +295,10 @@ type RunPythonCellSpec struct {
 	PreludeLineCount int32 `protobuf:"varint,11,opt,name=prelude_line_count,json=preludeLineCount,proto3" json:"prelude_line_count,omitempty"`
 	// When set, the kernel does not execute `source` at all. Instead it
 	// captures the named global from the interpreter namespace as a full
-	// dataframe artifact (parquet) through the blob-upload handshake, running
-	// only silent helper code: no execution count is consumed, no In/Out
-	// history is written, and no variable snapshot is emitted. Used to export
-	// kernel dataframes referenced by SQL cells.
+	// dataframe artifact in `export_variable_format` through the blob-upload
+	// handshake, running only silent helper code: no execution count is
+	// consumed, no In/Out history is written, and no variable snapshot is
+	// emitted. Used by SQL cells and notebook UI materialization.
 	ExportVariableName string `protobuf:"bytes,12,opt,name=export_variable_name,json=exportVariableName,proto3" json:"export_variable_name,omitempty"`
 	// Template expressions to evaluate after `source` runs (markdown/text cells
 	// send these with an empty `source`, so nothing is executed first). Each is
@@ -255,8 +307,12 @@ type RunPythonCellSpec struct {
 	// expression-only executions consume no execution count and write no In/Out
 	// history, but they DO require a live session namespace.
 	TemplateExpressions []*NotebookTemplateExpression `protobuf:"bytes,13,rep,name=template_expressions,json=templateExpressions,proto3" json:"template_expressions,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Serialization format for export_variable_name. SQL exports use Parquet so
+	// they remain directly scannable; notebook UI materialization uses Arrow IPC
+	// to avoid a Parquet decompression + Arrow re-encoding round trip.
+	ExportVariableFormat NotebookVariableExportFormat `protobuf:"varint,14,opt,name=export_variable_format,json=exportVariableFormat,proto3,enum=chalk.notebook.v1.NotebookVariableExportFormat" json:"export_variable_format,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *RunPythonCellSpec) Reset() {
@@ -371,6 +427,13 @@ func (x *RunPythonCellSpec) GetTemplateExpressions() []*NotebookTemplateExpressi
 		return x.TemplateExpressions
 	}
 	return nil
+}
+
+func (x *RunPythonCellSpec) GetExportVariableFormat() NotebookVariableExportFormat {
+	if x != nil {
+		return x.ExportVariableFormat
+	}
+	return NotebookVariableExportFormat_NOTEBOOK_VARIABLE_EXPORT_FORMAT_UNSPECIFIED
 }
 
 // Terminal message for one RunPythonCell exchange. Exactly one is sent as the
@@ -2299,19 +2362,19 @@ var File_chalk_notebook_v1_kernel_service_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/notebook/v1/kernel_service.proto\x12\x11chalk.notebook.v1\x1a chalk/notebook/v1/document.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
+	"&chalk/notebook/v1/kernel_service.proto\x12\x11chalk.notebook.v1\x1a chalk/notebook/v1/document.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
 	"\x1aNotebookTemplateExpression\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x1f\n" +
 	"\vformat_spec\x18\x03 \x01(\tR\n" +
-	"formatSpec\"\xf4\x04\n" +
+	"formatSpec\"\xe1\x05\n" +
 	"\x11RunPythonCellSpec\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1e\n" +
 	"\vcell_run_id\x18\x02 \x01(\tR\tcellRunId\x12\x17\n" +
 	"\acell_id\x18\x03 \x01(\tR\x06cellId\x12\x16\n" +
 	"\x06source\x18\x04 \x01(\tR\x06source\x12'\n" +
-	"\x0ftimeout_seconds\x18\x05 \x01(\x05R\x0etimeoutSeconds\x12K\n" +
-	"\asecrets\x18\x06 \x03(\v21.chalk.notebook.v1.RunPythonCellSpec.SecretsEntryR\asecrets\x12\x1d\n" +
+	"\x0ftimeout_seconds\x18\x05 \x01(\x05R\x0etimeoutSeconds\x12Q\n" +
+	"\asecrets\x18\x06 \x03(\v21.chalk.notebook.v1.RunPythonCellSpec.SecretsEntryB\x04ء'\x01R\asecrets\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\b \x01(\tR\tsessionId\x122\n" +
 	"\x15expected_kernel_epoch\x18\t \x01(\tR\x13expectedKernelEpoch\x12*\n" +
@@ -2319,7 +2382,8 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	" \x01(\tR\x0fcellDisplayName\x12,\n" +
 	"\x12prelude_line_count\x18\v \x01(\x05R\x10preludeLineCount\x120\n" +
 	"\x14export_variable_name\x18\f \x01(\tR\x12exportVariableName\x12`\n" +
-	"\x14template_expressions\x18\r \x03(\v2-.chalk.notebook.v1.NotebookTemplateExpressionR\x13templateExpressions\x1a:\n" +
+	"\x14template_expressions\x18\r \x03(\v2-.chalk.notebook.v1.NotebookTemplateExpressionR\x13templateExpressions\x12e\n" +
+	"\x16export_variable_format\x18\x0e \x01(\x0e2/.chalk.notebook.v1.NotebookVariableExportFormatR\x14exportVariableFormat\x1a:\n" +
 	"\fSecretsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\a\x10\b\"\xfd\x01\n" +
@@ -2390,9 +2454,9 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\x14template_expressions\x18\x03 \x03(\v2-.chalk.notebook.v1.NotebookTemplateExpressionR\x13templateExpressions\x120\n" +
 	"\x14result_variable_name\x18\x04 \x01(\tR\x12resultVariableName\x126\n" +
 	"\x17required_variable_names\x18\x05 \x03(\tR\x15requiredVariableNames\x12\x1a\n" +
-	"\brunnable\x18\x06 \x01(\bR\brunnable\"e\n" +
-	"&AnalyzeNotebookCellDependenciesRequest\x12;\n" +
-	"\x05cells\x18\x01 \x03(\v2%.chalk.notebook.v1.NotebookCellSourceR\x05cells\"\x88\x01\n" +
+	"\brunnable\x18\x06 \x01(\bR\brunnable\"k\n" +
+	"&AnalyzeNotebookCellDependenciesRequest\x12A\n" +
+	"\x05cells\x18\x01 \x03(\v2%.chalk.notebook.v1.NotebookCellSourceB\x04\xe8\xa1'\x01R\x05cells\"\x88\x01\n" +
 	"\x14CellDependencyReport\x12\x17\n" +
 	"\acell_id\x18\x01 \x01(\tR\x06cellId\x12\x1a\n" +
 	"\bprovides\x18\x02 \x03(\tR\bprovides\x12\x1a\n" +
@@ -2400,17 +2464,17 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\vparse_error\x18\x04 \x01(\tR\n" +
 	"parseError\"l\n" +
 	"'AnalyzeNotebookCellDependenciesResponse\x12A\n" +
-	"\areports\x18\x01 \x03(\v2'.chalk.notebook.v1.CellDependencyReportR\areports\"\xc5\x01\n" +
-	"\x16PlanNotebookRunRequest\x12;\n" +
-	"\x05cells\x18\x01 \x03(\v2%.chalk.notebook.v1.NotebookCellSourceR\x05cells\x12,\n" +
+	"\areports\x18\x01 \x03(\v2'.chalk.notebook.v1.CellDependencyReportR\areports\"\xcb\x01\n" +
+	"\x16PlanNotebookRunRequest\x12A\n" +
+	"\x05cells\x18\x01 \x03(\v2%.chalk.notebook.v1.NotebookCellSourceB\x04\xe8\xa1'\x01R\x05cells\x12,\n" +
 	"\x12requested_cell_ids\x18\x02 \x03(\tR\x10requestedCellIds\x12@\n" +
 	"\trun_scope\x18\x03 \x01(\x0e2#.chalk.notebook.v1.NotebookRunScopeR\brunScope\"w\n" +
 	"\x17PlanNotebookRunResponse\x12\x19\n" +
 	"\bcell_ids\x18\x01 \x03(\tR\acellIds\x12A\n" +
-	"\areports\x18\x02 \x03(\v2'.chalk.notebook.v1.CellDependencyReportR\areports\"D\n" +
+	"\areports\x18\x02 \x03(\v2'.chalk.notebook.v1.CellDependencyReportR\areports\"J\n" +
 	"\x18NotebookBlobUploadHeader\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\x9c\x02\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\"\x9c\x02\n" +
 	"\x19NotebookBlobUploadRequest\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12#\n" +
@@ -2419,13 +2483,13 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\fcontent_type\x18\x04 \x01(\tR\vcontentType\x121\n" +
 	"\x12expected_byte_size\x18\x05 \x01(\x03H\x00R\x10expectedByteSize\x88\x01\x01\x126\n" +
 	"\x17expected_content_sha256\x18\x06 \x01(\tR\x15expectedContentSha256B\x15\n" +
-	"\x13_expected_byte_size\"\x8b\x02\n" +
+	"\x13_expected_byte_size\"\x91\x02\n" +
 	"\x18NotebookBlobUploadTarget\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
-	"\ablob_id\x18\x02 \x01(\tR\x06blobId\x12\x1d\n" +
+	"\ablob_id\x18\x02 \x01(\tR\x06blobId\x12#\n" +
 	"\n" +
-	"upload_url\x18\x03 \x01(\tR\tuploadUrl\x12\x16\n" +
+	"upload_url\x18\x03 \x01(\tB\x04ء'\x01R\tuploadUrl\x12\x16\n" +
 	"\x06method\x18\x04 \x01(\tR\x06method\x12E\n" +
 	"\aheaders\x18\x05 \x03(\v2+.chalk.notebook.v1.NotebookBlobUploadHeaderR\aheaders\x129\n" +
 	"\n" +
@@ -2453,7 +2517,11 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\n" +
 	"terminated\x18\x05 \x01(\v2,.chalk.notebook.v1.PythonExecutionTerminatedH\x00R\n" +
 	"terminatedB\t\n" +
-	"\amessage*\xe5\x02\n" +
+	"\amessage*\xab\x01\n" +
+	"\x1cNotebookVariableExportFormat\x12/\n" +
+	"+NOTEBOOK_VARIABLE_EXPORT_FORMAT_UNSPECIFIED\x10\x00\x12-\n" +
+	")NOTEBOOK_VARIABLE_EXPORT_FORMAT_ARROW_IPC\x10\x01\x12+\n" +
+	"'NOTEBOOK_VARIABLE_EXPORT_FORMAT_PARQUET\x10\x02*\xe5\x02\n" +
 	"\x16PythonExecutionOutcome\x12(\n" +
 	"$PYTHON_EXECUTION_OUTCOME_UNSPECIFIED\x10\x00\x12$\n" +
 	" PYTHON_EXECUTION_OUTCOME_SUCCESS\x10\x01\x12\"\n" +
@@ -2492,99 +2560,101 @@ func file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP() []byte {
 	return file_chalk_notebook_v1_kernel_service_proto_rawDescData
 }
 
-var file_chalk_notebook_v1_kernel_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_notebook_v1_kernel_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_notebook_v1_kernel_service_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_chalk_notebook_v1_kernel_service_proto_goTypes = []any{
-	(PythonExecutionOutcome)(0),                     // 0: chalk.notebook.v1.PythonExecutionOutcome
-	(PythonInterruptOutcome)(0),                     // 1: chalk.notebook.v1.PythonInterruptOutcome
-	(*NotebookTemplateExpression)(nil),              // 2: chalk.notebook.v1.NotebookTemplateExpression
-	(*RunPythonCellSpec)(nil),                       // 3: chalk.notebook.v1.RunPythonCellSpec
-	(*PythonExecutionTerminated)(nil),               // 4: chalk.notebook.v1.PythonExecutionTerminated
-	(*StartPythonCellRequest)(nil),                  // 5: chalk.notebook.v1.StartPythonCellRequest
-	(*StartPythonCellResponse)(nil),                 // 6: chalk.notebook.v1.StartPythonCellResponse
-	(*PythonCellExecutionEvent)(nil),                // 7: chalk.notebook.v1.PythonCellExecutionEvent
-	(*StreamPythonCellEventsResponse)(nil),          // 8: chalk.notebook.v1.StreamPythonCellEventsResponse
-	(*StreamPythonCellEventsRequest)(nil),           // 9: chalk.notebook.v1.StreamPythonCellEventsRequest
-	(*PythonCellRequestFailure)(nil),                // 10: chalk.notebook.v1.PythonCellRequestFailure
-	(*RespondToPythonCellRequest)(nil),              // 11: chalk.notebook.v1.RespondToPythonCellRequest
-	(*RespondToPythonCellResponse)(nil),             // 12: chalk.notebook.v1.RespondToPythonCellResponse
-	(*InterruptPythonExecutionRequest)(nil),         // 13: chalk.notebook.v1.InterruptPythonExecutionRequest
-	(*InterruptPythonExecutionResponse)(nil),        // 14: chalk.notebook.v1.InterruptPythonExecutionResponse
-	(*DescribeKernelSessionRequest)(nil),            // 15: chalk.notebook.v1.DescribeKernelSessionRequest
-	(*DescribeKernelSessionResponse)(nil),           // 16: chalk.notebook.v1.DescribeKernelSessionResponse
-	(*InstalledPackage)(nil),                        // 17: chalk.notebook.v1.InstalledPackage
-	(*KernelBuildInfo)(nil),                         // 18: chalk.notebook.v1.KernelBuildInfo
-	(*ListInstalledPackagesRequest)(nil),            // 19: chalk.notebook.v1.ListInstalledPackagesRequest
-	(*ListInstalledPackagesResponse)(nil),           // 20: chalk.notebook.v1.ListInstalledPackagesResponse
-	(*NotebookCellSource)(nil),                      // 21: chalk.notebook.v1.NotebookCellSource
-	(*AnalyzeNotebookCellDependenciesRequest)(nil),  // 22: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
-	(*CellDependencyReport)(nil),                    // 23: chalk.notebook.v1.CellDependencyReport
-	(*AnalyzeNotebookCellDependenciesResponse)(nil), // 24: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
-	(*PlanNotebookRunRequest)(nil),                  // 25: chalk.notebook.v1.PlanNotebookRunRequest
-	(*PlanNotebookRunResponse)(nil),                 // 26: chalk.notebook.v1.PlanNotebookRunResponse
-	(*NotebookBlobUploadHeader)(nil),                // 27: chalk.notebook.v1.NotebookBlobUploadHeader
-	(*NotebookBlobUploadRequest)(nil),               // 28: chalk.notebook.v1.NotebookBlobUploadRequest
-	(*NotebookBlobUploadTarget)(nil),                // 29: chalk.notebook.v1.NotebookBlobUploadTarget
-	(*NotebookBlobUploadComplete)(nil),              // 30: chalk.notebook.v1.NotebookBlobUploadComplete
-	(*NotebookBlobUploadFailed)(nil),                // 31: chalk.notebook.v1.NotebookBlobUploadFailed
-	(*RunPythonCellRequest)(nil),                    // 32: chalk.notebook.v1.RunPythonCellRequest
-	(*RunPythonCellResponse)(nil),                   // 33: chalk.notebook.v1.RunPythonCellResponse
-	nil,                                             // 34: chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
-	(*timestamppb.Timestamp)(nil),                   // 35: google.protobuf.Timestamp
-	(NotebookRunScope)(0),                           // 36: chalk.notebook.v1.NotebookRunScope
-	(*NotebookRunEvent)(nil),                        // 37: chalk.notebook.v1.NotebookRunEvent
+	(NotebookVariableExportFormat)(0),               // 0: chalk.notebook.v1.NotebookVariableExportFormat
+	(PythonExecutionOutcome)(0),                     // 1: chalk.notebook.v1.PythonExecutionOutcome
+	(PythonInterruptOutcome)(0),                     // 2: chalk.notebook.v1.PythonInterruptOutcome
+	(*NotebookTemplateExpression)(nil),              // 3: chalk.notebook.v1.NotebookTemplateExpression
+	(*RunPythonCellSpec)(nil),                       // 4: chalk.notebook.v1.RunPythonCellSpec
+	(*PythonExecutionTerminated)(nil),               // 5: chalk.notebook.v1.PythonExecutionTerminated
+	(*StartPythonCellRequest)(nil),                  // 6: chalk.notebook.v1.StartPythonCellRequest
+	(*StartPythonCellResponse)(nil),                 // 7: chalk.notebook.v1.StartPythonCellResponse
+	(*PythonCellExecutionEvent)(nil),                // 8: chalk.notebook.v1.PythonCellExecutionEvent
+	(*StreamPythonCellEventsResponse)(nil),          // 9: chalk.notebook.v1.StreamPythonCellEventsResponse
+	(*StreamPythonCellEventsRequest)(nil),           // 10: chalk.notebook.v1.StreamPythonCellEventsRequest
+	(*PythonCellRequestFailure)(nil),                // 11: chalk.notebook.v1.PythonCellRequestFailure
+	(*RespondToPythonCellRequest)(nil),              // 12: chalk.notebook.v1.RespondToPythonCellRequest
+	(*RespondToPythonCellResponse)(nil),             // 13: chalk.notebook.v1.RespondToPythonCellResponse
+	(*InterruptPythonExecutionRequest)(nil),         // 14: chalk.notebook.v1.InterruptPythonExecutionRequest
+	(*InterruptPythonExecutionResponse)(nil),        // 15: chalk.notebook.v1.InterruptPythonExecutionResponse
+	(*DescribeKernelSessionRequest)(nil),            // 16: chalk.notebook.v1.DescribeKernelSessionRequest
+	(*DescribeKernelSessionResponse)(nil),           // 17: chalk.notebook.v1.DescribeKernelSessionResponse
+	(*InstalledPackage)(nil),                        // 18: chalk.notebook.v1.InstalledPackage
+	(*KernelBuildInfo)(nil),                         // 19: chalk.notebook.v1.KernelBuildInfo
+	(*ListInstalledPackagesRequest)(nil),            // 20: chalk.notebook.v1.ListInstalledPackagesRequest
+	(*ListInstalledPackagesResponse)(nil),           // 21: chalk.notebook.v1.ListInstalledPackagesResponse
+	(*NotebookCellSource)(nil),                      // 22: chalk.notebook.v1.NotebookCellSource
+	(*AnalyzeNotebookCellDependenciesRequest)(nil),  // 23: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
+	(*CellDependencyReport)(nil),                    // 24: chalk.notebook.v1.CellDependencyReport
+	(*AnalyzeNotebookCellDependenciesResponse)(nil), // 25: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
+	(*PlanNotebookRunRequest)(nil),                  // 26: chalk.notebook.v1.PlanNotebookRunRequest
+	(*PlanNotebookRunResponse)(nil),                 // 27: chalk.notebook.v1.PlanNotebookRunResponse
+	(*NotebookBlobUploadHeader)(nil),                // 28: chalk.notebook.v1.NotebookBlobUploadHeader
+	(*NotebookBlobUploadRequest)(nil),               // 29: chalk.notebook.v1.NotebookBlobUploadRequest
+	(*NotebookBlobUploadTarget)(nil),                // 30: chalk.notebook.v1.NotebookBlobUploadTarget
+	(*NotebookBlobUploadComplete)(nil),              // 31: chalk.notebook.v1.NotebookBlobUploadComplete
+	(*NotebookBlobUploadFailed)(nil),                // 32: chalk.notebook.v1.NotebookBlobUploadFailed
+	(*RunPythonCellRequest)(nil),                    // 33: chalk.notebook.v1.RunPythonCellRequest
+	(*RunPythonCellResponse)(nil),                   // 34: chalk.notebook.v1.RunPythonCellResponse
+	nil,                                             // 35: chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
+	(*timestamppb.Timestamp)(nil),                   // 36: google.protobuf.Timestamp
+	(NotebookRunScope)(0),                           // 37: chalk.notebook.v1.NotebookRunScope
+	(*NotebookRunEvent)(nil),                        // 38: chalk.notebook.v1.NotebookRunEvent
 }
 var file_chalk_notebook_v1_kernel_service_proto_depIdxs = []int32{
-	34, // 0: chalk.notebook.v1.RunPythonCellSpec.secrets:type_name -> chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
-	2,  // 1: chalk.notebook.v1.RunPythonCellSpec.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
-	0,  // 2: chalk.notebook.v1.PythonExecutionTerminated.outcome:type_name -> chalk.notebook.v1.PythonExecutionOutcome
-	3,  // 3: chalk.notebook.v1.StartPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
-	33, // 4: chalk.notebook.v1.PythonCellExecutionEvent.response:type_name -> chalk.notebook.v1.RunPythonCellResponse
-	7,  // 5: chalk.notebook.v1.StreamPythonCellEventsResponse.events:type_name -> chalk.notebook.v1.PythonCellExecutionEvent
-	29, // 6: chalk.notebook.v1.RespondToPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
-	10, // 7: chalk.notebook.v1.RespondToPythonCellRequest.failure:type_name -> chalk.notebook.v1.PythonCellRequestFailure
-	1,  // 8: chalk.notebook.v1.InterruptPythonExecutionResponse.outcome:type_name -> chalk.notebook.v1.PythonInterruptOutcome
-	35, // 9: chalk.notebook.v1.DescribeKernelSessionResponse.started_at:type_name -> google.protobuf.Timestamp
-	17, // 10: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
-	18, // 11: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
-	2,  // 12: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
-	21, // 13: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	23, // 14: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	21, // 15: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	36, // 16: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
-	23, // 17: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	27, // 18: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
-	35, // 19: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
-	3,  // 20: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
-	29, // 21: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
-	37, // 22: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
-	28, // 23: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
-	30, // 24: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
-	31, // 25: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
-	4,  // 26: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
-	5,  // 27: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:input_type -> chalk.notebook.v1.StartPythonCellRequest
-	9,  // 28: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:input_type -> chalk.notebook.v1.StreamPythonCellEventsRequest
-	11, // 29: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:input_type -> chalk.notebook.v1.RespondToPythonCellRequest
-	32, // 30: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
-	13, // 31: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
-	15, // 32: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
-	19, // 33: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
-	22, // 34: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
-	25, // 35: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
-	6,  // 36: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:output_type -> chalk.notebook.v1.StartPythonCellResponse
-	8,  // 37: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:output_type -> chalk.notebook.v1.StreamPythonCellEventsResponse
-	12, // 38: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:output_type -> chalk.notebook.v1.RespondToPythonCellResponse
-	33, // 39: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
-	14, // 40: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
-	16, // 41: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
-	20, // 42: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
-	24, // 43: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
-	26, // 44: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
-	36, // [36:45] is the sub-list for method output_type
-	27, // [27:36] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	35, // 0: chalk.notebook.v1.RunPythonCellSpec.secrets:type_name -> chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
+	3,  // 1: chalk.notebook.v1.RunPythonCellSpec.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
+	0,  // 2: chalk.notebook.v1.RunPythonCellSpec.export_variable_format:type_name -> chalk.notebook.v1.NotebookVariableExportFormat
+	1,  // 3: chalk.notebook.v1.PythonExecutionTerminated.outcome:type_name -> chalk.notebook.v1.PythonExecutionOutcome
+	4,  // 4: chalk.notebook.v1.StartPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
+	34, // 5: chalk.notebook.v1.PythonCellExecutionEvent.response:type_name -> chalk.notebook.v1.RunPythonCellResponse
+	8,  // 6: chalk.notebook.v1.StreamPythonCellEventsResponse.events:type_name -> chalk.notebook.v1.PythonCellExecutionEvent
+	30, // 7: chalk.notebook.v1.RespondToPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
+	11, // 8: chalk.notebook.v1.RespondToPythonCellRequest.failure:type_name -> chalk.notebook.v1.PythonCellRequestFailure
+	2,  // 9: chalk.notebook.v1.InterruptPythonExecutionResponse.outcome:type_name -> chalk.notebook.v1.PythonInterruptOutcome
+	36, // 10: chalk.notebook.v1.DescribeKernelSessionResponse.started_at:type_name -> google.protobuf.Timestamp
+	18, // 11: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
+	19, // 12: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
+	3,  // 13: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
+	22, // 14: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	24, // 15: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	22, // 16: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	37, // 17: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
+	24, // 18: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	28, // 19: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
+	36, // 20: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
+	4,  // 21: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
+	30, // 22: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
+	38, // 23: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
+	29, // 24: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
+	31, // 25: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
+	32, // 26: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
+	5,  // 27: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
+	6,  // 28: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:input_type -> chalk.notebook.v1.StartPythonCellRequest
+	10, // 29: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:input_type -> chalk.notebook.v1.StreamPythonCellEventsRequest
+	12, // 30: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:input_type -> chalk.notebook.v1.RespondToPythonCellRequest
+	33, // 31: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
+	14, // 32: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
+	16, // 33: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
+	20, // 34: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
+	23, // 35: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
+	26, // 36: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
+	7,  // 37: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:output_type -> chalk.notebook.v1.StartPythonCellResponse
+	9,  // 38: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:output_type -> chalk.notebook.v1.StreamPythonCellEventsResponse
+	13, // 39: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:output_type -> chalk.notebook.v1.RespondToPythonCellResponse
+	34, // 40: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
+	15, // 41: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
+	17, // 42: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
+	21, // 43: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
+	25, // 44: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
+	27, // 45: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
+	37, // [37:46] is the sub-list for method output_type
+	28, // [28:37] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_kernel_service_proto_init() }
@@ -2615,7 +2685,7 @@ func file_chalk_notebook_v1_kernel_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_kernel_service_proto_rawDesc), len(file_chalk_notebook_v1_kernel_service_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,

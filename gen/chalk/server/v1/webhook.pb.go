@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -1162,7 +1163,7 @@ var File_chalk_server_v1_webhook_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/server/v1/webhook.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa5\x01\n" +
+	"\x1dchalk/server/v1/webhook.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa5\x01\n" +
 	"\x19WebhookSubscriptionFilter\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12F\n" +
 	"\n" +
@@ -1178,16 +1179,16 @@ const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\x1fWebhookSubscriptionFilterOption\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12O\n" +
 	"\aoptions\x18\x02 \x03(\v25.chalk.server.v1.WebhookSubscriptionFilterOptionValueR\aoptions\x12%\n" +
-	"\x0eallow_freeform\x18\x03 \x01(\bR\rallowFreeform\"\xef\x03\n" +
+	"\x0eallow_freeform\x18\x03 \x01(\bR\rallowFreeform\"\x81\x04\n" +
 	"\aWebhook\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x17\n" +
 	"\ateam_id\x18\x03 \x01(\tR\x06teamId\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12\x10\n" +
-	"\x03url\x18\x05 \x01(\tR\x03url\x12(\n" +
-	"\rsubscriptions\x18\x06 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
-	"\x06secret\x18\a \x01(\tH\x00R\x06secret\x88\x01\x01\x126\n" +
-	"\aheaders\x18\b \x01(\v2\x17.google.protobuf.StructH\x01R\aheaders\x88\x01\x01\x129\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x16\n" +
+	"\x03url\x18\x05 \x01(\tB\x04ء'\x01R\x03url\x12(\n" +
+	"\rsubscriptions\x18\x06 \x03(\tB\x02\x18\x01R\rsubscriptions\x12!\n" +
+	"\x06secret\x18\a \x01(\tB\x04ء'\x01H\x00R\x06secret\x88\x01\x01\x12<\n" +
+	"\aheaders\x18\b \x01(\v2\x17.google.protobuf.StructB\x04ء'\x01H\x01R\aheaders\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
@@ -1196,27 +1197,27 @@ const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\x1asubscriptions_with_filters\x18\v \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\t\n" +
 	"\a_secretB\n" +
 	"\n" +
-	"\b_headers\"\xdd\x02\n" +
+	"\b_headers\"\xef\x02\n" +
 	"\x14CreateWebhookRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12(\n" +
-	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
-	"\x06secret\x18\x05 \x01(\tH\x00R\x06secret\x88\x01\x01\x126\n" +
-	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x01R\aheaders\x88\x01\x01\x12b\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x03url\x18\x03 \x01(\tB\x04ء'\x01R\x03url\x12(\n" +
+	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12!\n" +
+	"\x06secret\x18\x05 \x01(\tB\x04ء'\x01H\x00R\x06secret\x88\x01\x01\x12<\n" +
+	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructB\x04ء'\x01H\x01R\aheaders\x88\x01\x01\x12b\n" +
 	"\x1asubscriptions_with_filters\x18\a \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\t\n" +
 	"\a_secretB\n" +
 	"\n" +
 	"\b_headers\"K\n" +
 	"\x15CreateWebhookResponse\x122\n" +
-	"\awebhook\x18\x01 \x01(\v2\x18.chalk.server.v1.WebhookR\awebhook\"\xe1\x02\n" +
+	"\awebhook\x18\x01 \x01(\v2\x18.chalk.server.v1.WebhookR\awebhook\"\xf3\x02\n" +
 	"\x14UpdateWebhookRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\x03 \x01(\tH\x01R\x03url\x88\x01\x01\x12(\n" +
-	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
-	"\x06secret\x18\x05 \x01(\tH\x02R\x06secret\x88\x01\x01\x126\n" +
-	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x03R\aheaders\x88\x01\x01\x12b\n" +
+	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1b\n" +
+	"\x03url\x18\x03 \x01(\tB\x04ء'\x01H\x01R\x03url\x88\x01\x01\x12(\n" +
+	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12!\n" +
+	"\x06secret\x18\x05 \x01(\tB\x04ء'\x01H\x02R\x06secret\x88\x01\x01\x12<\n" +
+	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructB\x04ء'\x01H\x03R\aheaders\x88\x01\x01\x12b\n" +
 	"\x1asubscriptions_with_filters\x18\a \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_urlB\t\n" +

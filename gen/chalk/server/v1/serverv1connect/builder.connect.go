@@ -104,6 +104,9 @@ const (
 	// BuilderServiceGetClusterGatewayProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterGateway RPC.
 	BuilderServiceGetClusterGatewayProcedure = "/chalk.server.v1.BuilderService/GetClusterGateway"
+	// BuilderServiceDiffClusterGatewayProcedure is the fully-qualified name of the BuilderService's
+	// DiffClusterGateway RPC.
+	BuilderServiceDiffClusterGatewayProcedure = "/chalk.server.v1.BuilderService/DiffClusterGateway"
 	// BuilderServiceListClusterGatewaysProcedure is the fully-qualified name of the BuilderService's
 	// ListClusterGateways RPC.
 	BuilderServiceListClusterGatewaysProcedure = "/chalk.server.v1.BuilderService/ListClusterGateways"
@@ -341,6 +344,7 @@ type BuilderServiceClient interface {
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	DiffClusterGateway(context.Context, *connect.Request[v1.DiffClusterGatewayRequest]) (*connect.Response[v1.DiffClusterGatewayResponse], error)
 	ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error)
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
@@ -577,6 +581,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceGetClusterGatewayProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		diffClusterGateway: connect.NewClient[v1.DiffClusterGatewayRequest, v1.DiffClusterGatewayResponse](
+			httpClient,
+			baseURL+BuilderServiceDiffClusterGatewayProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DiffClusterGateway")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		listClusterGateways: connect.NewClient[v1.ListClusterGatewaysRequest, v1.ListClusterGatewaysResponse](
@@ -993,6 +1004,7 @@ type builderServiceClient struct {
 	getClusterTimescaleDB                       *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
 	listClusterTimescaleDBs                     *connect.Client[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse]
 	getClusterGateway                           *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
+	diffClusterGateway                          *connect.Client[v1.DiffClusterGatewayRequest, v1.DiffClusterGatewayResponse]
 	listClusterGateways                         *connect.Client[v1.ListClusterGatewaysRequest, v1.ListClusterGatewaysResponse]
 	getClusterGatewayDefault                    *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
 	getClusterBackgroundPersistence             *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
@@ -1173,6 +1185,11 @@ func (c *builderServiceClient) ListClusterTimescaleDBs(ctx context.Context, req 
 // GetClusterGateway calls chalk.server.v1.BuilderService.GetClusterGateway.
 func (c *builderServiceClient) GetClusterGateway(ctx context.Context, req *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error) {
 	return c.getClusterGateway.CallUnary(ctx, req)
+}
+
+// DiffClusterGateway calls chalk.server.v1.BuilderService.DiffClusterGateway.
+func (c *builderServiceClient) DiffClusterGateway(ctx context.Context, req *connect.Request[v1.DiffClusterGatewayRequest]) (*connect.Response[v1.DiffClusterGatewayResponse], error) {
+	return c.diffClusterGateway.CallUnary(ctx, req)
 }
 
 // ListClusterGateways calls chalk.server.v1.BuilderService.ListClusterGateways.
@@ -1561,6 +1578,7 @@ type BuilderServiceHandler interface {
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	DiffClusterGateway(context.Context, *connect.Request[v1.DiffClusterGatewayRequest]) (*connect.Response[v1.DiffClusterGatewayResponse], error)
 	ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error)
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
@@ -1793,6 +1811,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceGetClusterGatewayProcedure,
 		svc.GetClusterGateway,
 		connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDiffClusterGatewayHandler := connect.NewUnaryHandler(
+		BuilderServiceDiffClusterGatewayProcedure,
+		svc.DiffClusterGateway,
+		connect.WithSchema(builderServiceMethods.ByName("DiffClusterGateway")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceListClusterGatewaysHandler := connect.NewUnaryHandler(
@@ -2229,6 +2254,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceListClusterTimescaleDBsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterGatewayProcedure:
 			builderServiceGetClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceDiffClusterGatewayProcedure:
+			builderServiceDiffClusterGatewayHandler.ServeHTTP(w, r)
 		case BuilderServiceListClusterGatewaysProcedure:
 			builderServiceListClusterGatewaysHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterGatewayDefaultProcedure:
@@ -2452,6 +2479,10 @@ func (UnimplementedBuilderServiceHandler) ListClusterTimescaleDBs(context.Contex
 
 func (UnimplementedBuilderServiceHandler) GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DiffClusterGateway(context.Context, *connect.Request[v1.DiffClusterGatewayRequest]) (*connect.Response[v1.DiffClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DiffClusterGateway is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error) {

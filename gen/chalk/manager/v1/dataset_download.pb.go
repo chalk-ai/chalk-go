@@ -8,6 +8,7 @@ package managerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -153,15 +154,15 @@ var File_chalk_manager_v1_dataset_download_proto protoreflect.FileDescriptor
 
 const file_chalk_manager_v1_dataset_download_proto_rawDesc = "" +
 	"\n" +
-	"'chalk/manager/v1/dataset_download.proto\x12\x10chalk.manager.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
+	"'chalk/manager/v1/dataset_download.proto\x12\x10chalk.manager.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
 	" StreamDatasetDownloadURIsRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\x12,\n" +
 	"\x0fmax_concurrency\x18\x02 \x01(\x05H\x00R\x0emaxConcurrency\x88\x01\x01B\x12\n" +
-	"\x10_max_concurrency\"\xbe\x01\n" +
-	"!StreamDatasetDownloadURIsResponse\x12\x1d\n" +
+	"\x10_max_concurrency\"\xc4\x01\n" +
+	"!StreamDatasetDownloadURIsResponse\x12#\n" +
 	"\n" +
-	"signed_url\x18\x01 \x01(\tR\tsignedUrl\x12\x1f\n" +
+	"signed_url\x18\x01 \x01(\tB\x04ء'\x01R\tsignedUrl\x12\x1f\n" +
 	"\vobject_path\x18\x02 \x01(\tR\n" +
 	"objectPath\x12\x1d\n" +
 	"\n" +

@@ -3437,7 +3437,7 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\adefault\x18\x03 \x01(\bR\adefault\x12\x1a\n" +
 	"\x05token\x18\x04 \x01(\tB\x04ء'\x01R\x05token\x12%\n" +
 	"\x0eenvironment_id\x18\x05 \x01(\tR\renvironmentIdB\a\n" +
-	"\x05_name\"\xa2\x02\n" +
+	"\x05_name\"\xa6\x02\n" +
 	"\x15IncidentIoIntegration\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\x05token\x18\x02 \x01(\tB\x04ء'\x01R\x05token\x12%\n" +
@@ -3446,8 +3446,8 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\tsource_id\x18\x05 \x01(\tR\bsourceId\x12'\n" +
 	"\fsource_token\x18\x06 \x01(\tB\x04ء'\x01R\vsourceToken\x12#\n" +
 	"\vseverity_id\x18\a \x01(\tB\x02\x18\x01R\n" +
-	"severityId\x12)\n" +
-	"\x0eseverity_token\x18\b \x01(\tB\x02\x18\x01R\rseverityTokenB\a\n" +
+	"severityId\x12-\n" +
+	"\x0eseverity_token\x18\b \x01(\tB\x06ء'\x01\x18\x01R\rseverityTokenB\a\n" +
 	"\x05_name\"\xa1\x02\n" +
 	"\x11IncidentIoEventV2\x12\x19\n" +
 	"\broute_id\x18\x01 \x01(\tR\arouteId\x12%\n" +

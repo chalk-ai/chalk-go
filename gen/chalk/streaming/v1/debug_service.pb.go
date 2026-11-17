@@ -10,6 +10,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1532,7 +1533,7 @@ var File_chalk_streaming_v1_debug_service_proto protoreflect.FileDescriptor
 
 const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a1chalk/streaming/v1/simple_streaming_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
+	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a1chalk/streaming/v1/simple_streaming_service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
 	"\x16EnableDebugModeRequest\x12!\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12S\n" +
@@ -1598,14 +1599,14 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\x1cGetAggregateMessagesResponse\x12\x18\n" +
 	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
-	"\x06_error\"\x92\x06\n" +
+	"\x06_error\"\x98\x06\n" +
 	"\x15StreamingDebugMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12!\n" +
 	"\fmessage_data\x18\x02 \x01(\fR\vmessageData\x12$\n" +
 	"\vmessage_key\x18\x03 \x01(\tH\x00R\n" +
-	"messageKey\x88\x01\x01\x12f\n" +
-	"\x0fmessage_headers\x18\x04 \x03(\v2=.chalk.streaming.v1.StreamingDebugMessage.MessageHeadersEntryR\x0emessageHeaders\x12G\n" +
+	"messageKey\x88\x01\x01\x12l\n" +
+	"\x0fmessage_headers\x18\x04 \x03(\v2=.chalk.streaming.v1.StreamingDebugMessage.MessageHeadersEntryB\x04ء'\x01R\x0emessageHeaders\x12G\n" +
 	"\x11publish_timestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x10publishTimestamp\x12E\n" +
 	"\x10ingest_timestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0fingestTimestamp\x12B\n" +
 	"\x06status\x18\a \x01(\x0e2*.chalk.streaming.v1.StreamingMessageStatusR\x06status\x12S\n" +

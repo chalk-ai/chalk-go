@@ -8,6 +8,7 @@ package managerv1
 
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -131,14 +132,14 @@ var File_chalk_manager_v1_signing_proto protoreflect.FileDescriptor
 
 const file_chalk_manager_v1_signing_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/manager/v1/signing.proto\x12\x10chalk.manager.v1\x1a\x19chalk/auth/v1/agent.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x84\x01\n" +
+	"\x1echalk/manager/v1/signing.proto\x12\x10chalk.manager.v1\x1a\x19chalk/auth/v1/agent.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x84\x01\n" +
 	"\x0eSignURLRequest\x12*\n" +
 	"\x05agent\x18\x01 \x01(\v2\x14.chalk.auth.v1.AgentR\x05agent\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x124\n" +
-	"\aexpires\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"0\n" +
-	"\x0fSignURLResponse\x12\x1d\n" +
+	"\aexpires\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"6\n" +
+	"\x0fSignURLResponse\x12#\n" +
 	"\n" +
-	"signed_url\x18\x02 \x01(\tR\tsignedUrl2\xd3\x01\n" +
+	"signed_url\x18\x02 \x01(\tB\x04ء'\x01R\tsignedUrl2\xd3\x01\n" +
 	"\x0eSigningService\x12\xc0\x01\n" +
 	"\aSignURL\x12 .chalk.manager.v1.SignURLRequest\x1a!.chalk.manager.v1.SignURLResponse\"p\x80}\n" +
 	"\x8a\xd3\x0ei\b\x02\x12eAn agent made a request to read the URL, and receive a signed URL that could be read from any machineB\xc3\x01\n" +

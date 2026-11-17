@@ -12,6 +12,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v13 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -3382,7 +3383,7 @@ var File_chalk_server_v1_graph_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_graph_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/server/v1/graph.proto\x12\x0fchalk.server.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1dchalk/artifacts/v1/diff.proto\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a google/protobuf/field_mask.proto\"\xd8\x04\n" +
+	"\x1bchalk/server/v1/graph.proto\x12\x0fchalk.server.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1dchalk/artifacts/v1/diff.proto\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1achalk/utils/v1/large.proto\x1a google/protobuf/field_mask.proto\"\xd8\x04\n" +
 	"\n" +
 	"FeatureSQL\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
@@ -3432,13 +3433,13 @@ const file_chalk_server_v1_graph_proto_rawDesc = "" +
 	"\rdeployment_id\x18\x03 \x01(\tR\fdeploymentId\"=\n" +
 	"\x1aGetFeaturesMetadataRequest\x12\x1f\n" +
 	"\vfqns_filter\x18\x01 \x03(\tR\n" +
-	"fqnsFilter\"\xe6\x01\n" +
+	"fqnsFilter\"\xf0\x01\n" +
 	"\x12UpdateGraphRequest\x12#\n" +
-	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12/\n" +
-	"\x05graph\x18\x02 \x01(\v2\x15.chalk.graph.v1.GraphB\x02\x18\x01R\x05graph\x12'\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x123\n" +
+	"\x05graph\x18\x02 \x01(\v2\x15.chalk.graph.v1.GraphB\x06\xe8\xa1'\x01\x18\x01R\x05graph\x12'\n" +
 	"\x0fchalkpy_version\x18\x03 \x01(\tR\x0echalkpyVersion\x12\x15\n" +
-	"\x03tag\x18\x04 \x01(\tH\x00R\x03tag\x88\x01\x01\x122\n" +
-	"\x06export\x18\x05 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\x06exportB\x06\n" +
+	"\x03tag\x18\x04 \x01(\tH\x00R\x03tag\x88\x01\x01\x128\n" +
+	"\x06export\x18\x05 \x01(\v2\x1a.chalk.artifacts.v1.ExportB\x04\xe8\xa1'\x01R\x06exportB\x06\n" +
 	"\x04_tag\"\x15\n" +
 	"\x13UpdateGraphResponse\"\xa7\x01\n" +
 	"\x11GraphFetchOptions\x12F\n" +

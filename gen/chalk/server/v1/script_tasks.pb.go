@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -826,7 +827,7 @@ var File_chalk_server_v1_script_tasks_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/server/v1/script_tasks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8d\x01\n" +
+	"\"chalk/server/v1/script_tasks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8d\x01\n" +
 	"\x17CreateScriptTaskRequest\x12<\n" +
 	"\arequest\x18\x01 \x01(\v2\".chalk.common.v1.ScriptTaskRequestR\arequest\x12$\n" +
 	"\vsource_file\x18\x02 \x01(\fH\x00R\n" +
@@ -878,10 +879,10 @@ const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\vscript_task\x18\x01 \x01(\v2\x1f.chalk.server.v1.ScriptTaskMetaR\n" +
 	"scriptTask\"B\n" +
 	"\x1aGetScriptTaskSourceRequest\x12$\n" +
-	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"m\n" +
-	"\x1bGetScriptTaskSourceResponse\x12&\n" +
-	"\x0fsource_file_url\x18\x01 \x01(\tR\rsourceFileUrl\x12&\n" +
-	"\x0finputs_file_url\x18\x02 \x01(\tR\rinputsFileUrl\"?\n" +
+	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"y\n" +
+	"\x1bGetScriptTaskSourceResponse\x12,\n" +
+	"\x0fsource_file_url\x18\x01 \x01(\tB\x04ء'\x01R\rsourceFileUrl\x12,\n" +
+	"\x0finputs_file_url\x18\x02 \x01(\tB\x04ء'\x01R\rinputsFileUrl\"?\n" +
 	"\x17CancelScriptTaskRequest\x12$\n" +
 	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"\x1a\n" +
 	"\x18CancelScriptTaskResponse\">\n" +
@@ -890,11 +891,11 @@ const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\x17RerunScriptTaskResponse\x12+\n" +
 	"\x12new_script_task_id\x18\x01 \x01(\tR\x0fnewScriptTaskId\"B\n" +
 	"\x1aGetMetaplanTaskInfoRequest\x12$\n" +
-	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"\xa8\x01\n" +
+	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"\xae\x01\n" +
 	"\x1bGetMetaplanTaskInfoResponse\x122\n" +
 	"\x15metaplan_request_json\x18\x01 \x01(\tR\x13metaplanRequestJson\x12#\n" +
-	"\rmanifest_uris\x18\x02 \x03(\tR\fmanifestUris\x120\n" +
-	"\x14manifest_signed_urls\x18\x03 \x03(\tR\x12manifestSignedUrls2\xd3\a\n" +
+	"\rmanifest_uris\x18\x02 \x03(\tR\fmanifestUris\x126\n" +
+	"\x14manifest_signed_urls\x18\x03 \x03(\tB\x04ء'\x01R\x12manifestSignedUrls2\xd3\a\n" +
 	"\x11ScriptTaskService\x12\xc1\x01\n" +
 	"\x10CreateScriptTask\x12(.chalk.server.v1.CreateScriptTaskRequest\x1a).chalk.server.v1.CreateScriptTaskResponse\"X\x80}\x04\x92\xd3\x0eQ\n" +
 	"\x14script_tasks_enabled\x129This action is not enabled. Please contact Chalk Support.\x12l\n" +

@@ -45,6 +45,9 @@ const (
 	// EnvironmentServiceDeleteEnvironmentProcedure is the fully-qualified name of the
 	// EnvironmentService's DeleteEnvironment RPC.
 	EnvironmentServiceDeleteEnvironmentProcedure = "/chalk.server.v1.EnvironmentService/DeleteEnvironment"
+	// EnvironmentServiceDeleteSelfSignupTeamProcedure is the fully-qualified name of the
+	// EnvironmentService's DeleteSelfSignupTeam RPC.
+	EnvironmentServiceDeleteSelfSignupTeamProcedure = "/chalk.server.v1.EnvironmentService/DeleteSelfSignupTeam"
 	// EnvironmentServiceSetDefaultEnvironmentProcedure is the fully-qualified name of the
 	// EnvironmentService's SetDefaultEnvironment RPC.
 	EnvironmentServiceSetDefaultEnvironmentProcedure = "/chalk.server.v1.EnvironmentService/SetDefaultEnvironment"
@@ -59,6 +62,16 @@ type EnvironmentServiceClient interface {
 	CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error)
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
+	// Deletes every active environment of the caller's self-signup team the way
+	// DeleteEnvironment does, then archives its projects and deletes its users.
+	//
+	// Chalk-employee-only: PERMISSION_CHALK_ADMIN is injected into a user agent
+	// only for an @chalk.ai address, and no role grants it, so a customer cannot
+	// reach this even as the owner of their own team. A service token can only
+	// carry it if a Chalk employee deliberately minted one with it --
+	// CreateServiceToken requires the permission to be a subset of the caller's
+	// own, and GetAvailablePermissions does not offer it in the UI.
+	DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error)
 	SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error)
 	DiscoverEnvironmentBuckets(context.Context, *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error)
 }
@@ -98,6 +111,12 @@ func NewEnvironmentServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(environmentServiceMethods.ByName("DeleteEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteSelfSignupTeam: connect.NewClient[v1.DeleteSelfSignupTeamRequest, v1.DeleteSelfSignupTeamResponse](
+			httpClient,
+			baseURL+EnvironmentServiceDeleteSelfSignupTeamProcedure,
+			connect.WithSchema(environmentServiceMethods.ByName("DeleteSelfSignupTeam")),
+			connect.WithClientOptions(opts...),
+		),
 		setDefaultEnvironment: connect.NewClient[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse](
 			httpClient,
 			baseURL+EnvironmentServiceSetDefaultEnvironmentProcedure,
@@ -120,6 +139,7 @@ type environmentServiceClient struct {
 	createEnvironmentV2                 *connect.Client[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response]
 	updateEnvironmentV2                 *connect.Client[v1.UpdateEnvironmentV2Request, v1.UpdateEnvironmentV2Response]
 	deleteEnvironment                   *connect.Client[v1.DeleteEnvironmentRequest, v1.DeleteEnvironmentResponse]
+	deleteSelfSignupTeam                *connect.Client[v1.DeleteSelfSignupTeamRequest, v1.DeleteSelfSignupTeamResponse]
 	setDefaultEnvironment               *connect.Client[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse]
 	discoverEnvironmentBuckets          *connect.Client[v1.DiscoverEnvironmentBucketsRequest, v1.DiscoverEnvironmentBucketsResponse]
 }
@@ -145,6 +165,11 @@ func (c *environmentServiceClient) DeleteEnvironment(ctx context.Context, req *c
 	return c.deleteEnvironment.CallUnary(ctx, req)
 }
 
+// DeleteSelfSignupTeam calls chalk.server.v1.EnvironmentService.DeleteSelfSignupTeam.
+func (c *environmentServiceClient) DeleteSelfSignupTeam(ctx context.Context, req *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error) {
+	return c.deleteSelfSignupTeam.CallUnary(ctx, req)
+}
+
 // SetDefaultEnvironment calls chalk.server.v1.EnvironmentService.SetDefaultEnvironment.
 func (c *environmentServiceClient) SetDefaultEnvironment(ctx context.Context, req *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error) {
 	return c.setDefaultEnvironment.CallUnary(ctx, req)
@@ -161,6 +186,16 @@ type EnvironmentServiceHandler interface {
 	CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error)
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
+	// Deletes every active environment of the caller's self-signup team the way
+	// DeleteEnvironment does, then archives its projects and deletes its users.
+	//
+	// Chalk-employee-only: PERMISSION_CHALK_ADMIN is injected into a user agent
+	// only for an @chalk.ai address, and no role grants it, so a customer cannot
+	// reach this even as the owner of their own team. A service token can only
+	// carry it if a Chalk employee deliberately minted one with it --
+	// CreateServiceToken requires the permission to be a subset of the caller's
+	// own, and GetAvailablePermissions does not offer it in the UI.
+	DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error)
 	SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error)
 	DiscoverEnvironmentBuckets(context.Context, *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error)
 }
@@ -196,6 +231,12 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 		connect.WithSchema(environmentServiceMethods.ByName("DeleteEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	environmentServiceDeleteSelfSignupTeamHandler := connect.NewUnaryHandler(
+		EnvironmentServiceDeleteSelfSignupTeamProcedure,
+		svc.DeleteSelfSignupTeam,
+		connect.WithSchema(environmentServiceMethods.ByName("DeleteSelfSignupTeam")),
+		connect.WithHandlerOptions(opts...),
+	)
 	environmentServiceSetDefaultEnvironmentHandler := connect.NewUnaryHandler(
 		EnvironmentServiceSetDefaultEnvironmentProcedure,
 		svc.SetDefaultEnvironment,
@@ -219,6 +260,8 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 			environmentServiceUpdateEnvironmentV2Handler.ServeHTTP(w, r)
 		case EnvironmentServiceDeleteEnvironmentProcedure:
 			environmentServiceDeleteEnvironmentHandler.ServeHTTP(w, r)
+		case EnvironmentServiceDeleteSelfSignupTeamProcedure:
+			environmentServiceDeleteSelfSignupTeamHandler.ServeHTTP(w, r)
 		case EnvironmentServiceSetDefaultEnvironmentProcedure:
 			environmentServiceSetDefaultEnvironmentHandler.ServeHTTP(w, r)
 		case EnvironmentServiceDiscoverEnvironmentBucketsProcedure:
@@ -246,6 +289,10 @@ func (UnimplementedEnvironmentServiceHandler) UpdateEnvironmentV2(context.Contex
 
 func (UnimplementedEnvironmentServiceHandler) DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.DeleteEnvironment is not implemented"))
+}
+
+func (UnimplementedEnvironmentServiceHandler) DeleteSelfSignupTeam(context.Context, *connect.Request[v1.DeleteSelfSignupTeamRequest]) (*connect.Response[v1.DeleteSelfSignupTeamResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.DeleteSelfSignupTeam is not implemented"))
 }
 
 func (UnimplementedEnvironmentServiceHandler) SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error) {

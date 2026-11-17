@@ -189,9 +189,61 @@ func (SandboxSortOrder) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{2}
 }
 
-// A durable reference to a resource produced using sandbox credentials.
-// Query references identify observed operations, not execution success.
-// Function references identify versions.
+type CredentialRefreshState int32
+
+const (
+	CredentialRefreshState_CREDENTIAL_REFRESH_STATE_UNSPECIFIED CredentialRefreshState = 0
+	CredentialRefreshState_CREDENTIAL_REFRESH_STATE_PENDING     CredentialRefreshState = 1
+	CredentialRefreshState_CREDENTIAL_REFRESH_STATE_ACTIVE      CredentialRefreshState = 2
+	CredentialRefreshState_CREDENTIAL_REFRESH_STATE_SUPERSEDED  CredentialRefreshState = 3
+	CredentialRefreshState_CREDENTIAL_REFRESH_STATE_FAILED      CredentialRefreshState = 4
+)
+
+// Enum value maps for CredentialRefreshState.
+var (
+	CredentialRefreshState_name = map[int32]string{
+		0: "CREDENTIAL_REFRESH_STATE_UNSPECIFIED",
+		1: "CREDENTIAL_REFRESH_STATE_PENDING",
+		2: "CREDENTIAL_REFRESH_STATE_ACTIVE",
+		3: "CREDENTIAL_REFRESH_STATE_SUPERSEDED",
+		4: "CREDENTIAL_REFRESH_STATE_FAILED",
+	}
+	CredentialRefreshState_value = map[string]int32{
+		"CREDENTIAL_REFRESH_STATE_UNSPECIFIED": 0,
+		"CREDENTIAL_REFRESH_STATE_PENDING":     1,
+		"CREDENTIAL_REFRESH_STATE_ACTIVE":      2,
+		"CREDENTIAL_REFRESH_STATE_SUPERSEDED":  3,
+		"CREDENTIAL_REFRESH_STATE_FAILED":      4,
+	}
+)
+
+func (x CredentialRefreshState) Enum() *CredentialRefreshState {
+	p := new(CredentialRefreshState)
+	*p = x
+	return p
+}
+
+func (x CredentialRefreshState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CredentialRefreshState) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_sandbox_v2_service_proto_enumTypes[3].Descriptor()
+}
+
+func (CredentialRefreshState) Type() protoreflect.EnumType {
+	return &file_chalk_sandbox_v2_service_proto_enumTypes[3]
+}
+
+func (x CredentialRefreshState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CredentialRefreshState.Descriptor instead.
+func (CredentialRefreshState) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{3}
+}
+
 type SandboxResourceKind int32
 
 const (
@@ -202,8 +254,7 @@ const (
 	SandboxResourceKind_SANDBOX_RESOURCE_KIND_OFFLINE_QUERY         SandboxResourceKind = 4
 	SandboxResourceKind_SANDBOX_RESOURCE_KIND_SQL_QUERY             SandboxResourceKind = 5
 	SandboxResourceKind_SANDBOX_RESOURCE_KIND_STORED_ARTIFACT       SandboxResourceKind = 6
-	// A GitHub pull request opened from the sandbox. resource_id is the PR URL.
-	SandboxResourceKind_SANDBOX_RESOURCE_KIND_GITHUB_PR SandboxResourceKind = 7
+	SandboxResourceKind_SANDBOX_RESOURCE_KIND_GITHUB_PR             SandboxResourceKind = 7
 )
 
 // Enum value maps for SandboxResourceKind.
@@ -241,11 +292,11 @@ func (x SandboxResourceKind) String() string {
 }
 
 func (SandboxResourceKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_sandbox_v2_service_proto_enumTypes[3].Descriptor()
+	return file_chalk_sandbox_v2_service_proto_enumTypes[4].Descriptor()
 }
 
 func (SandboxResourceKind) Type() protoreflect.EnumType {
-	return &file_chalk_sandbox_v2_service_proto_enumTypes[3]
+	return &file_chalk_sandbox_v2_service_proto_enumTypes[4]
 }
 
 func (x SandboxResourceKind) Number() protoreflect.EnumNumber {
@@ -254,34 +305,27 @@ func (x SandboxResourceKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SandboxResourceKind.Descriptor instead.
 func (SandboxResourceKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{4}
 }
 
 type SandboxInfo struct {
-	state  protoimpl.MessageState `protogen:"open.v1"`
-	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Status SandboxStatus          `protobuf:"varint,3,opt,name=status,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"status,omitempty"`
-	// Top-level summary for the current status.
-	StatusMessage *string                `protobuf:"bytes,4,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`
-	Spec          *v1.ChalkContainerSpec `protobuf:"bytes,5,opt,name=spec,proto3" json:"spec,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
-	WebUrl        *string                `protobuf:"bytes,8,opt,name=web_url,json=webUrl,proto3,oneof" json:"web_url,omitempty"`
-	// Cloud region of the stored sandbox cluster. Empty when unknown.
-	Region string `protobuf:"bytes,9,opt,name=region,proto3" json:"region,omitempty"`
-	// User or service-token ID, absent when the creator is unknown.
-	CreatedBy *string `protobuf:"bytes,10,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
-	// Additional diagnostic info for status_message.
-	StatusDetails *string `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
-	// Cluster where this sandbox is placed.
-	ClusterId string `protobuf:"bytes,12,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Snapshot used at initial creation; unchanged by resume. Absent when not recorded.
-	CreatedFromSnapshotId *string `protobuf:"bytes,13,opt,name=created_from_snapshot_id,json=createdFromSnapshotId,proto3,oneof" json:"created_from_snapshot_id,omitempty"`
-	// First execution start time, preserved across suspend/resume.
-	StartedAt     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Status                SandboxStatus          `protobuf:"varint,3,opt,name=status,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"status,omitempty"`
+	StatusMessage         *string                `protobuf:"bytes,4,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`
+	Spec                  *v1.ChalkContainerSpec `protobuf:"bytes,5,opt,name=spec,proto3" json:"spec,omitempty"`
+	CreatedAt             *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	FinishedAt            *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
+	WebUrl                *string                `protobuf:"bytes,8,opt,name=web_url,json=webUrl,proto3,oneof" json:"web_url,omitempty"`
+	Region                string                 `protobuf:"bytes,9,opt,name=region,proto3" json:"region,omitempty"`
+	CreatedBy             *string                `protobuf:"bytes,10,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	StatusDetails         *string                `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
+	ClusterId             string                 `protobuf:"bytes,12,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	CreatedFromSnapshotId *string                `protobuf:"bytes,13,opt,name=created_from_snapshot_id,json=createdFromSnapshotId,proto3,oneof" json:"created_from_snapshot_id,omitempty"`
+	StartedAt             *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *SandboxInfo) Reset() {
@@ -487,8 +531,6 @@ type CreateSandboxRequest_Spec struct {
 }
 
 type CreateSandboxRequest_SnapshotId struct {
-	// Forks use the snapshot's recorded container spec and ignore any caller
-	// supplied spec; the snapshot_id is the complete source of truth.
 	SnapshotId string `protobuf:"bytes,2,opt,name=snapshot_id,json=snapshotId,proto3,oneof"`
 }
 
@@ -635,20 +677,13 @@ type ListSandboxesFilters struct {
 	Statuses  []SandboxStatus `protobuf:"varint,2,rep,packed,name=statuses,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"statuses,omitempty"`
 	Images    []string        `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
 	CreatedBy []string        `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	// Sandboxes whose spec tags include every one of these key/value pairs, e.g.
-	// {"chalk.evaluation.run_id": "<run id>"} for the sandboxes of one evaluation run.
-	//
 	// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
-	Tags map[string]string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Matches the current spec.restore_from_snapshot_id, including forks and resumes.
-	// Values are ORed and ANDed with other filters. This is not restore history.
-	RestoreFromSnapshotIds []string `protobuf:"bytes,6,rep,name=restore_from_snapshot_ids,json=restoreFromSnapshotIds,proto3" json:"restore_from_snapshot_ids,omitempty"`
-	// Mutually exclusive with legacy tags; ANDed with other filters.
-	TagFilter *v11.TagFilter `protobuf:"bytes,7,opt,name=tag_filter,json=tagFilter,proto3,oneof" json:"tag_filter,omitempty"`
-	// Sandboxes initially created from any of these snapshots, including after resume.
-	SourceSnapshotIds []string `protobuf:"bytes,8,rep,name=source_snapshot_ids,json=sourceSnapshotIds,proto3" json:"source_snapshot_ids,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	Tags                   map[string]string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RestoreFromSnapshotIds []string          `protobuf:"bytes,6,rep,name=restore_from_snapshot_ids,json=restoreFromSnapshotIds,proto3" json:"restore_from_snapshot_ids,omitempty"`
+	TagFilter              *v11.TagFilter    `protobuf:"bytes,7,opt,name=tag_filter,json=tagFilter,proto3,oneof" json:"tag_filter,omitempty"`
+	SourceSnapshotIds      []string          `protobuf:"bytes,8,rep,name=source_snapshot_ids,json=sourceSnapshotIds,proto3" json:"source_snapshot_ids,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ListSandboxesFilters) Reset() {
@@ -1035,19 +1070,211 @@ func (*ResumeSandboxResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{11}
 }
 
+type RefreshSandboxCredentialsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshSandboxCredentialsRequest) Reset() {
+	*x = RefreshSandboxCredentialsRequest{}
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshSandboxCredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshSandboxCredentialsRequest) ProtoMessage() {}
+
+func (x *RefreshSandboxCredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshSandboxCredentialsRequest.ProtoReflect.Descriptor instead.
+func (*RefreshSandboxCredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *RefreshSandboxCredentialsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type RefreshSandboxCredentialsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Revision      string                 `protobuf:"bytes,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshSandboxCredentialsResponse) Reset() {
+	*x = RefreshSandboxCredentialsResponse{}
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshSandboxCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshSandboxCredentialsResponse) ProtoMessage() {}
+
+func (x *RefreshSandboxCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshSandboxCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*RefreshSandboxCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *RefreshSandboxCredentialsResponse) GetRevision() string {
+	if x != nil {
+		return x.Revision
+	}
+	return ""
+}
+
+type GetSandboxCredentialRefreshStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Revision      string                 `protobuf:"bytes,2,opt,name=revision,proto3" json:"revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSandboxCredentialRefreshStatusRequest) Reset() {
+	*x = GetSandboxCredentialRefreshStatusRequest{}
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSandboxCredentialRefreshStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSandboxCredentialRefreshStatusRequest) ProtoMessage() {}
+
+func (x *GetSandboxCredentialRefreshStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSandboxCredentialRefreshStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetSandboxCredentialRefreshStatusRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetSandboxCredentialRefreshStatusRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetSandboxCredentialRefreshStatusRequest) GetRevision() string {
+	if x != nil {
+		return x.Revision
+	}
+	return ""
+}
+
+type GetSandboxCredentialRefreshStatusResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	State         CredentialRefreshState `protobuf:"varint,1,opt,name=state,proto3,enum=chalk.sandbox.v2.CredentialRefreshState" json:"state,omitempty"`
+	ErrorMessage  *string                `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSandboxCredentialRefreshStatusResponse) Reset() {
+	*x = GetSandboxCredentialRefreshStatusResponse{}
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSandboxCredentialRefreshStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSandboxCredentialRefreshStatusResponse) ProtoMessage() {}
+
+func (x *GetSandboxCredentialRefreshStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSandboxCredentialRefreshStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetSandboxCredentialRefreshStatusResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetSandboxCredentialRefreshStatusResponse) GetState() CredentialRefreshState {
+	if x != nil {
+		return x.State
+	}
+	return CredentialRefreshState_CREDENTIAL_REFRESH_STATE_UNSPECIFIED
+}
+
+func (x *GetSandboxCredentialRefreshStatusResponse) GetErrorMessage() string {
+	if x != nil && x.ErrorMessage != nil {
+		return *x.ErrorMessage
+	}
+	return ""
+}
+
 type TerminateSandboxRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Grace period before the container is killed. Defaults to the server's
-	// configured grace period when unset.
+	// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
+	Id            string               `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	GracePeriod   *durationpb.Duration `protobuf:"bytes,2,opt,name=grace_period,json=gracePeriod,proto3,oneof" json:"grace_period,omitempty"`
+	Ids           []string             `protobuf:"bytes,3,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TerminateSandboxRequest) Reset() {
 	*x = TerminateSandboxRequest{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1059,7 +1286,7 @@ func (x *TerminateSandboxRequest) String() string {
 func (*TerminateSandboxRequest) ProtoMessage() {}
 
 func (x *TerminateSandboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1072,9 +1299,10 @@ func (x *TerminateSandboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TerminateSandboxRequest.ProtoReflect.Descriptor instead.
 func (*TerminateSandboxRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{16}
 }
 
+// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
 func (x *TerminateSandboxRequest) GetId() string {
 	if x != nil {
 		return x.Id
@@ -1089,6 +1317,13 @@ func (x *TerminateSandboxRequest) GetGracePeriod() *durationpb.Duration {
 	return nil
 }
 
+func (x *TerminateSandboxRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
 type TerminateSandboxResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1097,7 +1332,7 @@ type TerminateSandboxResponse struct {
 
 func (x *TerminateSandboxResponse) Reset() {
 	*x = TerminateSandboxResponse{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[13]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1109,7 +1344,7 @@ func (x *TerminateSandboxResponse) String() string {
 func (*TerminateSandboxResponse) ProtoMessage() {}
 
 func (x *TerminateSandboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[13]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1122,29 +1357,26 @@ func (x *TerminateSandboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TerminateSandboxResponse.ProtoReflect.Descriptor instead.
 func (*TerminateSandboxResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{17}
 }
 
 type SandboxResource struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SandboxId  string                 `protobuf:"bytes,2,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
-	Kind       SandboxResourceKind    `protobuf:"varint,3,opt,name=kind,proto3,enum=chalk.sandbox.v2.SandboxResourceKind" json:"kind,omitempty"`
-	ResourceId string                 `protobuf:"bytes,4,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
-	// Empty for resources without an independently addressable version.
-	VersionId string `protobuf:"bytes,5,opt,name=version_id,json=versionId,proto3" json:"version_id,omitempty"`
-	// First capture time. Retained when the same operation is observed again.
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	AgentId   string                 `protobuf:"bytes,7,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	// Current display name, when available in metadata. Absent for unnamed or missing resources.
-	Name          *string `protobuf:"bytes,8,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SandboxId     string                 `protobuf:"bytes,2,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
+	Kind          SandboxResourceKind    `protobuf:"varint,3,opt,name=kind,proto3,enum=chalk.sandbox.v2.SandboxResourceKind" json:"kind,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,4,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	VersionId     string                 `protobuf:"bytes,5,opt,name=version_id,json=versionId,proto3" json:"version_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	AgentId       string                 `protobuf:"bytes,7,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Name          *string                `protobuf:"bytes,8,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SandboxResource) Reset() {
 	*x = SandboxResource{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[14]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1156,7 +1388,7 @@ func (x *SandboxResource) String() string {
 func (*SandboxResource) ProtoMessage() {}
 
 func (x *SandboxResource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[14]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1169,7 +1401,7 @@ func (x *SandboxResource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SandboxResource.ProtoReflect.Descriptor instead.
 func (*SandboxResource) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SandboxResource) GetId() string {
@@ -1229,10 +1461,9 @@ func (x *SandboxResource) GetName() string {
 }
 
 type ListSandboxResourcesFilters struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Kinds       []SandboxResourceKind  `protobuf:"varint,1,rep,packed,name=kinds,proto3,enum=chalk.sandbox.v2.SandboxResourceKind" json:"kinds,omitempty"`
-	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	// Inclusive lower bound and exclusive upper bound on first capture time.
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kinds         []SandboxResourceKind  `protobuf:"varint,1,rep,packed,name=kinds,proto3,enum=chalk.sandbox.v2.SandboxResourceKind" json:"kinds,omitempty"`
+	ResourceIds   []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	CreatedAfter  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_after,json=createdAfter,proto3" json:"created_after,omitempty"`
 	CreatedBefore *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_before,json=createdBefore,proto3" json:"created_before,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1241,7 +1472,7 @@ type ListSandboxResourcesFilters struct {
 
 func (x *ListSandboxResourcesFilters) Reset() {
 	*x = ListSandboxResourcesFilters{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[15]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1253,7 +1484,7 @@ func (x *ListSandboxResourcesFilters) String() string {
 func (*ListSandboxResourcesFilters) ProtoMessage() {}
 
 func (x *ListSandboxResourcesFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[15]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1266,7 +1497,7 @@ func (x *ListSandboxResourcesFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxResourcesFilters.ProtoReflect.Descriptor instead.
 func (*ListSandboxResourcesFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListSandboxResourcesFilters) GetKinds() []SandboxResourceKind {
@@ -1298,20 +1529,18 @@ func (x *ListSandboxResourcesFilters) GetCreatedBefore() *timestamppb.Timestamp 
 }
 
 type ListSandboxResourcesRequest struct {
-	state     protoimpl.MessageState       `protogen:"open.v1"`
-	SandboxId string                       `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
-	Filters   *ListSandboxResourcesFilters `protobuf:"bytes,2,opt,name=filters,proto3" json:"filters,omitempty"`
-	// Defaults to 50. Must be between 0 and 200.
-	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// Opaque cursor. Sandbox and filters must match the first request.
-	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	SandboxId     string                       `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
+	Filters       *ListSandboxResourcesFilters `protobuf:"bytes,2,opt,name=filters,proto3" json:"filters,omitempty"`
+	PageSize      int32                        `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                       `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSandboxResourcesRequest) Reset() {
 	*x = ListSandboxResourcesRequest{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[16]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1323,7 +1552,7 @@ func (x *ListSandboxResourcesRequest) String() string {
 func (*ListSandboxResourcesRequest) ProtoMessage() {}
 
 func (x *ListSandboxResourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[16]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1336,7 +1565,7 @@ func (x *ListSandboxResourcesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxResourcesRequest.ProtoReflect.Descriptor instead.
 func (*ListSandboxResourcesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListSandboxResourcesRequest) GetSandboxId() string {
@@ -1368,20 +1597,16 @@ func (x *ListSandboxResourcesRequest) GetPageToken() string {
 }
 
 type ListSandboxResourcesResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Newest first, ordered by (created_at, id). References survive deletion of
-	// their source resource and do not grant permission to read that resource.
-	// Query references survive execution-history expiration. Capture covers Go API
-	// entry points and is best effort for queries observed after acceptance/execution.
-	Resources     []*SandboxResource `protobuf:"bytes,1,rep,name=resources,proto3" json:"resources,omitempty"`
-	NextPageToken string             `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resources     []*SandboxResource     `protobuf:"bytes,1,rep,name=resources,proto3" json:"resources,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSandboxResourcesResponse) Reset() {
 	*x = ListSandboxResourcesResponse{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[17]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1393,7 +1618,7 @@ func (x *ListSandboxResourcesResponse) String() string {
 func (*ListSandboxResourcesResponse) ProtoMessage() {}
 
 func (x *ListSandboxResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[17]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1406,7 +1631,7 @@ func (x *ListSandboxResourcesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxResourcesResponse.ProtoReflect.Descriptor instead.
 func (*ListSandboxResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListSandboxResourcesResponse) GetResources() []*SandboxResource {
@@ -1435,7 +1660,7 @@ type RecordSandboxResourceRequest struct {
 
 func (x *RecordSandboxResourceRequest) Reset() {
 	*x = RecordSandboxResourceRequest{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[18]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1447,7 +1672,7 @@ func (x *RecordSandboxResourceRequest) String() string {
 func (*RecordSandboxResourceRequest) ProtoMessage() {}
 
 func (x *RecordSandboxResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[18]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1460,7 +1685,7 @@ func (x *RecordSandboxResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordSandboxResourceRequest.ProtoReflect.Descriptor instead.
 func (*RecordSandboxResourceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RecordSandboxResourceRequest) GetKind() SandboxResourceKind {
@@ -1499,7 +1724,7 @@ type RecordSandboxResourceResponse struct {
 
 func (x *RecordSandboxResourceResponse) Reset() {
 	*x = RecordSandboxResourceResponse{}
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[19]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1511,7 +1736,7 @@ func (x *RecordSandboxResourceResponse) String() string {
 func (*RecordSandboxResourceResponse) ProtoMessage() {}
 
 func (x *RecordSandboxResourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[19]
+	mi := &file_chalk_sandbox_v2_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1524,7 +1749,7 @@ func (x *RecordSandboxResourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordSandboxResourceResponse.ProtoReflect.Descriptor instead.
 func (*RecordSandboxResourceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{23}
 }
 
 var File_chalk_sandbox_v2_service_proto protoreflect.FileDescriptor
@@ -1608,10 +1833,22 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x16SuspendSandboxResponse\"&\n" +
 	"\x14ResumeSandboxRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
-	"\x15ResumeSandboxResponse\"}\n" +
-	"\x17TerminateSandboxRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12A\n" +
-	"\fgrace_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\vgracePeriod\x88\x01\x01B\x0f\n" +
+	"\x15ResumeSandboxResponse\"2\n" +
+	" RefreshSandboxCredentialsRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"?\n" +
+	"!RefreshSandboxCredentialsResponse\x12\x1a\n" +
+	"\brevision\x18\x01 \x01(\tR\brevision\"V\n" +
+	"(GetSandboxCredentialRefreshStatusRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\brevision\x18\x02 \x01(\tR\brevision\"\xa7\x01\n" +
+	")GetSandboxCredentialRefreshStatusResponse\x12>\n" +
+	"\x05state\x18\x01 \x01(\x0e2(.chalk.sandbox.v2.CredentialRefreshStateR\x05state\x12(\n" +
+	"\rerror_message\x18\x02 \x01(\tH\x00R\ferrorMessage\x88\x01\x01B\x10\n" +
+	"\x0e_error_message\"\x93\x01\n" +
+	"\x17TerminateSandboxRequest\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\tB\x02\x18\x01R\x02id\x12A\n" +
+	"\fgrace_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\vgracePeriod\x88\x01\x01\x12\x10\n" +
+	"\x03ids\x18\x03 \x03(\tR\x03idsB\x0f\n" +
 	"\r_grace_period\"\x1a\n" +
 	"\x18TerminateSandboxResponse\"\xb3\x02\n" +
 	"\x0fSandboxResource\x12\x0e\n" +
@@ -1667,7 +1904,13 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x10SandboxSortOrder\x12\"\n" +
 	"\x1eSANDBOX_SORT_ORDER_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17SANDBOX_SORT_ORDER_DESC\x10\x01\x12\x1a\n" +
-	"\x16SANDBOX_SORT_ORDER_ASC\x10\x02*\xd7\x02\n" +
+	"\x16SANDBOX_SORT_ORDER_ASC\x10\x02*\xdb\x01\n" +
+	"\x16CredentialRefreshState\x12(\n" +
+	"$CREDENTIAL_REFRESH_STATE_UNSPECIFIED\x10\x00\x12$\n" +
+	" CREDENTIAL_REFRESH_STATE_PENDING\x10\x01\x12#\n" +
+	"\x1fCREDENTIAL_REFRESH_STATE_ACTIVE\x10\x02\x12'\n" +
+	"#CREDENTIAL_REFRESH_STATE_SUPERSEDED\x10\x03\x12#\n" +
+	"\x1fCREDENTIAL_REFRESH_STATE_FAILED\x10\x04*\xd7\x02\n" +
 	"\x13SandboxResourceKind\x12%\n" +
 	"!SANDBOX_RESOURCE_KIND_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eSANDBOX_RESOURCE_KIND_NOTEBOOK\x10\x01\x12/\n" +
@@ -1676,16 +1919,17 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"#SANDBOX_RESOURCE_KIND_OFFLINE_QUERY\x10\x04\x12#\n" +
 	"\x1fSANDBOX_RESOURCE_KIND_SQL_QUERY\x10\x05\x12)\n" +
 	"%SANDBOX_RESOURCE_KIND_STORED_ARTIFACT\x10\x06\x12#\n" +
-	"\x1fSANDBOX_RESOURCE_KIND_GITHUB_PR\x10\a2\xca\x06\n" +
+	"\x1fSANDBOX_RESOURCE_KIND_GITHUB_PR\x10\a2\xa5\b\n" +
 	"\x0eSandboxService\x12\xc0\x01\n" +
 	"\rCreateSandbox\x12&.chalk.sandbox.v2.CreateSandboxRequest\x1a'.chalk.sandbox.v2.CreateSandboxResponse\"^\x80}<\x92}\x01\f\x92\xd3\x0eS\n" +
 	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12`\n" +
 	"\n" +
 	"GetSandbox\x12#.chalk.sandbox.v2.GetSandboxRequest\x1a$.chalk.sandbox.v2.GetSandboxResponse\"\a\x80};\x92}\x01\v\x12i\n" +
-	"\rListSandboxes\x12&.chalk.sandbox.v2.ListSandboxesRequest\x1a'.chalk.sandbox.v2.ListSandboxesResponse\"\a\x80};\x92}\x01\v\x12\xc8\x01\n" +
-	"\x0eSuspendSandbox\x12'.chalk.sandbox.v2.SuspendSandboxRequest\x1a(.chalk.sandbox.v2.SuspendSandboxResponse\"c\x80}<\x92}\x01\f\x92\xd3\x0eX\n" +
-	"\x1bcontainer_snapshots_enabled\x129This action is not enabled. Please contact Chalk Support.\x12i\n" +
-	"\rResumeSandbox\x12&.chalk.sandbox.v2.ResumeSandboxRequest\x1a'.chalk.sandbox.v2.ResumeSandboxResponse\"\a\x80}<\x92}\x01\f\x12r\n" +
+	"\rListSandboxes\x12&.chalk.sandbox.v2.ListSandboxesRequest\x1a'.chalk.sandbox.v2.ListSandboxesResponse\"\a\x80};\x92}\x01\v\x12l\n" +
+	"\x0eSuspendSandbox\x12'.chalk.sandbox.v2.SuspendSandboxRequest\x1a(.chalk.sandbox.v2.SuspendSandboxResponse\"\a\x80}<\x92}\x01\f\x12i\n" +
+	"\rResumeSandbox\x12&.chalk.sandbox.v2.ResumeSandboxRequest\x1a'.chalk.sandbox.v2.ResumeSandboxResponse\"\a\x80}<\x92}\x01\f\x12\x8d\x01\n" +
+	"\x19RefreshSandboxCredentials\x122.chalk.sandbox.v2.RefreshSandboxCredentialsRequest\x1a3.chalk.sandbox.v2.RefreshSandboxCredentialsResponse\"\a\x80}<\x92}\x01\f\x12\xa5\x01\n" +
+	"!GetSandboxCredentialRefreshStatus\x12:.chalk.sandbox.v2.GetSandboxCredentialRefreshStatusRequest\x1a;.chalk.sandbox.v2.GetSandboxCredentialRefreshStatusResponse\"\a\x80}<\x92}\x01\f\x12r\n" +
 	"\x10TerminateSandbox\x12).chalk.sandbox.v2.TerminateSandboxRequest\x1a*.chalk.sandbox.v2.TerminateSandboxResponse\"\a\x80}<\x92}\x01\f2\x9c\x02\n" +
 	"\x16SandboxResourceService\x12~\n" +
 	"\x14ListSandboxResources\x12-.chalk.sandbox.v2.ListSandboxResourcesRequest\x1a..chalk.sandbox.v2.ListSandboxResourcesResponse\"\a\x80};\x92}\x01\v\x12\x81\x01\n" +
@@ -1704,85 +1948,95 @@ func file_chalk_sandbox_v2_service_proto_rawDescGZIP() []byte {
 	return file_chalk_sandbox_v2_service_proto_rawDescData
 }
 
-var file_chalk_sandbox_v2_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_sandbox_v2_service_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_chalk_sandbox_v2_service_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chalk_sandbox_v2_service_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_chalk_sandbox_v2_service_proto_goTypes = []any{
-	(SandboxStatus)(0),                    // 0: chalk.sandbox.v2.SandboxStatus
-	(SandboxSortColumn)(0),                // 1: chalk.sandbox.v2.SandboxSortColumn
-	(SandboxSortOrder)(0),                 // 2: chalk.sandbox.v2.SandboxSortOrder
-	(SandboxResourceKind)(0),              // 3: chalk.sandbox.v2.SandboxResourceKind
-	(*SandboxInfo)(nil),                   // 4: chalk.sandbox.v2.SandboxInfo
-	(*CreateSandboxRequest)(nil),          // 5: chalk.sandbox.v2.CreateSandboxRequest
-	(*CreateSandboxResponse)(nil),         // 6: chalk.sandbox.v2.CreateSandboxResponse
-	(*GetSandboxRequest)(nil),             // 7: chalk.sandbox.v2.GetSandboxRequest
-	(*GetSandboxResponse)(nil),            // 8: chalk.sandbox.v2.GetSandboxResponse
-	(*ListSandboxesFilters)(nil),          // 9: chalk.sandbox.v2.ListSandboxesFilters
-	(*ListSandboxesRequest)(nil),          // 10: chalk.sandbox.v2.ListSandboxesRequest
-	(*ListSandboxesResponse)(nil),         // 11: chalk.sandbox.v2.ListSandboxesResponse
-	(*SuspendSandboxRequest)(nil),         // 12: chalk.sandbox.v2.SuspendSandboxRequest
-	(*SuspendSandboxResponse)(nil),        // 13: chalk.sandbox.v2.SuspendSandboxResponse
-	(*ResumeSandboxRequest)(nil),          // 14: chalk.sandbox.v2.ResumeSandboxRequest
-	(*ResumeSandboxResponse)(nil),         // 15: chalk.sandbox.v2.ResumeSandboxResponse
-	(*TerminateSandboxRequest)(nil),       // 16: chalk.sandbox.v2.TerminateSandboxRequest
-	(*TerminateSandboxResponse)(nil),      // 17: chalk.sandbox.v2.TerminateSandboxResponse
-	(*SandboxResource)(nil),               // 18: chalk.sandbox.v2.SandboxResource
-	(*ListSandboxResourcesFilters)(nil),   // 19: chalk.sandbox.v2.ListSandboxResourcesFilters
-	(*ListSandboxResourcesRequest)(nil),   // 20: chalk.sandbox.v2.ListSandboxResourcesRequest
-	(*ListSandboxResourcesResponse)(nil),  // 21: chalk.sandbox.v2.ListSandboxResourcesResponse
-	(*RecordSandboxResourceRequest)(nil),  // 22: chalk.sandbox.v2.RecordSandboxResourceRequest
-	(*RecordSandboxResourceResponse)(nil), // 23: chalk.sandbox.v2.RecordSandboxResourceResponse
-	nil,                                   // 24: chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
-	(*v1.ChalkContainerSpec)(nil),         // 25: chalk.container.v1.ChalkContainerSpec
-	(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-	(*v11.TagFilter)(nil),                 // 27: chalk.common.v1.TagFilter
-	(*durationpb.Duration)(nil),           // 28: google.protobuf.Duration
+	(SandboxStatus)(0),                                // 0: chalk.sandbox.v2.SandboxStatus
+	(SandboxSortColumn)(0),                            // 1: chalk.sandbox.v2.SandboxSortColumn
+	(SandboxSortOrder)(0),                             // 2: chalk.sandbox.v2.SandboxSortOrder
+	(CredentialRefreshState)(0),                       // 3: chalk.sandbox.v2.CredentialRefreshState
+	(SandboxResourceKind)(0),                          // 4: chalk.sandbox.v2.SandboxResourceKind
+	(*SandboxInfo)(nil),                               // 5: chalk.sandbox.v2.SandboxInfo
+	(*CreateSandboxRequest)(nil),                      // 6: chalk.sandbox.v2.CreateSandboxRequest
+	(*CreateSandboxResponse)(nil),                     // 7: chalk.sandbox.v2.CreateSandboxResponse
+	(*GetSandboxRequest)(nil),                         // 8: chalk.sandbox.v2.GetSandboxRequest
+	(*GetSandboxResponse)(nil),                        // 9: chalk.sandbox.v2.GetSandboxResponse
+	(*ListSandboxesFilters)(nil),                      // 10: chalk.sandbox.v2.ListSandboxesFilters
+	(*ListSandboxesRequest)(nil),                      // 11: chalk.sandbox.v2.ListSandboxesRequest
+	(*ListSandboxesResponse)(nil),                     // 12: chalk.sandbox.v2.ListSandboxesResponse
+	(*SuspendSandboxRequest)(nil),                     // 13: chalk.sandbox.v2.SuspendSandboxRequest
+	(*SuspendSandboxResponse)(nil),                    // 14: chalk.sandbox.v2.SuspendSandboxResponse
+	(*ResumeSandboxRequest)(nil),                      // 15: chalk.sandbox.v2.ResumeSandboxRequest
+	(*ResumeSandboxResponse)(nil),                     // 16: chalk.sandbox.v2.ResumeSandboxResponse
+	(*RefreshSandboxCredentialsRequest)(nil),          // 17: chalk.sandbox.v2.RefreshSandboxCredentialsRequest
+	(*RefreshSandboxCredentialsResponse)(nil),         // 18: chalk.sandbox.v2.RefreshSandboxCredentialsResponse
+	(*GetSandboxCredentialRefreshStatusRequest)(nil),  // 19: chalk.sandbox.v2.GetSandboxCredentialRefreshStatusRequest
+	(*GetSandboxCredentialRefreshStatusResponse)(nil), // 20: chalk.sandbox.v2.GetSandboxCredentialRefreshStatusResponse
+	(*TerminateSandboxRequest)(nil),                   // 21: chalk.sandbox.v2.TerminateSandboxRequest
+	(*TerminateSandboxResponse)(nil),                  // 22: chalk.sandbox.v2.TerminateSandboxResponse
+	(*SandboxResource)(nil),                           // 23: chalk.sandbox.v2.SandboxResource
+	(*ListSandboxResourcesFilters)(nil),               // 24: chalk.sandbox.v2.ListSandboxResourcesFilters
+	(*ListSandboxResourcesRequest)(nil),               // 25: chalk.sandbox.v2.ListSandboxResourcesRequest
+	(*ListSandboxResourcesResponse)(nil),              // 26: chalk.sandbox.v2.ListSandboxResourcesResponse
+	(*RecordSandboxResourceRequest)(nil),              // 27: chalk.sandbox.v2.RecordSandboxResourceRequest
+	(*RecordSandboxResourceResponse)(nil),             // 28: chalk.sandbox.v2.RecordSandboxResourceResponse
+	nil,                                               // 29: chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
+	(*v1.ChalkContainerSpec)(nil),                     // 30: chalk.container.v1.ChalkContainerSpec
+	(*timestamppb.Timestamp)(nil),                     // 31: google.protobuf.Timestamp
+	(*v11.TagFilter)(nil),                             // 32: chalk.common.v1.TagFilter
+	(*durationpb.Duration)(nil),                       // 33: google.protobuf.Duration
 }
 var file_chalk_sandbox_v2_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.sandbox.v2.SandboxInfo.status:type_name -> chalk.sandbox.v2.SandboxStatus
-	25, // 1: chalk.sandbox.v2.SandboxInfo.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	26, // 2: chalk.sandbox.v2.SandboxInfo.created_at:type_name -> google.protobuf.Timestamp
-	26, // 3: chalk.sandbox.v2.SandboxInfo.finished_at:type_name -> google.protobuf.Timestamp
-	26, // 4: chalk.sandbox.v2.SandboxInfo.started_at:type_name -> google.protobuf.Timestamp
-	25, // 5: chalk.sandbox.v2.CreateSandboxRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	4,  // 6: chalk.sandbox.v2.CreateSandboxResponse.sandbox:type_name -> chalk.sandbox.v2.SandboxInfo
-	4,  // 7: chalk.sandbox.v2.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v2.SandboxInfo
+	30, // 1: chalk.sandbox.v2.SandboxInfo.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	31, // 2: chalk.sandbox.v2.SandboxInfo.created_at:type_name -> google.protobuf.Timestamp
+	31, // 3: chalk.sandbox.v2.SandboxInfo.finished_at:type_name -> google.protobuf.Timestamp
+	31, // 4: chalk.sandbox.v2.SandboxInfo.started_at:type_name -> google.protobuf.Timestamp
+	30, // 5: chalk.sandbox.v2.CreateSandboxRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	5,  // 6: chalk.sandbox.v2.CreateSandboxResponse.sandbox:type_name -> chalk.sandbox.v2.SandboxInfo
+	5,  // 7: chalk.sandbox.v2.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v2.SandboxInfo
 	0,  // 8: chalk.sandbox.v2.ListSandboxesFilters.statuses:type_name -> chalk.sandbox.v2.SandboxStatus
-	24, // 9: chalk.sandbox.v2.ListSandboxesFilters.tags:type_name -> chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
-	27, // 10: chalk.sandbox.v2.ListSandboxesFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
-	9,  // 11: chalk.sandbox.v2.ListSandboxesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxesFilters
+	29, // 9: chalk.sandbox.v2.ListSandboxesFilters.tags:type_name -> chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
+	32, // 10: chalk.sandbox.v2.ListSandboxesFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
+	10, // 11: chalk.sandbox.v2.ListSandboxesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxesFilters
 	1,  // 12: chalk.sandbox.v2.ListSandboxesRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSortColumn
 	2,  // 13: chalk.sandbox.v2.ListSandboxesRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSortOrder
-	4,  // 14: chalk.sandbox.v2.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v2.SandboxInfo
-	28, // 15: chalk.sandbox.v2.TerminateSandboxRequest.grace_period:type_name -> google.protobuf.Duration
-	3,  // 16: chalk.sandbox.v2.SandboxResource.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	26, // 17: chalk.sandbox.v2.SandboxResource.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 18: chalk.sandbox.v2.ListSandboxResourcesFilters.kinds:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	26, // 19: chalk.sandbox.v2.ListSandboxResourcesFilters.created_after:type_name -> google.protobuf.Timestamp
-	26, // 20: chalk.sandbox.v2.ListSandboxResourcesFilters.created_before:type_name -> google.protobuf.Timestamp
-	19, // 21: chalk.sandbox.v2.ListSandboxResourcesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxResourcesFilters
-	18, // 22: chalk.sandbox.v2.ListSandboxResourcesResponse.resources:type_name -> chalk.sandbox.v2.SandboxResource
-	3,  // 23: chalk.sandbox.v2.RecordSandboxResourceRequest.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	5,  // 24: chalk.sandbox.v2.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v2.CreateSandboxRequest
-	7,  // 25: chalk.sandbox.v2.SandboxService.GetSandbox:input_type -> chalk.sandbox.v2.GetSandboxRequest
-	10, // 26: chalk.sandbox.v2.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v2.ListSandboxesRequest
-	12, // 27: chalk.sandbox.v2.SandboxService.SuspendSandbox:input_type -> chalk.sandbox.v2.SuspendSandboxRequest
-	14, // 28: chalk.sandbox.v2.SandboxService.ResumeSandbox:input_type -> chalk.sandbox.v2.ResumeSandboxRequest
-	16, // 29: chalk.sandbox.v2.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v2.TerminateSandboxRequest
-	20, // 30: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:input_type -> chalk.sandbox.v2.ListSandboxResourcesRequest
-	22, // 31: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:input_type -> chalk.sandbox.v2.RecordSandboxResourceRequest
-	6,  // 32: chalk.sandbox.v2.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v2.CreateSandboxResponse
-	8,  // 33: chalk.sandbox.v2.SandboxService.GetSandbox:output_type -> chalk.sandbox.v2.GetSandboxResponse
-	11, // 34: chalk.sandbox.v2.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v2.ListSandboxesResponse
-	13, // 35: chalk.sandbox.v2.SandboxService.SuspendSandbox:output_type -> chalk.sandbox.v2.SuspendSandboxResponse
-	15, // 36: chalk.sandbox.v2.SandboxService.ResumeSandbox:output_type -> chalk.sandbox.v2.ResumeSandboxResponse
-	17, // 37: chalk.sandbox.v2.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v2.TerminateSandboxResponse
-	21, // 38: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:output_type -> chalk.sandbox.v2.ListSandboxResourcesResponse
-	23, // 39: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:output_type -> chalk.sandbox.v2.RecordSandboxResourceResponse
-	32, // [32:40] is the sub-list for method output_type
-	24, // [24:32] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	5,  // 14: chalk.sandbox.v2.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v2.SandboxInfo
+	3,  // 15: chalk.sandbox.v2.GetSandboxCredentialRefreshStatusResponse.state:type_name -> chalk.sandbox.v2.CredentialRefreshState
+	33, // 16: chalk.sandbox.v2.TerminateSandboxRequest.grace_period:type_name -> google.protobuf.Duration
+	4,  // 17: chalk.sandbox.v2.SandboxResource.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	31, // 18: chalk.sandbox.v2.SandboxResource.created_at:type_name -> google.protobuf.Timestamp
+	4,  // 19: chalk.sandbox.v2.ListSandboxResourcesFilters.kinds:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	31, // 20: chalk.sandbox.v2.ListSandboxResourcesFilters.created_after:type_name -> google.protobuf.Timestamp
+	31, // 21: chalk.sandbox.v2.ListSandboxResourcesFilters.created_before:type_name -> google.protobuf.Timestamp
+	24, // 22: chalk.sandbox.v2.ListSandboxResourcesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxResourcesFilters
+	23, // 23: chalk.sandbox.v2.ListSandboxResourcesResponse.resources:type_name -> chalk.sandbox.v2.SandboxResource
+	4,  // 24: chalk.sandbox.v2.RecordSandboxResourceRequest.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	6,  // 25: chalk.sandbox.v2.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v2.CreateSandboxRequest
+	8,  // 26: chalk.sandbox.v2.SandboxService.GetSandbox:input_type -> chalk.sandbox.v2.GetSandboxRequest
+	11, // 27: chalk.sandbox.v2.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v2.ListSandboxesRequest
+	13, // 28: chalk.sandbox.v2.SandboxService.SuspendSandbox:input_type -> chalk.sandbox.v2.SuspendSandboxRequest
+	15, // 29: chalk.sandbox.v2.SandboxService.ResumeSandbox:input_type -> chalk.sandbox.v2.ResumeSandboxRequest
+	17, // 30: chalk.sandbox.v2.SandboxService.RefreshSandboxCredentials:input_type -> chalk.sandbox.v2.RefreshSandboxCredentialsRequest
+	19, // 31: chalk.sandbox.v2.SandboxService.GetSandboxCredentialRefreshStatus:input_type -> chalk.sandbox.v2.GetSandboxCredentialRefreshStatusRequest
+	21, // 32: chalk.sandbox.v2.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v2.TerminateSandboxRequest
+	25, // 33: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:input_type -> chalk.sandbox.v2.ListSandboxResourcesRequest
+	27, // 34: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:input_type -> chalk.sandbox.v2.RecordSandboxResourceRequest
+	7,  // 35: chalk.sandbox.v2.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v2.CreateSandboxResponse
+	9,  // 36: chalk.sandbox.v2.SandboxService.GetSandbox:output_type -> chalk.sandbox.v2.GetSandboxResponse
+	12, // 37: chalk.sandbox.v2.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v2.ListSandboxesResponse
+	14, // 38: chalk.sandbox.v2.SandboxService.SuspendSandbox:output_type -> chalk.sandbox.v2.SuspendSandboxResponse
+	16, // 39: chalk.sandbox.v2.SandboxService.ResumeSandbox:output_type -> chalk.sandbox.v2.ResumeSandboxResponse
+	18, // 40: chalk.sandbox.v2.SandboxService.RefreshSandboxCredentials:output_type -> chalk.sandbox.v2.RefreshSandboxCredentialsResponse
+	20, // 41: chalk.sandbox.v2.SandboxService.GetSandboxCredentialRefreshStatus:output_type -> chalk.sandbox.v2.GetSandboxCredentialRefreshStatusResponse
+	22, // 42: chalk.sandbox.v2.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v2.TerminateSandboxResponse
+	26, // 43: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:output_type -> chalk.sandbox.v2.ListSandboxResourcesResponse
+	28, // 44: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:output_type -> chalk.sandbox.v2.RecordSandboxResourceResponse
+	35, // [35:45] is the sub-list for method output_type
+	25, // [25:35] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v2_service_proto_init() }
@@ -1798,15 +2052,16 @@ func file_chalk_sandbox_v2_service_proto_init() {
 	file_chalk_sandbox_v2_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_service_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_service_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_sandbox_v2_service_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_sandbox_v2_service_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_service_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_service_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_sandbox_v2_service_proto_rawDesc), len(file_chalk_sandbox_v2_service_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   21,
+			NumEnums:      5,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

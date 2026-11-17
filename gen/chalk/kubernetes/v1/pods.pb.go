@@ -7,6 +7,7 @@
 package kubernetesv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -3485,7 +3486,7 @@ var File_chalk_kubernetes_v1_pods_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xdc`\n" +
+	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\x1a\x1echalk/utils/v1/sensitive.proto\"\xee`\n" +
 	"\x11KubernetesPodData\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x10\n" +
 	"\x03app\x18\x02 \x01(\tR\x03app\x12\x1c\n" +
@@ -3671,10 +3672,10 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\b_messageB\r\n" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\x0f\n" +
-	"\r_container_id\x1a\x9a\x01\n" +
+	"\r_container_id\x1a\xa0\x01\n" +
 	"\x06EnvVar\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\x12W\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\x12W\n" +
 	"\n" +
 	"value_from\x18\x03 \x01(\v23.chalk.kubernetes.v1.KubernetesPodData.EnvVarSourceH\x00R\tvalueFrom\x88\x01\x01B\r\n" +
 	"\v_value_from\x1a\x80\x04\n" +
@@ -3724,12 +3725,12 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\x0fSecretEnvSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
 	"\boptional\x18\x02 \x01(\bH\x00R\boptional\x88\x01\x01B\v\n" +
-	"\t_optional\x1a\xb3\x06\n" +
+	"\t_optional\x1a\xbf\x06\n" +
 	"\tContainer\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
-	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01\x12\x18\n" +
-	"\acommand\x18\x03 \x03(\tR\acommand\x12\x12\n" +
-	"\x04args\x18\x04 \x03(\tR\x04args\x12$\n" +
+	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01\x12\x1e\n" +
+	"\acommand\x18\x03 \x03(\tB\x04ء'\x01R\acommand\x12\x18\n" +
+	"\x04args\x18\x04 \x03(\tB\x04ء'\x01R\x04args\x12$\n" +
 	"\vworking_dir\x18\x05 \x01(\tH\x01R\n" +
 	"workingDir\x88\x01\x01\x12O\n" +
 	"\benv_from\x18\x13 \x03(\v24.chalk.kubernetes.v1.KubernetesPodData.EnvFromSourceR\aenvFrom\x12?\n" +

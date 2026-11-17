@@ -9,6 +9,7 @@ package routerv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -1816,7 +1817,7 @@ var File_chalk_router_v1_api_key_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/router/v1/api_key.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x01\n" +
+	"\x1dchalk/router/v1/api_key.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x01\n" +
 	"\vCachePolicy\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x121\n" +
 	"\x05scope\x18\x02 \x01(\x0e2\x1b.chalk.router.v1.CacheScopeR\x05scope\x12\x1e\n" +
@@ -1907,10 +1908,10 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
 	"\x13_daily_token_budgetB\x10\n" +
-	"\x0e_usage_pool_id\"W\n" +
+	"\x0e_usage_pool_id\"]\n" +
 	"\x11CreateKeyResponse\x12)\n" +
-	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\x12\x17\n" +
-	"\araw_key\x18\x02 \x01(\tR\x06rawKey\"!\n" +
+	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\x12\x1d\n" +
+	"\araw_key\x18\x02 \x01(\tB\x04ء'\x01R\x06rawKey\"!\n" +
 	"\rGetKeyRequest\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\";\n" +
 	"\x0eGetKeyResponse\x12)\n" +
@@ -1968,13 +1969,13 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x13_daily_token_budget\"\x15\n" +
 	"\x13ListAllUsageRequest\"P\n" +
 	"\x14ListAllUsageResponse\x128\n" +
-	"\x04keys\x18\x01 \x03(\v2$.chalk.router.v1.GetKeyUsageResponseR\x04keys\"\xcb\x01\n" +
+	"\x04keys\x18\x01 \x03(\v2$.chalk.router.v1.GetKeyUsageResponseR\x04keys\"\xd1\x01\n" +
 	"\x18GetUsageHistogramRequest\x12\x1f\n" +
 	"\vbucket_size\x18\x01 \x01(\tR\n" +
 	"bucketSize\x120\n" +
 	"\x05start\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
-	"\x03end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12 \n" +
-	"\tapi_token\x18\x04 \x01(\tH\x00R\bapiToken\x88\x01\x01B\f\n" +
+	"\x03end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12&\n" +
+	"\tapi_token\x18\x04 \x01(\tB\x04ء'\x01H\x00R\bapiToken\x88\x01\x01B\f\n" +
 	"\n" +
 	"_api_token\"\xa4\x03\n" +
 	"\x11UsageHistogramRow\x12\x1e\n" +
@@ -2001,17 +2002,21 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x18USAGE_SOURCE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15USAGE_SOURCE_REPORTED\x10\x01\x12\x1a\n" +
 	"\x16USAGE_SOURCE_ESTIMATED\x10\x02\x12\x1f\n" +
-	"\x1bUSAGE_SOURCE_LEGACY_UNKNOWN\x10\x032\xbb\x06\n" +
-	"\rApiKeyService\x12N\n" +
-	"\x06GetKey\x12\x1e.chalk.router.v1.GetKeyRequest\x1a\x1f.chalk.router.v1.GetKeyResponse\"\x03\x80}\x02\x12\x93\x01\n" +
-	"\tCreateKey\x12!.chalk.router.v1.CreateKeyRequest\x1a\".chalk.router.v1.CreateKeyResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
-	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12W\n" +
-	"\bListKeys\x12 .chalk.router.v1.ListKeysRequest\x1a!.chalk.router.v1.ListKeysResponse\"\x06\x80}\x02\x90\x02\x01\x12W\n" +
-	"\tUpdateKey\x12!.chalk.router.v1.UpdateKeyRequest\x1a\".chalk.router.v1.UpdateKeyResponse\"\x03\x80}\x02\x12W\n" +
-	"\tRevokeKey\x12!.chalk.router.v1.RevokeKeyRequest\x1a\".chalk.router.v1.RevokeKeyResponse\"\x03\x80}\x02\x12`\n" +
-	"\vGetKeyUsage\x12#.chalk.router.v1.GetKeyUsageRequest\x1a$.chalk.router.v1.GetKeyUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12c\n" +
-	"\fListAllUsage\x12$.chalk.router.v1.ListAllUsageRequest\x1a%.chalk.router.v1.ListAllUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
-	"\x11GetUsageHistogram\x12).chalk.router.v1.GetUsageHistogramRequest\x1a*.chalk.router.v1.GetUsageHistogramResponse\"\x06\x80}\x02\x90\x02\x01B\xbb\x01\n" +
+	"\x1bUSAGE_SOURCE_LEGACY_UNKNOWN\x10\x032\xdb\x06\n" +
+	"\rApiKeyService\x12R\n" +
+	"\x06GetKey\x12\x1e.chalk.router.v1.GetKeyRequest\x1a\x1f.chalk.router.v1.GetKeyResponse\"\a\x80}L\x92}\x01\x02\x12\x97\x01\n" +
+	"\tCreateKey\x12!.chalk.router.v1.CreateKeyRequest\x1a\".chalk.router.v1.CreateKeyResponse\"C\x80}L\x92}\x01\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12[\n" +
+	"\bListKeys\x12 .chalk.router.v1.ListKeysRequest\x1a!.chalk.router.v1.ListKeysResponse\"\n" +
+	"\x80}L\x92}\x01\x02\x90\x02\x01\x12[\n" +
+	"\tUpdateKey\x12!.chalk.router.v1.UpdateKeyRequest\x1a\".chalk.router.v1.UpdateKeyResponse\"\a\x80}L\x92}\x01\x02\x12[\n" +
+	"\tRevokeKey\x12!.chalk.router.v1.RevokeKeyRequest\x1a\".chalk.router.v1.RevokeKeyResponse\"\a\x80}L\x92}\x01\x02\x12d\n" +
+	"\vGetKeyUsage\x12#.chalk.router.v1.GetKeyUsageRequest\x1a$.chalk.router.v1.GetKeyUsageResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12g\n" +
+	"\fListAllUsage\x12$.chalk.router.v1.ListAllUsageRequest\x1a%.chalk.router.v1.ListAllUsageResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12v\n" +
+	"\x11GetUsageHistogram\x12).chalk.router.v1.GetUsageHistogramRequest\x1a*.chalk.router.v1.GetUsageHistogramResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01B\xbb\x01\n" +
 	"\x13com.chalk.router.v1B\vApiKeyProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1P\x02b\x06proto3"
 
 var (
