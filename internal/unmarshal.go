@@ -219,12 +219,22 @@ func extractFeatures(
 	timeAsString bool,
 ) {
 	defer wg.Done()
+	rows, meta, err := extractRange(record, featureColumnIdxs, metaColumnFqnToIdx, chunkStart, chunkEnd, timeAsString)
+	resChan <- &ChunkResult{chunkIdx: chunkIdx, rows: rows, meta: meta, err: err}
+}
 
+func extractRange(
+	record arrow.RecordBatch,
+	featureColumnIdxs []int,
+	metaColumnFqnToIdx map[string]int,
+	chunkStart int64,
+	chunkEnd int64,
+	timeAsString bool,
+) ([]map[string]any, []map[string]FeatureMeta, error) {
 	var featureRes []map[string]any
 	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
-		resChan <- &ChunkResult{chunkIdx: chunkIdx, err: err}
-		return
+		return nil, nil, err
 	}
 	chunkStartInt := int(chunkStart)
 	for i := chunkStartInt; i < chunkEndInt; i++ {
@@ -233,11 +243,7 @@ func extractFeatures(
 			name := record.ColumnName(j)
 			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
-				resChan <- &ChunkResult{
-					chunkIdx: chunkIdx,
-					err:      errors.Wrapf(err, "getting value from arrow array for feature '%s'", name),
-				}
-				return
+				return nil, nil, errors.Wrapf(err, "getting value from arrow array for feature '%s'", name)
 			}
 			m[name] = value
 		}
@@ -245,8 +251,7 @@ func extractFeatures(
 	}
 
 	if len(metaColumnFqnToIdx) == 0 {
-		resChan <- &ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: nil}
-		return
+		return featureRes, nil, nil
 	}
 
 	// metaColumnFqnToIdx is shared across the goroutines handling each chunk of
@@ -262,11 +267,7 @@ func extractFeatures(
 		if hasPkey {
 			value, err := GetValueFromArrowArray(record.Column(pkeyIdx), i, timeAsString)
 			if err != nil {
-				resChan <- &ChunkResult{
-					chunkIdx: chunkIdx,
-					err:      errors.Wrap(err, "getting primary key from arrow array"),
-				}
-				return
+				return nil, nil, errors.Wrap(err, "getting primary key from arrow array")
 			}
 			resolvedPkey = value
 		}
@@ -282,49 +283,29 @@ func extractFeatures(
 
 			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
-				resChan <- &ChunkResult{
-					chunkIdx: chunkIdx,
-					err:      errors.Wrapf(err, "getting metadata from arrow array for feature '%s'", fqn),
-				}
-				return
+				return nil, nil, errors.Wrapf(err, "getting metadata from arrow array for feature '%s'", fqn)
 			}
 			metaCast, ok := value.(map[string]any)
 			if !ok {
-				resChan <- &ChunkResult{
-					chunkIdx: chunkIdx,
-					err:      fmt.Errorf("casting metadata into map for feature '%s'", fqn),
-				}
-				return
+				return nil, nil, fmt.Errorf("casting metadata into map for feature '%s'", fqn)
 			}
 
 			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
 				featureMeta.SourceType, ok = sourceType.(string)
 				if !ok {
-					resChan <- &ChunkResult{
-						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("casting source_type into string for feature '%s'", fqn),
-					}
-					return
+					return nil, nil, fmt.Errorf("casting source_type into string for feature '%s'", fqn)
 				}
 			}
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
 				featureMeta.SourceId, ok = sourceId.(string)
 				if !ok {
-					resChan <- &ChunkResult{
-						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("casting source_id into string for feature '%s'", fqn),
-					}
-					return
+					return nil, nil, fmt.Errorf("casting source_id into string for feature '%s'", fqn)
 				}
 			}
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
 				featureMeta.ResolverFqn, ok = resolverFqn.(string)
 				if !ok {
-					resChan <- &ChunkResult{
-						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("casting resolver_fqn into string for feature '%s'", fqn),
-					}
-					return
+					return nil, nil, fmt.Errorf("casting resolver_fqn into string for feature '%s'", fqn)
 				}
 			}
 
@@ -334,7 +315,66 @@ func extractFeatures(
 		metaRes = append(metaRes, m)
 	}
 
-	resChan <- &ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: metaRes}
+	return featureRes, metaRes, nil
+}
+
+// classifyExtractColumns splits a record's columns into feature columns and
+// metadata (including primary key) columns, skipping internal columns.
+func classifyExtractColumns(record arrow.RecordBatch) ([]int, map[string]int) {
+	var featureColumnIdxs []int
+	metaColumnFqnToIdx := make(map[string]int)
+	for j := range record.Columns() {
+		colName := record.ColumnName(j)
+		if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
+			metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
+		} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+			continue
+		} else {
+			featureColumnIdxs = append(featureColumnIdxs, j)
+		}
+	}
+	return featureColumnIdxs, metaColumnFqnToIdx
+}
+
+// ExtractFeatureRowFromTable extracts the single row at rowIndex, producing
+// the same values ExtractFeaturesFromTable would for that row without
+// materializing every other row. meta is nil when the table has no metadata
+// columns. It returns an out-of-bounds error for an invalid index.
+func ExtractFeatureRowFromTable(
+	table arrow.Table,
+	rowIndex int,
+	timeAsString bool,
+) (row map[string]any, meta map[string]FeatureMeta, err error) {
+	if rowIndex < 0 || int64(rowIndex) >= table.NumRows() {
+		return nil, nil, errors.Newf(
+			"out of bounds: accessing index %d of table with %d rows",
+			rowIndex, table.NumRows(),
+		)
+	}
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+	offset := int64(0)
+	for reader.Next() {
+		record := reader.RecordBatch()
+		if int64(rowIndex) >= offset+record.NumRows() {
+			offset += record.NumRows()
+			continue
+		}
+		local := int64(rowIndex) - offset
+		featureColumnIdxs, metaColumnFqnToIdx := classifyExtractColumns(record)
+		rows, metas, err := extractRange(record, featureColumnIdxs, metaColumnFqnToIdx, local, local+1, timeAsString)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(metas) > 0 {
+			meta = metas[0]
+		}
+		return rows[0], meta, nil
+	}
+	return nil, nil, errors.Newf(
+		"out of bounds: accessing index %d of table with %d rows",
+		rowIndex, table.NumRows(),
+	)
 }
 
 func ExtractFeaturesFromTable(
@@ -352,18 +392,7 @@ func ExtractFeaturesFromTable(
 
 	for reader.Next() {
 		record := reader.RecordBatch()
-		var featureColumnIdxs []int
-		metaColumnFqnToIdx := make(map[string]int)
-		for j := range record.Columns() {
-			colName := record.ColumnName(j)
-			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
-				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
-			} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
-				continue
-			} else {
-				featureColumnIdxs = append(featureColumnIdxs, j)
-			}
-		}
+		featureColumnIdxs, metaColumnFqnToIdx := classifyExtractColumns(record)
 
 		var wg sync.WaitGroup
 		numWorkers := runtime.NumCPU()
@@ -971,15 +1000,24 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	var rowOp func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error
+	// colPlan is how one column is unmarshalled. Columns with a fast
+	// column-wise codec are handled one column at a time; the rest fall back
+	// to the row-wise codec.
+	type colPlan struct {
+		colIdx int32
+		root   int32 // index of the namespace struct in the row struct, or -1
+		pair   *codecPair
+		col    ColumnCodec // pair.col, only if built for the struct type used here
+	}
+	plans := make([]colPlan, 0, len(fields))
+
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
 		includedColIndices := namespaceToColIndices[slices.Collect(maps.Keys(namespaceToColIndices))[0]]
-		colToCodec := make([]Codec, len(includedColIndices))
-		for k, colIdx := range includedColIndices {
+		for _, colIdx := range includedColIndices {
 			column := fields[colIdx]
-			codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
-				return generateUnmarshalValueCodec(
+			pair, err := codecMemo.LoadOrStore(column.Name, func() (*codecPair, error) {
+				return generateCodecPair(
 					// Taking the first field's type because multiple field indices for the same column
 					// means they are just versioned features, which are all the same type.
 					structType,
@@ -992,17 +1030,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			if err != nil {
 				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
 			}
-
-			colToCodec[k] = *codec
-		}
-
-		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
-			for k, colIdx := range includedColIndices {
-				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
-				}
-			}
-			return nil
+			plans = append(plans, colPlan{colIdx: int32(colIdx), root: -1, pair: pair, col: pair.columnCodecFor(structType)})
 		}
 	} else {
 		// Multi-namespace unmarshalling
@@ -1011,7 +1039,6 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			return errors.Wrapf(err, "loading namespace memo for struct: %s", structType.Name())
 		}
 
-		colIdxToNamespaceMeta := make([]namespaceMeta, len(fields))
 		for childNamespace, includedColIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok {
@@ -1057,8 +1084,8 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
-				codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
-					return generateUnmarshalValueCodec(
+				pair, err := codecMemo.LoadOrStore(column.Name, func() (*codecPair, error) {
+					return generateCodecPair(
 						// Taking the first field's type because multiple field indices for the same column
 						// means they are just versioned features, which are all the same type.
 						innerStructType,
@@ -1071,27 +1098,10 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 				if err != nil {
 					return errors.Wrapf(err, "loading codec for column '%s'", column.Name)
 				}
-				colIdxToNamespaceMeta[colIdx] = namespaceMeta{
-					codec:           codec,
-					rootStructIndex: rootStructFieldIdx,
-				}
+				plans = append(plans, colPlan{colIdx: int32(colIdx), root: int32(rootStructFieldIdx), pair: pair, col: pair.columnCodecFor(innerStructType)})
 			}
 		}
 
-		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
-			for _, includedColIndices := range namespaceToColIndices {
-				for _, colIdx := range includedColIndices {
-					memo := colIdxToNamespaceMeta[colIdx]
-					if memo.codec == nil {
-						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
-					}
-					if err := (*(memo.codec))(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
-					}
-				}
-			}
-			return nil
-		}
 	}
 
 	rowOffset := 0
@@ -1099,9 +1109,45 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	for reader.Next() {
 		record := reader.RecordBatch()
 		recordRows := int(record.NumRows())
-		for rowIdx := range recordRows {
-			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {
-				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+		// Column-wise codecs have a fixed per-column cost that only pays off
+		// once there are enough rows; tiny (e.g. single-row) records use the
+		// row-wise codecs for every column.
+		useColumnCodecs := !disableColumnCodecs && recordRows >= columnCodecMinRows
+		rowPlans := plans // no column-wise columns: all plans run row-wise, no copy
+		if useColumnCodecs {
+			rowPlans = rowPlans[:0:0]
+			for _, p := range plans {
+				if p.col == nil {
+					rowPlans = append(rowPlans, p)
+				}
+			}
+		}
+		for _, p := range plans {
+			if p.col == nil || !useColumnCodecs {
+				continue
+			}
+			if err := p.col(structs, rowOffset, int(p.root), record.Column(int(p.colIdx))); err != nil {
+				return errors.Wrapf(
+					err, "running codec for column '%s' in record batch %d", fields[p.colIdx].Name, batchIdx,
+				)
+			}
+		}
+		if len(rowPlans) > 0 {
+			for rowIdx := range recordRows {
+				structValue := structs.Index(rowOffset + rowIdx)
+				for pi := range rowPlans {
+					p := &rowPlans[pi]
+					target := structValue
+					if p.root >= 0 {
+						target = structValue.Field(int(p.root))
+					}
+					if err := p.pair.row(target, record.Column(int(p.colIdx)), rowIdx); err != nil {
+						return errors.Wrapf(
+							errors.Wrapf(err, "running codec for column '%s'", fields[p.colIdx].Name),
+							"unmarshalling record batch %d", batchIdx,
+						)
+					}
+				}
 			}
 		}
 		rowOffset += recordRows

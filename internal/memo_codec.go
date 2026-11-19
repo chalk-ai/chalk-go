@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-type CodecMemoT = MemosT[string, Codec]
+type CodecMemoT = MemosT[string, codecPair]
 
 var CodecMemo = &CodecMemoT{}
 

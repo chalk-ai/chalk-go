@@ -44,6 +44,9 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 	}
 	defer record.Release()
 	bws := &BufferWriteSeeker{}
+	// Size the output buffer up front so that large requests (e.g. thousands
+	// of ids) are not repeatedly re-grown and copied while being written.
+	bws.buf.Grow(estimateIPCSize(record))
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(allocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "creating Arrow Table writer")
@@ -55,6 +58,28 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 		return nil, errors.Wrap(err, "closing Arrow Table writer")
 	}
 	return bws.Bytes(), nil
+}
+
+// estimateIPCSize is a cheap upper-ish estimate of the serialized size of a
+// record: its buffer bytes plus a fixed allowance for schema/footer framing.
+// It only sizes an initial allocation, so being off merely costs a regrow.
+func estimateIPCSize(record arrow.RecordBatch) int {
+	size := 4096
+	var add func(d arrow.ArrayData)
+	add = func(d arrow.ArrayData) {
+		for _, b := range d.Buffers() {
+			if b != nil {
+				size += b.Len() + 8
+			}
+		}
+		for _, c := range d.Children() {
+			add(c)
+		}
+	}
+	for _, col := range record.Columns() {
+		add(col.Data())
+	}
+	return size
 }
 
 func TableToBytes(table arrow.Table, allocator memory.Allocator) ([]byte, error) {
@@ -982,7 +1007,10 @@ func ConvertBytesToTable(byteArr []byte, allocator memory.Allocator) (result arr
 		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}
 	defer func() {
-		err = fileReader.Close()
+		// Don't let a nil Close error mask the error being returned.
+		if closeErr := fileReader.Close(); err == nil {
+			err = closeErr
+		}
 	}()
 
 	records := make([]arrow.RecordBatch, fileReader.NumRecords())
