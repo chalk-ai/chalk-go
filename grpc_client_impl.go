@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/chalk-ai/chalk-go/auth"
@@ -392,6 +393,15 @@ type GRPCOnlineQueryBulkResult struct {
 	// built by NewGRPCOnlineQueryBulkResult.
 	ctx    context.Context
 	tracer trace.Tracer
+
+	// scalarsCache holds the decoded scalars table so that GetRow, called
+	// once per row, and UnmarshalInto share a single decode of the Arrow
+	// bytes instead of repeating it on every call. GetTable deliberately
+	// bypasses it because it hands the table to the caller, who may Release
+	// it.
+	scalarsMu    sync.Mutex
+	scalarsFor   []byte
+	scalarsTable arrow.Table
 }
 
 type NewGRPCOnlineQueryBulkResultOptions struct {
@@ -462,31 +472,16 @@ func (r *GRPCOnlineQueryBulkResult) getRow(ctx context.Context, rowIndex int) (*
 	if extractSpan.IsRecording() {
 		extractSpan.SetAttributes(attrNumRows.Int64(scalarsTable.NumRows()))
 	}
-	rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, false)
+	rowValues, rowMeta, err := internal.ExtractFeatureRowFromTable(scalarsTable, rowIndex, false)
 	endSpan(extractSpan, err)
 	if err != nil {
+		if scalarsTable != nil && (rowIndex < 0 || int64(rowIndex) >= scalarsTable.NumRows()) {
+			return nil, err
+		}
 		return nil, errors.Wrap(err, "extracting features from scalars table")
 	}
 
-	if rowIndex < 0 || rowIndex >= len(rows) {
-		return nil, errors.Newf(
-			"out of bounds: accessing index %d of table with %d rows",
-			rowIndex, len(rows),
-		)
-	}
-
-	var rowMeta map[string]internal.FeatureMeta
-	if len(meta) > 0 {
-		if len(meta) != len(rows) {
-			return nil, errors.Newf(
-				"metadata length %v does not match rows length %v",
-				len(meta), len(rows),
-			)
-		}
-		rowMeta = meta[rowIndex]
-	}
-
-	for fqn, value := range rows[rowIndex] {
+	for fqn, value := range rowValues {
 		featureRes := FeatureOutput{
 			Fqn:   fqn,
 			Value: value,
@@ -557,12 +552,35 @@ func (r *GRPCOnlineQueryBulkResult) deserializeScalars(ctx context.Context) (arr
 	if span.IsRecording() {
 		span.SetAttributes(attrScalarsBytes.Int(len(r.RawResponse.GetScalarsData())))
 	}
-	table, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), allocator)
+	table, err := r.cachedScalarsTable(allocator)
 	if err == nil && table != nil && span.IsRecording() {
 		span.SetAttributes(attrNumRows.Int64(table.NumRows()))
 	}
 	endSpan(span, err)
 	return table, err
+}
+
+// cachedScalarsTable decodes the scalars bytes once per distinct response.
+// The lock is released by defer so a panic while decoding corrupt bytes cannot
+// leave later calls deadlocked.
+func (r *GRPCOnlineQueryBulkResult) cachedScalarsTable(allocator memory.Allocator) (arrow.Table, error) {
+	data := r.RawResponse.GetScalarsData()
+	r.scalarsMu.Lock()
+	defer r.scalarsMu.Unlock()
+	if r.scalarsTable != nil && sameBytes(r.scalarsFor, data) {
+		return r.scalarsTable, nil
+	}
+	table, err := internal.ConvertBytesToTable(data, allocator)
+	if err == nil && table != nil {
+		r.scalarsTable, r.scalarsFor = table, data
+	}
+	return table, err
+}
+
+// sameBytes reports whether a and b are the same slice (same backing array
+// start and length), which is what identifies a cached decode of a response.
+func sameBytes(a, b []byte) bool {
+	return len(a) == len(b) && (len(a) == 0 || &a[0] == &b[0])
 }
 
 func (c *grpcClientImpl) getQueryClient(hasBranch bool) enginev1connect.QueryServiceClient {

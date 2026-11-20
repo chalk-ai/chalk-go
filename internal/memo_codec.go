@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-type CodecMemoT = MemosT[string, Codec]
+type CodecMemoT = MemosT[string, codecPair]
 
 var CodecMemo = &CodecMemoT{}
 
@@ -31,11 +31,6 @@ type SetMapFunc func(
 	// When entryValue is invalid, we still want to initialize the map.
 	isValid bool,
 )
-
-type namespaceMeta struct {
-	codec           *Codec
-	rootStructIndex int
-}
 
 func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemos *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
 	var initFeatureFunc InitFeatureFunc
