@@ -184,6 +184,9 @@ func TestColumnCodecsErrorParity(t *testing.T) {
 		require.Error(t, UnmarshalTableInto(mk("mismatch.a_mismatch"), &m), "disable=%v", disable)
 		var u []unexported
 		require.Error(t, UnmarshalTableInto(mk("unexported.a"), &u), "disable=%v", disable)
+		for _, row := range u {
+			require.Nil(t, row.a, "unexported field must never be written, disable=%v", disable)
+		}
 	}
 	disableColumnCodecs = false
 }

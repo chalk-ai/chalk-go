@@ -32,11 +32,6 @@ type SetMapFunc func(
 	isValid bool,
 )
 
-type namespaceMeta struct {
-	codec           *Codec
-	rootStructIndex int
-}
-
 func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemos *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
 	var initFeatureFunc InitFeatureFunc
 	if len(fqnParts) > 2 {
