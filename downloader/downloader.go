@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,9 +52,12 @@ func New(outputFolder string, maxParallelism int, progressChan chan<- ProgressUp
 	}
 }
 
+// Download downloads every requested file and returns any failures after retries.
 func (d *Downloader) Download(ctx context.Context, requests []DownloadRequest) error {
 	sem := make(chan struct{}, d.maxParallelism)
 	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var failures []error
 
 	for _, req := range requests {
 		wg.Add(1)
@@ -62,15 +66,19 @@ func (d *Downloader) Download(ctx context.Context, requests []DownloadRequest) e
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			d.downloadFile(ctx, req)
+			if err := d.downloadFile(ctx, req); err != nil {
+				mu.Lock()
+				failures = append(failures, fmt.Errorf("download %q: %w", req.Id, err))
+				mu.Unlock()
+			}
 		}(req)
 	}
 
 	wg.Wait()
-	return nil
+	return errors.Join(failures...)
 }
 
-func (d *Downloader) downloadFile(ctx context.Context, req DownloadRequest) {
+func (d *Downloader) downloadFile(ctx context.Context, req DownloadRequest) error {
 	for attempt := 0; attempt <= req.Retries; attempt++ {
 		if attempt > 0 {
 			d.sendProgressUpdate(req.Id, 0, 0, fmt.Sprintf("Retrying (%d/%d)", attempt, req.Retries))
@@ -82,12 +90,13 @@ func (d *Downloader) downloadFile(ctx context.Context, req DownloadRequest) {
 				continue
 			}
 			d.sendProgressUpdate(req.Id, 0, 0, fmt.Sprintf("Failed: %v", err))
-			return
+			return err
 		}
 
 		d.sendProgressUpdate(req.Id, 1, 1, "Completed")
-		return
+		return nil
 	}
+	return nil
 }
 
 func (d *Downloader) attemptDownload(ctx context.Context, req DownloadRequest) error {
